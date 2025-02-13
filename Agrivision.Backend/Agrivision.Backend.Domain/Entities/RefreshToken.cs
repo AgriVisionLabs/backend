@@ -1,8 +1,6 @@
-using Microsoft.EntityFrameworkCore;
+namespace Agrivision.Backend.Domain.Entities;
 
-namespace Agrivision.Backend.Infrastructure.Persistence.Identity.Entities;
 
-[Owned]
 public class RefreshToken
 {
     public string Token { get; set; } = string.Empty;

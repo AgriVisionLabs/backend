@@ -1,6 +1,5 @@
 using Agrivision.Backend.Application.Contracts.Auth;
-using Agrivision.Backend.Infrastructure.Services;
-using Microsoft.AspNetCore.Http;
+using Agrivision.Backend.Application.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Agrivision.Backend.Api.Controllers

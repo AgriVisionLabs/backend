@@ -1,22 +1,21 @@
 using System.Security.Cryptography;
+using Agrivision.Backend.Application.Auth;
 using Agrivision.Backend.Application.Contracts.Auth;
-using Agrivision.Backend.Infrastructure.Auth;
-using Agrivision.Backend.Infrastructure.Persistence.Identity;
-using Agrivision.Backend.Infrastructure.Persistence.Identity.Entities;
-using Microsoft.AspNetCore.Identity;
+using Agrivision.Backend.Application.Repositories;
+using Agrivision.Backend.Domain.Entities;
 
-namespace Agrivision.Backend.Infrastructure.Services;
+namespace Agrivision.Backend.Infrastructure.Services.Auth;
 
-public class AuthService(UserManager<ApplicationUser> userManager, IJwtProvider jwtProvider) : IAuthService
+public class AuthService(IUserRepository userRepository, IJwtProvider jwtProvider) : IAuthService
 {
     private readonly int _refreshTokenExpiryDays = 14;
     public async Task<AuthResponse?> GetTokenAsync(string email, string password, CancellationToken cancellationToken = default)
     {
-        var user = await userManager.FindByEmailAsync(email);
+        var user = await userRepository.FindByEmailAsync(email);
         if (user is null)
             return null;
 
-        var isValidPassword = await userManager.CheckPasswordAsync(user, password);
+        var isValidPassword = await userRepository.CheckPasswordAsync(user, password);
         if (!isValidPassword)
             return null;
 
@@ -31,7 +30,7 @@ public class AuthService(UserManager<ApplicationUser> userManager, IJwtProvider 
             ExpiresOn = refreshTokenExpiration
         });
         
-        await userManager.UpdateAsync(user);
+        await userRepository.UpdateAsync(user);
 
         return new AuthResponse(user.Id, user.Email, user.FirstName, user.LastName, token, expiresIn,
             refreshToken, refreshTokenExpiration);
@@ -44,7 +43,7 @@ public class AuthService(UserManager<ApplicationUser> userManager, IJwtProvider 
         if (userId is null)
             return null;
 
-        var user = await userManager.FindByIdAsync(userId);
+        var user = await userRepository.FindByIdAsync(userId);
         if (user is null)
             return null;
 
@@ -70,7 +69,7 @@ public class AuthService(UserManager<ApplicationUser> userManager, IJwtProvider 
             ExpiresOn = refreshTokenExpiration
         });
 
-        await userManager.UpdateAsync(user);
+        await userRepository.UpdateAsync(user);
 
         return new AuthResponse(user.Id, user.Email, user.FirstName, user.LastName, newToken, expiresIn,
             newRefreshToken, refreshTokenExpiration);

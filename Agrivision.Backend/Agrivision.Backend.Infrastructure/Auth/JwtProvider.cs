@@ -1,6 +1,8 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Agrivision.Backend.Application.Auth;
+using Agrivision.Backend.Domain.Entities;
 using Agrivision.Backend.Infrastructure.Persistence.Identity.Entities;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -10,7 +12,7 @@ namespace Agrivision.Backend.Infrastructure.Auth;
 
 public class JwtProvider(IOptions<JwtOptions> options) : IJwtProvider
 {
-    public (string token, int expiresIn) GenerateToken(ApplicationUser user)
+    public (string token, int expiresIn) GenerateToken(IApplicationUser user)
     {
         Claim[] claims =
         [

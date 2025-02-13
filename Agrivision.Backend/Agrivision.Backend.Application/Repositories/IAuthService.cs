@@ -1,6 +1,6 @@
 using Agrivision.Backend.Application.Contracts.Auth;
 
-namespace Agrivision.Backend.Infrastructure.Services;
+namespace Agrivision.Backend.Application.Repositories;
 
 public interface IAuthService
 {

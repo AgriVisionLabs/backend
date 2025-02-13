@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Agrivision.Backend.Api", "Agrivision.Backend.Api\Agrivision.Backend.Api.csproj", "{879E864A-5F0D-453E-8436-B1F462F2A50D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Agrivision.Backend.Domain", "Agrivision.Backend.Domain\Agrivision.Backend.Domain.csproj", "{3DDCD2C2-BAA1-43EE-8887-9DC85F7FB521}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Agrivision.Backend.Application", "Agrivision.Backend.Application\Agrivision.Backend.Application.csproj", "{6043BE86-82D4-4001-B581-5E99334ED2FB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Agrivision.Backend.Infrastructure", "Agrivision.Backend.Infrastructure\Agrivision.Backend.Infrastructure.csproj", "{B41060FF-888B-4C28-B14D-04901ED92114}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{879E864A-5F0D-453E-8436-B1F462F2A50D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{879E864A-5F0D-453E-8436-B1F462F2A50D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{879E864A-5F0D-453E-8436-B1F462F2A50D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{879E864A-5F0D-453E-8436-B1F462F2A50D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3DDCD2C2-BAA1-43EE-8887-9DC85F7FB521}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3DDCD2C2-BAA1-43EE-8887-9DC85F7FB521}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3DDCD2C2-BAA1-43EE-8887-9DC85F7FB521}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3DDCD2C2-BAA1-43EE-8887-9DC85F7FB521}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6043BE86-82D4-4001-B581-5E99334ED2FB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6043BE86-82D4-4001-B581-5E99334ED2FB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6043BE86-82D4-4001-B581-5E99334ED2FB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6043BE86-82D4-4001-B581-5E99334ED2FB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B41060FF-888B-4C28-B14D-04901ED92114}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B41060FF-888B-4C28-B14D-04901ED92114}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B41060FF-888B-4C28-B14D-04901ED92114}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B41060FF-888B-4C28-B14D-04901ED92114}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

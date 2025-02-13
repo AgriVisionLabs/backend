@@ -8,7 +8,7 @@ public class ApplicationUserDbContext(DbContextOptions<ApplicationUserDbContext>
 {
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(InfrastructureAssemblyMarker).Assembly);
         base.OnModelCreating(modelBuilder);
     }
 }

@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Text;
 using Agrivision.Backend.Application.Auth;
 using Agrivision.Backend.Application.Repositories;
@@ -11,14 +12,17 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
+using Serilog;
 
 
 namespace Agrivision.Backend.Infrastructure;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddInfrastructureLayerServices(this IServiceCollection services, IConfiguration config)
+    public static IServiceCollection AddInfrastructureLayerServices(this IServiceCollection services,
+        IConfiguration config)
     {
         services.AddApplicationUserDbContext(config)
             .AddAuthServices(config);
@@ -71,7 +75,47 @@ public static class DependencyInjection
                     ValidAudience = jwtSettings?.Audience,
                 };
             });
-        
+
         return services;
     }
+
+    public static IHostBuilder AddSerilog(this IHostBuilder hostBuilder)
+    {
+        hostBuilder.UseSerilog((context, configuration) =>
+        {
+            var environment = context.HostingEnvironment.EnvironmentName;
+
+            configuration.ReadFrom.Configuration(context.Configuration)
+                .Enrich.FromLogContext()
+                .Enrich.WithMachineName()
+                .Enrich.WithThreadId()
+                .Enrich.WithProcessId();
+            
+            if (environment == "Development")
+            {
+                // Development logging (Verbose, Console + File)
+                configuration
+                    .MinimumLevel.Information()
+                    .WriteTo.Console(outputTemplate:
+                        "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level}] {Message} " +
+                        "[Machine: {MachineName}] [ThreadId: {ThreadId}] [Process: {ProcessId}]{NewLine}{Exception}")
+                    .WriteTo.File("../Logs/dev-log-.log", rollingInterval: RollingInterval.Day,
+                        outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level}] {Message} " +
+                                        "[Machine: {MachineName}] [ThreadId: {ThreadId}] [Process: {ProcessId}]{NewLine}{Exception}");
+            }
+            else // Production
+            {
+                // Production logging (Optimized, JSON format, File only)
+                configuration.MinimumLevel.Warning()
+                    .WriteTo.File(
+                        formatter: new Serilog.Formatting.Compact.CompactJsonFormatter(),
+                        path: "/var/log/agrivision/log-.json",
+                        rollingInterval: RollingInterval.Day
+                    );
+            }
+        });
+        
+        return hostBuilder;
+    }
+
 }

@@ -1,3 +1,4 @@
+using Agrivision.Backend.Application.Abstractions;
 using Agrivision.Backend.Application.Contracts.Auth;
 using Agrivision.Backend.Application.Services.Auth;
 using Microsoft.AspNetCore.Mvc;
@@ -12,14 +13,14 @@ namespace Agrivision.Backend.Api.Controllers
         public async Task<IActionResult> LoginAsync([FromBody] AuthRequest request, CancellationToken cancellationToken = default)
         {
             var res = await authService.GetTokenAsync(request.Email, request.Password, cancellationToken);
-            return res.IsSuccess ? Ok(res.Value) : Problem(statusCode: StatusCodes.Status400BadRequest, title: res.Error.Title, detail: res.Error.Detail);
+            return res.IsSuccess ? Ok(res.Value) : res.ToProblem(StatusCodes.Status400BadRequest);
         }
 
         [HttpPost("refresh")]
         public async Task<IActionResult> Refresh([FromBody] RefreshTokenRequest request, CancellationToken cancellationToken = default)
         {
             var res = await authService.GetRefreshTokenAsync(request.Token, request.RefreshToken, cancellationToken);
-            return res.IsSuccess ? Ok(res.Value) : Problem(statusCode: StatusCodes.Status400BadRequest, title: res.Error.Title, detail: res.Error.Detail);
+            return res.IsSuccess ? Ok(res.Value) : res.ToProblem(StatusCodes.Status400BadRequest);
         }
     }
 }

@@ -1,5 +1,4 @@
 using Agrivision.Backend.Api;
-using Agrivision.Backend.Infrastructure;
 using Agrivision.Backend.Infrastructure.Persistence.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -22,6 +21,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseCors("AllowAny");
 
 app.UseAuthorization();
 

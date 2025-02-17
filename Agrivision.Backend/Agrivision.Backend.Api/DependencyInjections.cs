@@ -9,11 +9,27 @@ public static class DependencyInjections
     {
         services.AddControllers();
         services.AddOpenApi();
-        
+
         services.AddInfrastructureLayerServices(config);
 
-        services.AddApplicationLayerServices();  
+        services.AddApplicationLayerServices();
+
+        services.AddCors();
 
         return services;
     }
+
+    private static IServiceCollection AddCors(this IServiceCollection services)
+    {
+        services.AddCors(options =>
+            options.AddPolicy("AllowAny", builder =>
+                builder.AllowAnyMethod()
+                    .AllowAnyHeader()
+                    .AllowAnyOrigin()
+            )
+        );
+
+        return services;
+    }
+
 }

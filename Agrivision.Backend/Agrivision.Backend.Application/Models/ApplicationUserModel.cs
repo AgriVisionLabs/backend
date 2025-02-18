@@ -4,7 +4,9 @@ using Agrivision.Backend.Domain.Entities;
 
 namespace Agrivision.Backend.Application.Models;
 
-public class ApplicationUserModel : IApplicationUser
+// this a class used to pass the data of something like a RegisterRequest to a function that expects IApplicationUser to then map it to ApplicationUser 
+// you may ask why not just use RegisterRequest -> it is because then we won't be able to use that function for anything but a register request
+public class ApplicationUserModel : IApplicationUser 
 {
     public string Id { get; set; } = string.Empty;
     public string UserName { get; set; } = string.Empty;

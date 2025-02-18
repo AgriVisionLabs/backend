@@ -28,12 +28,15 @@ public class IdentityRepository (UserManager<ApplicationUser> userManager) : IUs
 
     public async Task UpdateAsync(IApplicationUser user)
     {
-        await userManager.UpdateAsync(user.Adapt<ApplicationUser>());
+        if (user is ApplicationUser applicationUser)
+        {
+            await userManager.UpdateAsync(applicationUser);
+        }
     }
     
     public async Task<bool> CreateUserAsync(IApplicationUser user, string password)
     {
-        var applicationUser = new ApplicationUser
+        var applicationUser = new ApplicationUser // this works while mapping using mapster doesn't because doing this creates a new ApplicationUser and ef automatically generates a new id for it meanwhile if we used mapster it won't create an id 
         {
             UserName = user.UserName,
             Email = user.Email,

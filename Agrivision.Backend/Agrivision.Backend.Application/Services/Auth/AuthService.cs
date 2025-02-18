@@ -100,20 +100,24 @@ public class AuthService(IUserRepository userRepository, IJwtProvider jwtProvide
         if (!success)
             return Result.Failure<AuthResponse>(UserErrors.RegistrationFailed);
 
-        var (token, expiresIn) = jwtProvider.GenerateToken(user);
+        var applicationUser = await userRepository.FindByEmailAsync(user.Email);
+        if (applicationUser is null)
+            return Result.Failure<AuthResponse>(UserErrors.UserNotFound); // but this is impossible but just in case like :|
+
+        var (token, expiresIn) = jwtProvider.GenerateToken(applicationUser);
 
         var refreshToken = GenerateRefreshToken();
         var refreshTokenExpiration = DateTime.UtcNow.AddDays(_refreshTokenExpiryDays);
         
-        user.RefreshTokens.Add(new RefreshToken
+        applicationUser.RefreshTokens.Add(new RefreshToken
         {
             Token = refreshToken,
             ExpiresOn = refreshTokenExpiration
         });
         
-        await userRepository.UpdateAsync(user);
+        await userRepository.UpdateAsync(applicationUser);
         
-        var authResponse = new AuthResponse(user.Id, user.Email, user.FirstName, user.LastName, token, expiresIn,
+        var authResponse = new AuthResponse(applicationUser.Id, applicationUser.Email, applicationUser.FirstName, applicationUser.LastName, token, expiresIn,
             refreshToken, refreshTokenExpiration);
 
         return Result.Success(authResponse);

@@ -125,7 +125,7 @@ public static class DependencyInjection
             // password configuration 
             options.Password.RequiredLength = 8;
             // email configuration
-            //// options.SignIn.RequireConfirmedEmail = true;
+            options.SignIn.RequireConfirmedEmail = true;
             options.User.RequireUniqueEmail = true;
         });
         

@@ -12,24 +12,30 @@ namespace Agrivision.Backend.Api.Controllers
         [HttpPost("")]
         public async Task<IActionResult> LoginAsync([FromBody] AuthRequest request, CancellationToken cancellationToken = default)
         {
-            var res = await authService.GetTokenAsync(request, cancellationToken);
-            return res.Succeeded ? Ok(res.Value) : res.ToProblem(res.Error.ToStatusCode());
+            var result = await authService.GetTokenAsync(request, cancellationToken);
+            return result.Succeeded ? Ok(result.Value) : result.ToProblem(result.Error.ToStatusCode());
         }
 
         [HttpPost("refresh")]
         public async Task<IActionResult> RefreshAsync([FromBody] RefreshTokenRequest request, CancellationToken cancellationToken = default)
         {
-            var res = await authService.GetRefreshTokenAsync(request.Token, request.RefreshToken, cancellationToken);
-            return res.Succeeded ? Ok(res.Value) : res.ToProblem(res.Error.ToStatusCode());
+            var result = await authService.GetRefreshTokenAsync(request.Token, request.RefreshToken, cancellationToken);
+            return result.Succeeded ? Ok(result.Value) : result.ToProblem(result.Error.ToStatusCode());
         }
 
         [HttpPost("register")]
         public async Task<IActionResult> RegisterAsync([FromBody] RegisterRequest request,
             CancellationToken cancellationToken = default)
         {
-            var res = await authService.RegisterAsync(request, cancellationToken);
-            if (true)
-                return res.Succeeded ? Ok(res.Value) : res.ToProblem(res.Error.ToStatusCode());
+            var result = await authService.RegisterAsync(request, cancellationToken);
+            return result.Succeeded ? Ok() : result.ToProblem(result.Error.ToStatusCode());
+        }
+
+        [HttpPost("confirm-email")]
+        public async Task<IActionResult> ConfirmEmail([FromBody] ConfirmEmailRequest request)
+        {
+            var result = await authService.ConfirmEmailAsync(request);
+            return result.Succeeded ? Ok() : result.ToProblem(result.Error.ToStatusCode());
         }
     }
 }

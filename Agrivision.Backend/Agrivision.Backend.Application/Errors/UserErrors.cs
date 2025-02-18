@@ -8,4 +8,11 @@ public static class UserErrors
     public static readonly Error UserNotFound = new("User.NotFound", "User not found.");
     public static readonly Error DuplicateEmail = new("User.DuplicateEmail", "A user with this email already exists.");
     public static readonly Error RegistrationFailed = new("User.RegistrationFailed", "Registration failed.");
+    public static readonly Error EmailNotConfirmed = new("User.EmailNotConfirmed", "Email is not confirmed.");
+    public static readonly Error InvalidEmailConfirmationCode = new("User.InvalidEmailConfirmationCode", "Invalid email confirmation code.");
+    public static readonly Error EmailAlreadyConfirmed =
+        new("User.EmailAlreadyConfirmed", "The email is already confirmed.");
+
+    public static readonly Error EmailConfirmationFailed =
+        new("User.EmailConfirmationFailed", "Email confirmation failed.");
 }

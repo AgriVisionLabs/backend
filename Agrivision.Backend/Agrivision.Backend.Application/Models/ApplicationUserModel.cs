@@ -15,6 +15,7 @@ public class ApplicationUserModel : IApplicationUser
     public string LastName { get; set; } = string.Empty;
     public DateTime? PasswordChangedAt { get; set; }
     public ApplicationUserStatus Status { get; set; } = ApplicationUserStatus.Active;
+    public bool EmailConfirmed { get; set; } = false;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime? UpdatedAt { get; set; }
     public List<RefreshToken> RefreshTokens { get; set; } = [];

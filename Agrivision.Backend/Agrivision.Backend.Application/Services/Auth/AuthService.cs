@@ -1,26 +1,34 @@
 using System.Security.Cryptography;
+using System.Text;
 using Agrivision.Backend.Application.Abstractions;
 using Agrivision.Backend.Application.Auth;
 using Agrivision.Backend.Application.Contracts.Auth;
+using Agrivision.Backend.Application.Enums;
 using Agrivision.Backend.Application.Errors;
 using Agrivision.Backend.Application.Models;
 using Agrivision.Backend.Application.Repositories;
 using Agrivision.Backend.Domain.Entities;
+using Microsoft.Extensions.Logging;
 
 namespace Agrivision.Backend.Application.Services.Auth;
 
-public class AuthService(IUserRepository userRepository, IJwtProvider jwtProvider) : IAuthService
+public class AuthService(IUserRepository userRepository, IAuthRepository authRepository, IJwtProvider jwtProvider, ILogger<AuthService> logger) : IAuthService
 {
     private readonly int _refreshTokenExpiryDays = 14;
     public async Task<Result<AuthResponse>> GetTokenAsync(AuthRequest request, CancellationToken cancellationToken = default)
     {
-        var user = await userRepository.FindByEmailAsync(request.Email);
-        if (user is null)
+        if (await userRepository.FindByEmailAsync(request.Email) is not { } user) // if the output of the userRepository.FindByEmail is not an object then return the error otherwise assign the value to user 
             return Result.Failure<AuthResponse>(UserErrors.InvalidCredentials);
 
-        var isValidPassword = await userRepository.CheckPasswordAsync(user, request.Password);
-        if (!isValidPassword)
-            return Result.Failure<AuthResponse>(UserErrors.InvalidCredentials);
+        var result = await authRepository.PasswordSignInAsync(user, request.Password);
+        
+        switch (result)
+        {
+            case SignInStatus.InvalidCredentials:
+                return Result.Failure<AuthResponse>(UserErrors.InvalidCredentials);
+            case SignInStatus.EmailNotConfirmed:
+                return Result.Failure<AuthResponse>(UserErrors.EmailNotConfirmed);
+        }
 
         var (token, expiresIn) = jwtProvider.GenerateToken(user);
 
@@ -39,6 +47,7 @@ public class AuthService(IUserRepository userRepository, IJwtProvider jwtProvide
             refreshToken, refreshTokenExpiration);
 
         return Result.Success(authResponse);
+
     }
 
     public async Task<Result<AuthResponse>> GetRefreshTokenAsync(string token, string refreshToken,
@@ -82,10 +91,10 @@ public class AuthService(IUserRepository userRepository, IJwtProvider jwtProvide
         return Result.Success(authResponse);
     }
 
-    public async Task<Result<AuthResponse>> RegisterAsync(RegisterRequest request, CancellationToken cancellationToken)
+    public async Task<Result> RegisterAsync(RegisterRequest request, CancellationToken cancellationToken)
     {
         if (await userRepository.FindByEmailAsync(request.Email) is not null)
-            return Result.Failure<AuthResponse>(UserErrors.DuplicateEmail);
+            return Result.Failure(UserErrors.DuplicateEmail);
 
         var user = new ApplicationUserModel
         {
@@ -104,23 +113,29 @@ public class AuthService(IUserRepository userRepository, IJwtProvider jwtProvide
         if (applicationUser is null)
             return Result.Failure<AuthResponse>(UserErrors.UserNotFound); // but this is impossible but just in case like :|
 
-        var (token, expiresIn) = jwtProvider.GenerateToken(applicationUser);
-
-        var refreshToken = GenerateRefreshToken();
-        var refreshTokenExpiration = DateTime.UtcNow.AddDays(_refreshTokenExpiryDays);
+        var code = await userRepository.GenerateEmailConfirmationTokenInLinkAsync(applicationUser);
         
-        applicationUser.RefreshTokens.Add(new RefreshToken
+        logger.LogInformation("Confirmation Code: {code}", code);
+        
+        return Result.Success();
+    }
+    
+    public async Task<Result> ConfirmEmailAsync(ConfirmEmailRequest request)
+    {
+        if (await userRepository.FindByIdAsync(request.UserId) is not { } user)  
+            return Result.Failure(UserErrors.InvalidEmailConfirmationCode); // we used invalid confirmation email instead of UserNotFound so we don't just outright admit that the user doesn't exist 
+
+        if (user.EmailConfirmed)
+            return Result.Failure(UserErrors.EmailAlreadyConfirmed);
+
+        if (!userRepository.TryDecodeConfirmationToken(request.Code, out var decodedCode))
         {
-            Token = refreshToken,
-            ExpiresOn = refreshTokenExpiration
-        });
-        
-        await userRepository.UpdateAsync(applicationUser);
-        
-        var authResponse = new AuthResponse(applicationUser.Id, applicationUser.Email, applicationUser.FirstName, applicationUser.LastName, token, expiresIn,
-            refreshToken, refreshTokenExpiration);
+            return Result.Failure<string>(UserErrors.InvalidEmailConfirmationCode);
+        }
 
-        return Result.Success(authResponse);
+        var result = await userRepository.ConfirmEmailAsync(user, decodedCode);
+
+        return result ? Result.Success() : Result.Failure(UserErrors.EmailConfirmationFailed);
     }
 
 

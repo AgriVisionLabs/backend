@@ -1,11 +1,10 @@
 using System.Text;
 using Agrivision.Backend.Application.Auth;
 using Agrivision.Backend.Application.Repositories;
-using Agrivision.Backend.Application.Services.Auth;
 using Agrivision.Backend.Infrastructure.Auth;
 using Agrivision.Backend.Infrastructure.Persistence.Identity;
 using Agrivision.Backend.Infrastructure.Persistence.Identity.Entities;
-using Agrivision.Backend.Infrastructure.Persistence.Identity.Repositories;
+using Agrivision.Backend.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -23,9 +22,13 @@ public static class DependencyInjection
     public static IServiceCollection AddInfrastructureLayerServices(this IServiceCollection services,
         IConfiguration config)
     {
-        services.AddApplicationUserDbContext(config)
-            .AddIdentityAuth(config)
-            .AddIdentityConfigurations();
+        services.AddApplicationUserDbContext(config);
+        
+        services.AddIdentityServices();
+
+        services.AddAuthenticationServices(config);
+        
+        services.AddIdentityConfigurations();
         return services;
     }
 
@@ -40,13 +43,21 @@ public static class DependencyInjection
         return services;
     }
 
-    private static IServiceCollection AddIdentityAuth(this IServiceCollection services, IConfiguration config)
+    private static IServiceCollection AddIdentityServices(this IServiceCollection services)
+    {
+        services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IAuthRepository, AuthRepository>();
+        
+        services.AddIdentity<ApplicationUser, IdentityRole>()
+            .AddEntityFrameworkStores<ApplicationUserDbContext>()
+            .AddDefaultTokenProviders(); // added this to allow the Confirmation Email token to be generated otherwise it will throw an exception since it doesn't know which token provider to use but here we are telling it to use the default 
+
+        return services;
+    }
+    
+    private static IServiceCollection AddAuthenticationServices(this IServiceCollection services, IConfiguration config)
     {
         services.AddSingleton<IJwtProvider, JwtProvider>();
-        services.AddScoped<IUserRepository, IdentityRepository>();
-
-        services.AddIdentity<ApplicationUser, IdentityRole>()
-            .AddEntityFrameworkStores<ApplicationUserDbContext>();
 
         services.AddOptions<JwtOptions>()
             .BindConfiguration(JwtOptions.SectionName)

@@ -1,12 +1,14 @@
+using System.Data;
+using System.Text;
 using Agrivision.Backend.Application.Repositories;
 using Agrivision.Backend.Domain.Entities;
 using Agrivision.Backend.Infrastructure.Persistence.Identity.Entities;
-using Mapster;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.WebUtilities;
 
-namespace Agrivision.Backend.Infrastructure.Persistence.Identity.Repositories;
+namespace Agrivision.Backend.Infrastructure.Repositories;
 
-public class IdentityRepository (UserManager<ApplicationUser> userManager) : IUserRepository
+public class UserRepository (UserManager<ApplicationUser> userManager) : IUserRepository
 {
     public async Task<IApplicationUser?> FindByEmailAsync(string email)
     {
@@ -46,5 +48,43 @@ public class IdentityRepository (UserManager<ApplicationUser> userManager) : IUs
         
         var result = await userManager.CreateAsync(applicationUser, password);
         return result.Succeeded;
+    }
+
+    public async Task<string> GenerateEmailConfirmationTokenInLinkAsync(IApplicationUser user)
+    {
+        if (user is ApplicationUser applicationUser)
+        {
+            var code = await userManager.GenerateEmailConfirmationTokenAsync(applicationUser);
+            code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+            return code;
+        }
+
+        throw new Exception("Can't use GenerateEmailConfirmationTokenAsync with non ApplicationUser type objects");
+    }
+
+    public bool TryDecodeConfirmationToken(string code, out string decodedCode)
+    {
+        try
+        {
+            decodedCode = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(code));
+            return true;
+        }
+        catch (FormatException)
+        {
+            decodedCode = string.Empty;
+            return false;
+        }
+    }
+
+    public async Task<bool> ConfirmEmailAsync(IApplicationUser user, string code)
+    {
+        if (user is ApplicationUser applicationUser)
+        {
+            var result = await userManager.ConfirmEmailAsync(applicationUser, code);
+
+            return result.Succeeded;
+        }
+
+        throw new Exception("Can't use ConfirmEmailAsync with non ApplicationUser type objects");
     }
 }

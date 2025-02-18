@@ -13,6 +13,7 @@ public interface IApplicationUser
     // Security Features
     public DateTime? PasswordChangedAt { get; set; }
     public ApplicationUserStatus Status { get; set; }
+    public bool EmailConfirmed { get; set; }
 
     // Activity Tracking
     public DateTime CreatedAt { get; set; }

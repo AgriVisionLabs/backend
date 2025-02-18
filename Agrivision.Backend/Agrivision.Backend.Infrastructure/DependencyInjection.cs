@@ -1,4 +1,3 @@
-using System.Collections.Immutable;
 using System.Text;
 using Agrivision.Backend.Application.Auth;
 using Agrivision.Backend.Application.Repositories;
@@ -6,7 +5,7 @@ using Agrivision.Backend.Application.Services.Auth;
 using Agrivision.Backend.Infrastructure.Auth;
 using Agrivision.Backend.Infrastructure.Persistence.Identity;
 using Agrivision.Backend.Infrastructure.Persistence.Identity.Entities;
-using Agrivision.Backend.Infrastructure.Services.Auth;
+using Agrivision.Backend.Infrastructure.Persistence.Identity.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -25,7 +24,8 @@ public static class DependencyInjection
         IConfiguration config)
     {
         services.AddApplicationUserDbContext(config)
-            .AddAuthServices(config);
+            .AddIdentityAuth(config)
+            .AddIdentityConfigurations();
         return services;
     }
 
@@ -40,9 +40,8 @@ public static class DependencyInjection
         return services;
     }
 
-    private static IServiceCollection AddAuthServices(this IServiceCollection services, IConfiguration config)
+    private static IServiceCollection AddIdentityAuth(this IServiceCollection services, IConfiguration config)
     {
-        services.AddScoped<IAuthService, AuthService>();
         services.AddSingleton<IJwtProvider, JwtProvider>();
         services.AddScoped<IUserRepository, IdentityRepository>();
 
@@ -90,7 +89,7 @@ public static class DependencyInjection
                 .Enrich.WithMachineName()
                 .Enrich.WithThreadId()
                 .Enrich.WithProcessId();
-            
+
             if (environment == "Development")
             {
                 // Development logging (Verbose, Console + File)
@@ -109,13 +108,29 @@ public static class DependencyInjection
                 configuration.MinimumLevel.Warning()
                     .WriteTo.File(
                         formatter: new Serilog.Formatting.Compact.CompactJsonFormatter(),
-                        path: "/var/log/agrivision/log-.json",
+                        path: "../agrivision/log-.json",
                         rollingInterval: RollingInterval.Day
                     );
             }
         });
-        
+
         return hostBuilder;
+    }
+
+    private static IServiceCollection AddIdentityConfigurations(this IServiceCollection services)
+    {
+        
+        services.Configure<IdentityOptions>(options =>
+        {
+            // password configuration 
+            options.Password.RequiredLength = 8;
+            // email configuration
+            //// options.SignIn.RequireConfirmedEmail = true;
+            options.User.RequireUniqueEmail = true;
+        });
+        
+
+        return services;
     }
 
 }

@@ -1,13 +1,13 @@
-using Microsoft.AspNetCore.Http;
+using Agrivision.Backend.Application.Abstractions;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Agrivision.Backend.Application.Abstractions;
+namespace Agrivision.Backend.Api.Extensions;
 
 public static class ResultExtensions
 {
     public static ObjectResult ToProblem(this Result result, int statusCode)
     {
-        if (result.IsSuccess)
+        if (result.Succeeded)
             throw new InvalidOperationException("Cannot convert success result to a problem");
 
         var problem = Results.Problem(statusCode: statusCode);

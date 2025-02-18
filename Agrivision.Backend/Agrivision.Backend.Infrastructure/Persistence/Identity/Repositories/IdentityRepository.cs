@@ -1,8 +1,10 @@
 using Agrivision.Backend.Application.Repositories;
 using Agrivision.Backend.Domain.Entities;
+using Agrivision.Backend.Infrastructure.Persistence.Identity.Entities;
+using Mapster;
 using Microsoft.AspNetCore.Identity;
 
-namespace Agrivision.Backend.Infrastructure.Persistence.Identity.Entities;
+namespace Agrivision.Backend.Infrastructure.Persistence.Identity.Repositories;
 
 public class IdentityRepository (UserManager<ApplicationUser> userManager) : IUserRepository
 {
@@ -26,9 +28,20 @@ public class IdentityRepository (UserManager<ApplicationUser> userManager) : IUs
 
     public async Task UpdateAsync(IApplicationUser user)
     {
-        if (user is ApplicationUser applicationUser)
+        await userManager.UpdateAsync(user.Adapt<ApplicationUser>());
+    }
+    
+    public async Task<bool> CreateUserAsync(IApplicationUser user, string password)
+    {
+        var applicationUser = new ApplicationUser
         {
-            await userManager.UpdateAsync(applicationUser);
-        }
+            UserName = user.UserName,
+            Email = user.Email,
+            FirstName = user.FirstName,
+            LastName = user.LastName
+        };
+        
+        var result = await userManager.CreateAsync(applicationUser, password);
+        return result.Succeeded;
     }
 }

@@ -3,7 +3,6 @@ using System.Security.Claims;
 using System.Text;
 using Agrivision.Backend.Application.Auth;
 using Agrivision.Backend.Domain.Entities;
-using Agrivision.Backend.Infrastructure.Persistence.Identity.Entities;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using JwtRegisteredClaimNames = Microsoft.IdentityModel.JsonWebTokens.JwtRegisteredClaimNames;

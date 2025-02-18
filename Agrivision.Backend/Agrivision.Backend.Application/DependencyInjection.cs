@@ -1,4 +1,5 @@
 using Agrivision.Backend.Application.Errors;
+using Agrivision.Backend.Application.Services.Auth;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -11,7 +12,8 @@ public static class DependencyInjection
     {
         services.AddFluentValidationConfig();
         services.AddExceptionHandler();
-
+        services.AddAuthService();
+        
         return services;
     }
 
@@ -27,6 +29,13 @@ public static class DependencyInjection
     {
         services.AddExceptionHandler<GlobalExceptionHandler>(); // to register the GlobalExceptionHandler as the default exception handler
         services.AddProblemDetails(); // to be able to use the problem details class ig
+
+        return services;
+    }
+
+    private static IServiceCollection AddAuthService(this IServiceCollection services)
+    {
+        services.AddScoped<IAuthService, AuthService>();
 
         return services;
     }

@@ -8,9 +8,11 @@
 
     <ItemGroup>
       <Folder Include="Persistence\Farm\EntitiesConfigurations\" />
+      <Folder Include="Services\Auth\" />
     </ItemGroup>
 
     <ItemGroup>
+      <PackageReference Include="Mapster" Version="7.4.0" />
       <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.2" />
       <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.2" />
       <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.2" />

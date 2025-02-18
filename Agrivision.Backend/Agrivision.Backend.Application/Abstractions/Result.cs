@@ -2,16 +2,16 @@ namespace Agrivision.Backend.Application.Abstractions;
 
 public class Result
 {
-    public bool IsSuccess { get; }
-    public bool IsFailure => !IsSuccess;
+    public bool Succeeded { get; }
+    public bool Failed => !Succeeded;
     public Error Error = Error.None;
 
-    public Result(bool isSuccess, Error error)
+    public Result(bool succeeded, Error error)
     {
-        if ((isSuccess && error != Error.None) || (!isSuccess && error == Error.None))
+        if ((succeeded && error != Error.None) || (!succeeded && error == Error.None))
             throw new InvalidOperationException();
 
-        IsSuccess = isSuccess;
+        Succeeded = succeeded;
         Error = error;
     }
 
@@ -24,5 +24,5 @@ public class Result
 public class Result<TValue>(bool isSuccess, Error error, TValue? value) : Result(isSuccess, error)
 {
     public TValue Value =>
-        IsSuccess ? value! : throw new InvalidOperationException("Failure results cannot contain a value");  // throw the exception since he is trying to access the Value while IsSuccess is false
+        Succeeded ? value! : throw new InvalidOperationException("Failure results cannot contain a value");  // throw the exception since he is trying to access the Value while IsSuccess is false
 }

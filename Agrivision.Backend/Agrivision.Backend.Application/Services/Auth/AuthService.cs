@@ -107,11 +107,11 @@ public class AuthService(IUserRepository userRepository, IAuthRepository authRep
         var success = await userRepository.CreateUserAsync(user, request.Password);
 
         if (!success)
-            return Result.Failure<AuthResponse>(UserErrors.RegistrationFailed);
+            return Result.Failure(UserErrors.RegistrationFailed);
 
         var applicationUser = await userRepository.FindByEmailAsync(user.Email);
         if (applicationUser is null)
-            return Result.Failure<AuthResponse>(UserErrors.UserNotFound); // but this is impossible but just in case like :|
+            return Result.Failure(UserErrors.UserNotFound); // but this is impossible but just in case like :|
 
         var code = await userRepository.GenerateEmailConfirmationTokenInLinkAsync(applicationUser);
         
@@ -136,6 +136,21 @@ public class AuthService(IUserRepository userRepository, IAuthRepository authRep
         var result = await userRepository.ConfirmEmailAsync(user, decodedCode);
 
         return result ? Result.Success() : Result.Failure(UserErrors.EmailConfirmationFailed);
+    }
+
+    public async Task<Result> ResendConfirmationEmailAsync(ResendConfirmationEmailRequest request)
+    {
+        if (await userRepository.FindByEmailAsync(request.Email) is not { } user)
+            return Result.Success();
+
+        if (user.EmailConfirmed)
+            return Result.Failure(UserErrors.EmailAlreadyConfirmed);
+
+        var code = await userRepository.GenerateEmailConfirmationTokenInLinkAsync(user);
+
+        logger.LogInformation("Confirmation Code: {code}", code);
+
+        return Result.Success();
     }
 
 

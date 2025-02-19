@@ -37,5 +37,12 @@ namespace Agrivision.Backend.Api.Controllers
             var result = await authService.ConfirmEmailAsync(request);
             return result.Succeeded ? Ok() : result.ToProblem(result.Error.ToStatusCode());
         }
+
+        [HttpPost("resend-confirmation-email")]
+        public async Task<IActionResult> ResendConfrimaionEmail([FromBody] ResendConfirmationEmailRequest request)
+        {
+            var result = await authService.ResendConfirmationEmailAsync(request);
+            return result.Succeeded ? Ok() : result.ToProblem(result.Error.ToStatusCode());
+        }
     }
 }

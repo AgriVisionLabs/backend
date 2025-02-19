@@ -125,8 +125,8 @@ public class AuthService(IUserRepository userRepository, IAuthRepository authRep
         if (await userRepository.FindByIdAsync(request.UserId) is not { } user)  
             return Result.Failure(UserErrors.InvalidEmailConfirmationCode); // we used invalid confirmation email instead of UserNotFound so we don't just outright admit that the user doesn't exist 
 
-        // if (user.EmailConfirmed)
-        //     return Result.Failure(UserErrors.EmailAlreadyConfirmed);
+        if (user.EmailConfirmed)
+            return Result.Failure(UserErrors.EmailAlreadyConfirmed);
 
         if (!userRepository.TryDecodeConfirmationToken(request.Code, out var decodedCode))
         {

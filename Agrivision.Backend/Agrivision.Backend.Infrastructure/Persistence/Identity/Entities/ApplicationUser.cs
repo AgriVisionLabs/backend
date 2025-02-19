@@ -10,7 +10,6 @@ public class ApplicationUser : IdentityUser, IApplicationUser
     public string LastName { get; set; }
     public DateTime? PasswordChangedAt { get; set; }
     public ApplicationUserStatus Status { get; set; } = ApplicationUserStatus.Active;
-    public bool EmailConfirmed { get; set; } = false;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime? UpdatedAt { get; set; }
     public List<RefreshToken> RefreshTokens { get; set; } = [];

@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Agrivision.Backend.Application.Auth;
+namespace Agrivision.Backend.Infrastructure.Auth;
 
 public class JwtOptions
 {

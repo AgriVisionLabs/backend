@@ -1,20 +1,23 @@
 using System.Security.Cryptography;
+using System.Text;
 using Agrivision.Backend.Application.Auth;
 using Agrivision.Backend.Application.Contracts.Auth;
-using Agrivision.Backend.Application.Enums;
 using Agrivision.Backend.Application.Errors;
 using Agrivision.Backend.Application.Models;
 using Agrivision.Backend.Application.Repositories;
 using Agrivision.Backend.Application.Services.Email;
+using Agrivision.Backend.Application.Settings;
 using Agrivision.Backend.Domain.Abstractions;
 using Agrivision.Backend.Domain.Entities;
+using Agrivision.Backend.Domain.Enums;
 using Agrivision.Backend.Domain.Interfaces;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Agrivision.Backend.Application.Services.Auth;
 
-public class AuthService(IUserRepository userRepository, IAuthRepository authRepository, IJwtProvider jwtProvider, IEmailSender emailSender, IEmailBodyBuilder emailBodyBuilder, ILogger<AuthService> logger) : IAuthService
+public class AuthService(IUserRepository userRepository, IAuthRepository authRepository, IJwtProvider jwtProvider, IEmailSender emailSender, IEmailBodyBuilder emailBodyBuilder, IOptions<AppSettings> appSettings, ILogger<AuthService> logger) : IAuthService
 {
     private readonly int _refreshTokenExpiryDays = 14;
     public async Task<Result<AuthResponse>> GetTokenAsync(AuthRequest request, CancellationToken cancellationToken = default)
@@ -93,7 +96,7 @@ public class AuthService(IUserRepository userRepository, IAuthRepository authRep
         return Result.Success(authResponse);
     }
 
-    public async Task<Result> RegisterAsync(RegisterRequest request, string baseUrl, CancellationToken cancellationToken = default)
+    public async Task<Result> RegisterAsync(RegisterRequest request, CancellationToken cancellationToken = default)
     {
         if (await userRepository.FindByEmailAsync(request.Email) is not null)
             return Result.Failure(UserErrors.DuplicateEmail);
@@ -117,7 +120,7 @@ public class AuthService(IUserRepository userRepository, IAuthRepository authRep
 
         var code = await userRepository.GenerateEmailConfirmationTokenInLinkAsync(applicationUser);
 
-        await SendConfirmationEmail(applicationUser, baseUrl, code);
+        await SendConfirmationEmail(applicationUser, code);
         
         logger.LogInformation("Confirmation Code: {code}", code);
         
@@ -126,7 +129,10 @@ public class AuthService(IUserRepository userRepository, IAuthRepository authRep
     
     public async Task<Result> ConfirmEmailAsync(ConfirmEmailRequest request)
     {
-        if (await userRepository.FindByIdAsync(request.UserId) is not { } user)  
+        if (!userRepository.TryDecodeUserId(request.UserId, out var decodedUserId))
+            return Result.Failure(UserErrors.InvalidEmailConfirmationCode);
+        
+        if (await userRepository.FindByIdAsync(decodedUserId) is not { } user)  
             return Result.Failure(UserErrors.InvalidEmailConfirmationCode); // we used invalid confirmation email instead of UserNotFound so we don't just outright admit that the user doesn't exist 
 
         if (user.EmailConfirmed)
@@ -142,7 +148,7 @@ public class AuthService(IUserRepository userRepository, IAuthRepository authRep
         return result ? Result.Success() : Result.Failure(UserErrors.EmailConfirmationFailed);
     }
 
-    public async Task<Result> ResendConfirmationEmailAsync(ResendConfirmationEmailRequest request, string baseUrl)
+    public async Task<Result> ResendConfirmationEmailAsync(ResendConfirmationEmailRequest request)
     {
         if (await userRepository.FindByEmailAsync(request.Email) is not { } user)
             return Result.Success();
@@ -152,7 +158,7 @@ public class AuthService(IUserRepository userRepository, IAuthRepository authRep
 
         var code = await userRepository.GenerateEmailConfirmationTokenInLinkAsync(user);
         
-        await SendConfirmationEmail(user, baseUrl, code);
+        await SendConfirmationEmail(user, code);
 
         logger.LogInformation("Confirmation Code: {code}", code);
 
@@ -165,12 +171,14 @@ public class AuthService(IUserRepository userRepository, IAuthRepository authRep
         return Convert.ToBase64String(RandomNumberGenerator.GetBytes(128));
     }
 
-    private async Task SendConfirmationEmail(IApplicationUser user, string baseUrl, string code)
+    private async Task SendConfirmationEmail(IApplicationUser user, string code)
     {
+        var encodedUserId = userRepository.EncodeUserId(user.Id);
         
+        logger.LogInformation("Encoded UserId: {encodedUserId}", encodedUserId);
         var emailBody = emailBodyBuilder.GenerateEmailBody("EmailConfirmation", new Dictionary<string, string>
         {
-            {"{{link}}", $"{baseUrl}/auth/emailConfirmation?userId={user.Id}&code={code}"}
+            {"{{link}}", $"{appSettings.Value.BaseUrl}/auth/emailConfirmation?userId={encodedUserId}&code={code}"}
         });
 
         await emailSender.SendEmailAsync(user.Email, "Agrivision: Email Confirmation", emailBody);

@@ -1,4 +1,4 @@
-namespace Agrivision.Backend.Application.Enums;
+namespace Agrivision.Backend.Domain.Enums;
 
 public enum SignInStatus
 {

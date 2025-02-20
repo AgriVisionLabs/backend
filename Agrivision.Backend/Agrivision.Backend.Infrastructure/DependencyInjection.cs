@@ -2,6 +2,7 @@ using System.Text;
 using Agrivision.Backend.Application.Auth;
 using Agrivision.Backend.Application.Repositories;
 using Agrivision.Backend.Application.Services.Email;
+using Agrivision.Backend.Application.Settings;
 using Agrivision.Backend.Infrastructure.Auth;
 using Agrivision.Backend.Infrastructure.Persistence.Identity;
 using Agrivision.Backend.Infrastructure.Persistence.Identity.Entities;
@@ -39,6 +40,8 @@ public static class DependencyInjection
         services.AddEmailSender();
 
         services.AddEmailBodyBuilder();
+
+        services.MapAppSettings(config);
         
         return services;
     }
@@ -130,7 +133,7 @@ public static class DependencyInjection
                 configuration.MinimumLevel.Warning()
                     .WriteTo.File(
                         formatter: new Serilog.Formatting.Compact.CompactJsonFormatter(),
-                        path: "../agrivision/log-.json",
+                        path: "../agrivision/logs/log-.log",
                         rollingInterval: RollingInterval.Day
                     );
             }
@@ -158,6 +161,13 @@ public static class DependencyInjection
     private static IServiceCollection MapEmailSettings(this IServiceCollection services, IConfiguration configuration)
     {
         services.Configure<MailSettings>(configuration.GetSection(nameof(MailSettings)));
+
+        return services;
+    }
+
+    private static IServiceCollection MapAppSettings(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.Configure<AppSettings>(configuration.GetSection(nameof(AppSettings)));
 
         return services;
     }

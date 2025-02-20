@@ -12,4 +12,6 @@ public interface IUserRepository
     Task<string> GenerateEmailConfirmationTokenInLinkAsync(IApplicationUser user);
     bool TryDecodeConfirmationToken(string code, out string decodedCode);
     Task<bool> ConfirmEmailAsync(IApplicationUser user, string code);
+    bool TryDecodeUserId(string userId, out string decodedUserId);
+    string EncodeUserId(string userId);
 }

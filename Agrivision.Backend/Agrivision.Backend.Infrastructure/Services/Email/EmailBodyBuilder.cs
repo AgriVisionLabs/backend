@@ -7,7 +7,7 @@ public class EmailBodyBuilder : IEmailBodyBuilder
 {
     public string GenerateEmailBody(string template, Dictionary<string, string> templateModel)
     {
-        var templatePath = $"/Users/youssef/Developer/Projects/Agrivision/backend/Agrivision.Backend/Agrivision.Backend.Infrastructure/Templates/{template}.html";
+        var templatePath = $"../Agrivision.Backend.Infrastructure/Templates/{template}.html";
         var streamReader = new StreamReader(templatePath);
         var body = streamReader.ReadToEnd();
         streamReader.Close();

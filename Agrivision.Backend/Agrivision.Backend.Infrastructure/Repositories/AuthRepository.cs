@@ -1,5 +1,5 @@
-using Agrivision.Backend.Application.Enums;
 using Agrivision.Backend.Application.Repositories;
+using Agrivision.Backend.Domain.Enums;
 using Agrivision.Backend.Domain.Interfaces;
 using Agrivision.Backend.Infrastructure.Persistence.Identity.Entities;
 using Microsoft.AspNetCore.Identity;
@@ -17,6 +17,6 @@ public class AuthRepository(SignInManager<ApplicationUser> signInManager) : IAut
         
         if (result.Succeeded) return SignInStatus.Success;
         
-        return result.IsNotAllowed ? SignInStatus.EmailNotConfirmed : SignInStatus.InvalidCredentials;
+        return result.IsNotAllowed ? SignInStatus.EmailNotConfirmed : SignInStatus.InvalidCredentials; // we do this because we can't return signin result because it is an identity member 
     }
 }

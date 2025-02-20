@@ -1,5 +1,4 @@
-using Agrivision.Backend.Domain.Entities;
-using Microsoft.AspNetCore.Identity;
+using Agrivision.Backend.Domain.Interfaces;
 
 namespace Agrivision.Backend.Application.Repositories;
 

@@ -1,18 +1,20 @@
 using System.Security.Cryptography;
-using System.Text;
-using Agrivision.Backend.Application.Abstractions;
 using Agrivision.Backend.Application.Auth;
 using Agrivision.Backend.Application.Contracts.Auth;
 using Agrivision.Backend.Application.Enums;
 using Agrivision.Backend.Application.Errors;
 using Agrivision.Backend.Application.Models;
 using Agrivision.Backend.Application.Repositories;
+using Agrivision.Backend.Application.Services.Email;
+using Agrivision.Backend.Domain.Abstractions;
 using Agrivision.Backend.Domain.Entities;
+using Agrivision.Backend.Domain.Interfaces;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.Extensions.Logging;
 
 namespace Agrivision.Backend.Application.Services.Auth;
 
-public class AuthService(IUserRepository userRepository, IAuthRepository authRepository, IJwtProvider jwtProvider, ILogger<AuthService> logger) : IAuthService
+public class AuthService(IUserRepository userRepository, IAuthRepository authRepository, IJwtProvider jwtProvider, IEmailSender emailSender, IEmailBodyBuilder emailBodyBuilder, ILogger<AuthService> logger) : IAuthService
 {
     private readonly int _refreshTokenExpiryDays = 14;
     public async Task<Result<AuthResponse>> GetTokenAsync(AuthRequest request, CancellationToken cancellationToken = default)
@@ -91,7 +93,7 @@ public class AuthService(IUserRepository userRepository, IAuthRepository authRep
         return Result.Success(authResponse);
     }
 
-    public async Task<Result> RegisterAsync(RegisterRequest request, CancellationToken cancellationToken)
+    public async Task<Result> RegisterAsync(RegisterRequest request, string baseUrl, CancellationToken cancellationToken = default)
     {
         if (await userRepository.FindByEmailAsync(request.Email) is not null)
             return Result.Failure(UserErrors.DuplicateEmail);
@@ -114,6 +116,8 @@ public class AuthService(IUserRepository userRepository, IAuthRepository authRep
             return Result.Failure(UserErrors.UserNotFound); // but this is impossible but just in case like :|
 
         var code = await userRepository.GenerateEmailConfirmationTokenInLinkAsync(applicationUser);
+
+        await SendConfirmationEmail(applicationUser, baseUrl, code);
         
         logger.LogInformation("Confirmation Code: {code}", code);
         
@@ -138,7 +142,7 @@ public class AuthService(IUserRepository userRepository, IAuthRepository authRep
         return result ? Result.Success() : Result.Failure(UserErrors.EmailConfirmationFailed);
     }
 
-    public async Task<Result> ResendConfirmationEmailAsync(ResendConfirmationEmailRequest request)
+    public async Task<Result> ResendConfirmationEmailAsync(ResendConfirmationEmailRequest request, string baseUrl)
     {
         if (await userRepository.FindByEmailAsync(request.Email) is not { } user)
             return Result.Success();
@@ -147,6 +151,8 @@ public class AuthService(IUserRepository userRepository, IAuthRepository authRep
             return Result.Failure(UserErrors.EmailAlreadyConfirmed);
 
         var code = await userRepository.GenerateEmailConfirmationTokenInLinkAsync(user);
+        
+        await SendConfirmationEmail(user, baseUrl, code);
 
         logger.LogInformation("Confirmation Code: {code}", code);
 
@@ -157,5 +163,16 @@ public class AuthService(IUserRepository userRepository, IAuthRepository authRep
     private static string GenerateRefreshToken()
     {
         return Convert.ToBase64String(RandomNumberGenerator.GetBytes(128));
+    }
+
+    private async Task SendConfirmationEmail(IApplicationUser user, string baseUrl, string code)
+    {
+        
+        var emailBody = emailBodyBuilder.GenerateEmailBody("EmailConfirmation", new Dictionary<string, string>
+        {
+            {"{{link}}", $"{baseUrl}/auth/emailConfirmation?userId={user.Id}&code={code}"}
+        });
+
+        await emailSender.SendEmailAsync(user.Email, "Agrivision: Email Confirmation", emailBody);
     }
 }

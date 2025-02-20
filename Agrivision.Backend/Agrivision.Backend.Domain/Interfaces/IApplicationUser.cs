@@ -1,6 +1,7 @@
 using agrivision_backend.Domain.Enums;
+using Agrivision.Backend.Domain.Entities;
 
-namespace Agrivision.Backend.Domain.Entities;
+namespace Agrivision.Backend.Domain.Interfaces;
 
 public interface IApplicationUser
 { 

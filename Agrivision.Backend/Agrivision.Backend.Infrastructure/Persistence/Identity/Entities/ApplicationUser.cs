@@ -1,5 +1,6 @@
 using agrivision_backend.Domain.Enums;
 using Agrivision.Backend.Domain.Entities;
+using Agrivision.Backend.Domain.Interfaces;
 using Microsoft.AspNetCore.Identity;
 
 namespace Agrivision.Backend.Infrastructure.Persistence.Identity.Entities;

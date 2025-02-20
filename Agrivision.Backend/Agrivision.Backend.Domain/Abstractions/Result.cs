@@ -1,4 +1,4 @@
-namespace Agrivision.Backend.Application.Abstractions;
+namespace Agrivision.Backend.Domain.Abstractions;
 
 public class Result
 {

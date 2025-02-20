@@ -1,4 +1,4 @@
-using Agrivision.Backend.Application.Abstractions;
+using Agrivision.Backend.Domain.Abstractions;
 
 namespace Agrivision.Backend.Application.Errors;
 

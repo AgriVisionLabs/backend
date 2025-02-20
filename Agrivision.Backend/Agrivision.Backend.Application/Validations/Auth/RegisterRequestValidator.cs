@@ -1,5 +1,5 @@
-using Agrivision.Backend.Application.Abstractions.Consts;
 using Agrivision.Backend.Application.Contracts.Auth;
+using Agrivision.Backend.Domain.Abstractions.Consts;
 using FluentValidation;
 
 namespace Agrivision.Backend.Application.Validations.Auth;

@@ -1,5 +1,5 @@
 using Agrivision.Backend.Application.Enums;
-using Agrivision.Backend.Domain.Entities;
+using Agrivision.Backend.Domain.Interfaces;
 
 namespace Agrivision.Backend.Application.Repositories;
 

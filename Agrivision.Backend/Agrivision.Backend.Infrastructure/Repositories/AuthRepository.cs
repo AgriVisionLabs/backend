@@ -1,6 +1,6 @@
 using Agrivision.Backend.Application.Enums;
 using Agrivision.Backend.Application.Repositories;
-using Agrivision.Backend.Domain.Entities;
+using Agrivision.Backend.Domain.Interfaces;
 using Agrivision.Backend.Infrastructure.Persistence.Identity.Entities;
 using Microsoft.AspNetCore.Identity;
 

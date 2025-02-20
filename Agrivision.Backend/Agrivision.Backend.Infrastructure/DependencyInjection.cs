@@ -1,12 +1,16 @@
 using System.Text;
 using Agrivision.Backend.Application.Auth;
 using Agrivision.Backend.Application.Repositories;
+using Agrivision.Backend.Application.Services.Email;
 using Agrivision.Backend.Infrastructure.Auth;
 using Agrivision.Backend.Infrastructure.Persistence.Identity;
 using Agrivision.Backend.Infrastructure.Persistence.Identity.Entities;
 using Agrivision.Backend.Infrastructure.Repositories;
+using Agrivision.Backend.Infrastructure.Services.Email;
+using Agrivision.Backend.Infrastructure.Settings;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -29,6 +33,13 @@ public static class DependencyInjection
         services.AddAuthenticationServices(config);
         
         services.AddIdentityConfigurations();
+
+        services.MapEmailSettings(config);
+
+        services.AddEmailSender();
+
+        services.AddEmailBodyBuilder();
+        
         return services;
     }
 
@@ -140,6 +151,27 @@ public static class DependencyInjection
             options.User.RequireUniqueEmail = true;
         });
         
+
+        return services;
+    }
+
+    private static IServiceCollection MapEmailSettings(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.Configure<MailSettings>(configuration.GetSection(nameof(MailSettings)));
+
+        return services;
+    }
+
+    private static IServiceCollection AddEmailSender(this IServiceCollection services)
+    {
+        services.AddScoped<IEmailSender, EmailSender>();
+
+        return services;
+    }
+
+    private static IServiceCollection AddEmailBodyBuilder(this IServiceCollection services)
+    {
+        services.AddScoped<IEmailBodyBuilder, EmailBodyBuilder>();
 
         return services;
     }

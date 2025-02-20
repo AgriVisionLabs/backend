@@ -27,7 +27,8 @@ namespace Agrivision.Backend.Api.Controllers
         public async Task<IActionResult> RegisterAsync([FromBody] RegisterRequest request,
             CancellationToken cancellationToken = default)
         {
-            var result = await authService.RegisterAsync(request, cancellationToken);
+            var baseUrl = $"{Request.Scheme}://{Request.Host}";
+            var result = await authService.RegisterAsync(request, baseUrl,cancellationToken);
             return result.Succeeded ? Ok() : result.ToProblem(result.Error.ToStatusCode());
         }
 
@@ -41,7 +42,8 @@ namespace Agrivision.Backend.Api.Controllers
         [HttpPost("resend-confirmation-email")]
         public async Task<IActionResult> ResendConfrimaionEmail([FromBody] ResendConfirmationEmailRequest request)
         {
-            var result = await authService.ResendConfirmationEmailAsync(request);
+            var baseUrl = $"{Request.Scheme}://{Request.Host}";
+            var result = await authService.ResendConfirmationEmailAsync(request, baseUrl);
             return result.Succeeded ? Ok() : result.ToProblem(result.Error.ToStatusCode());
         }
     }

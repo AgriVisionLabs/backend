@@ -1,4 +1,4 @@
-using Agrivision.Backend.Application.Abstractions;
+using Agrivision.Backend.Domain.Abstractions;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Agrivision.Backend.Api.Extensions;

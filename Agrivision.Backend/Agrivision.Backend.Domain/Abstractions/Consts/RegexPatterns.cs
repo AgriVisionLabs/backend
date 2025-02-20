@@ -1,4 +1,4 @@
-namespace Agrivision.Backend.Application.Abstractions.Consts;
+namespace Agrivision.Backend.Domain.Abstractions.Consts;
 
 public static class RegexPatterns
 {

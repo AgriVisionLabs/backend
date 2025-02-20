@@ -131,11 +131,9 @@ public static class DependencyInjection
             {
                 // Production logging (Optimized, JSON format, File only)
                 configuration.MinimumLevel.Warning()
-                    .WriteTo.File(
-                        formatter: new Serilog.Formatting.Compact.CompactJsonFormatter(),
-                        path: "../agrivision/logs/log-.log",
-                        rollingInterval: RollingInterval.Day
-                    );
+                    .WriteTo.File("../Logs/dev-log-.log", rollingInterval: RollingInterval.Day,
+                        outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level}] {Message} " +
+                                        "[Machine: {MachineName}] [ThreadId: {ThreadId}] [Process: {ProcessId}]{NewLine}{Exception}");
             }
         });
 

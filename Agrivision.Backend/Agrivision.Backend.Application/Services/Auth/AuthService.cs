@@ -100,6 +100,9 @@ public class AuthService(IUserRepository userRepository, IAuthRepository authRep
     {
         if (await userRepository.FindByEmailAsync(request.Email) is not null)
             return Result.Failure(UserErrors.DuplicateEmail);
+        
+        if (await userRepository.FindByUserNameAsync(request.UserName) is not null)
+            return Result.Failure(UserErrors.DuplicateUserName);
 
         var user = new ApplicationUserModel
         {

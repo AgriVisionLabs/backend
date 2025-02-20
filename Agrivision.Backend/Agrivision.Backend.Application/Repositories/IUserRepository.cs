@@ -5,6 +5,7 @@ namespace Agrivision.Backend.Application.Repositories;
 public interface IUserRepository
 {
     Task<IApplicationUser?> FindByEmailAsync(string email);
+    Task<IApplicationUser?> FindByUserNameAsync(string userName);
     Task<IApplicationUser?> FindByIdAsync(string userId);
     Task<bool> CheckPasswordAsync(IApplicationUser user, string password);
     Task UpdateAsync(IApplicationUser user);
@@ -14,4 +15,6 @@ public interface IUserRepository
     Task<bool> ConfirmEmailAsync(IApplicationUser user, string code);
     bool TryDecodeUserId(string userId, out string decodedUserId);
     string EncodeUserId(string userId);
+
+    
 }

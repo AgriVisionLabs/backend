@@ -9,6 +9,7 @@ public static class ErrorMapping
         "User.InvalidCredentials" => StatusCodes.Status401Unauthorized,
         "User.NotFound" => StatusCodes.Status404NotFound,
         "User.DuplicateEmail" => StatusCodes.Status409Conflict,
+        "User.DuplicateUserName" => StatusCodes.Status409Conflict,
         "User.EmailNotConfirmed" => StatusCodes.Status401Unauthorized,
         "User.InvalidEmailConfirmationCode" => StatusCodes.Status401Unauthorized,
         "User.EmailAlreadyConfirmed" => StatusCodes.Status400BadRequest,

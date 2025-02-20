@@ -13,6 +13,11 @@ public class UserRepository (UserManager<ApplicationUser> userManager) : IUserRe
     {
         return await userManager.FindByEmailAsync(email);
     }
+    
+    public async Task<IApplicationUser?> FindByUserNameAsync(string userName)
+    {
+        return await userManager.FindByNameAsync(userName);
+    }
 
     public async Task<IApplicationUser?> FindByIdAsync(string userId)
     {
@@ -44,7 +49,6 @@ public class UserRepository (UserManager<ApplicationUser> userManager) : IUserRe
             FirstName = user.FirstName,
             LastName = user.LastName
         };
-        
         var result = await userManager.CreateAsync(applicationUser, password);
         return result.Succeeded;
     }

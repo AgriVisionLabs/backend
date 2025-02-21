@@ -117,21 +117,20 @@ public static class DependencyInjection
 
             if (environment == "Development")
             {
-                // Development logging (Verbose, Console + File)
                 configuration
                     .MinimumLevel.Information()
                     .WriteTo.Console(outputTemplate:
                         "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level}] {Message} " +
                         "[Machine: {MachineName}] [ThreadId: {ThreadId}] [Process: {ProcessId}]{NewLine}{Exception}")
-                    .WriteTo.File("../Logs/dev-log-.log", rollingInterval: RollingInterval.Day,
+                    .WriteTo.File("../Agrivision/logs/dev-log-.log", rollingInterval: RollingInterval.Day,
                         outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level}] {Message} " +
                                         "[Machine: {MachineName}] [ThreadId: {ThreadId}] [Process: {ProcessId}]{NewLine}{Exception}");
             }
             else // Production
             {
-                // Production logging (Optimized, JSON format, File only)
-                configuration.MinimumLevel.Warning()
-                    .WriteTo.File("../Logs/dev-log-.log", rollingInterval: RollingInterval.Day,
+                configuration
+                    .MinimumLevel.Warning()
+                    .WriteTo.File("../Agrivision/logs/log-.log", rollingInterval: RollingInterval.Day,
                         outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level}] {Message} " +
                                         "[Machine: {MachineName}] [ThreadId: {ThreadId}] [Process: {ProcessId}]{NewLine}{Exception}");
             }

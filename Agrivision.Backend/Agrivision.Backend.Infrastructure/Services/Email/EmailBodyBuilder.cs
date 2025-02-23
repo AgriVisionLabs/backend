@@ -3,9 +3,9 @@ using Agrivision.Backend.Application.Services.Email;
 
 namespace Agrivision.Backend.Infrastructure.Services.Email;
 
-public class EmailBodyBuilder : IEmailBodyBuilder
+public class EmailBodyBuilder
 {
-    public string GenerateEmailBody(string template, Dictionary<string, string> templateModel)
+    public static string GenerateEmailBody(string template, Dictionary<string, string> templateModel)
     {
         var templatePath = $"../Agrivision.Backend.Infrastructure/Templates/{template}.html";
         var streamReader = new StreamReader(templatePath);

@@ -1,4 +1,5 @@
 using Agrivision.Backend.Application.Services.Email;
+using Agrivision.Backend.Application.Settings;
 using Agrivision.Backend.Infrastructure.Settings;
 using MailKit.Net.Smtp;
 using MailKit.Security;
@@ -8,7 +9,7 @@ using MimeKit;
 
 namespace Agrivision.Backend.Infrastructure.Services.Email;
 
-public class EmailService(IOptions<MailSettings> mailSettings, ILogger<EmailService> logger) : IEmailService
+public class EmailService(IOptions<MailSettings> mailSettings,IOptions<AppSettings> appSettings, ILogger<EmailService> logger) : IEmailService
 {
     public async Task SendEmailAsync(string email, string subject, string htmlMessage)
     {
@@ -39,5 +40,15 @@ public class EmailService(IOptions<MailSettings> mailSettings, ILogger<EmailServ
         {
             logger.LogError("❌ Failed to send email: {message}", e.Message);
         }
+    }
+    
+    public async Task SendConfirmationEmail(string email, string token)
+    {
+        var emailBody = EmailBodyBuilder.GenerateEmailBody("EmailConfirmation", new Dictionary<string, string>
+        {
+            {"{{link}}", $"{appSettings.Value.BaseUrl}/auth/emailConfirmation?token={token}"}
+        });
+
+        await SendEmailAsync(email, "Agrivision: Email Confirmation", emailBody);
     }
 }

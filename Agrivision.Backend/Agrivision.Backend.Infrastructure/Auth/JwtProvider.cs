@@ -9,7 +9,7 @@ using JwtRegisteredClaimNames = Microsoft.IdentityModel.JsonWebTokens.JwtRegiste
 
 namespace Agrivision.Backend.Infrastructure.Auth;
 
-public class JwtProvider(IOptions<JwtOptions> options) : IJwtProvider
+public class JwtProvider(IOptions<JwtOptions> jwtOptions) : IJwtProvider
 {
     public (string token, int expiresIn) GenerateToken(IApplicationUser user)
     {
@@ -22,25 +22,27 @@ public class JwtProvider(IOptions<JwtOptions> options) : IJwtProvider
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
         ];
 
-        var symmetricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(options.Value.Key));
+        var symmetricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.Value.Key));
         var signingCredentials = new SigningCredentials(symmetricSecurityKey, SecurityAlgorithms.HmacSha256);
 
         var token = new JwtSecurityToken
         (
-            issuer: options.Value.Issuer,
-            audience: options.Value.Audience,
+            issuer: jwtOptions.Value.Issuer,
+            audience: jwtOptions.Value.Audience,
             claims: claims,
-            expires: DateTime.UtcNow.AddMinutes(options.Value.ExpiryMinutes),
+            expires: DateTime.UtcNow.AddMinutes(jwtOptions.Value.ExpiryMinutes),
             signingCredentials: signingCredentials
         );
 
-        return (token: new JwtSecurityTokenHandler().WriteToken(token), options.Value.ExpiryMinutes);
+        return (token: new JwtSecurityTokenHandler().WriteToken(token), jwtOptions.Value.ExpiryMinutes);
     }
 
-    public string? ValidateToken(string token)
+    public string? ValidateToken(string token, bool isEmailConfirmationToken)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
-        var symmetricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(options.Value.Key));
+        SymmetricSecurityKey symmetricSecurityKey;
+
+        symmetricSecurityKey = !isEmailConfirmationToken ? new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.Value.Key)) : new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.Value.ConfirmationEmailKey));
 
         try
         {
@@ -60,5 +62,28 @@ public class JwtProvider(IOptions<JwtOptions> options) : IJwtProvider
         {
             return null;
         }
+    }
+    
+    public string GenerateEmailConfirmationToken(string userId)
+    {
+        Claim[] claims =
+        [
+            new (JwtRegisteredClaimNames.Sub, userId), // Store User ID
+            new (JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()) // Unique token ID
+        ];
+
+        var symmetricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.Value.ConfirmationEmailKey));
+        var signingCredentials = new SigningCredentials(symmetricSecurityKey, SecurityAlgorithms.HmacSha256);
+
+        var token = new JwtSecurityToken
+        (
+            issuer: jwtOptions.Value.Issuer,
+            audience: jwtOptions.Value.Audience,
+            claims: claims,
+            expires: DateTime.UtcNow.AddMinutes(jwtOptions.Value.ConfirmationEmailExpiryMinutes),
+            signingCredentials: signingCredentials
+        );
+
+        return new JwtSecurityTokenHandler().WriteToken(token);
     }
 }

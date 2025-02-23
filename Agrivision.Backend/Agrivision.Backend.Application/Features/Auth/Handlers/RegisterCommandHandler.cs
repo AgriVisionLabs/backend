@@ -1,3 +1,4 @@
+using Agrivision.Backend.Application.Auth;
 using Agrivision.Backend.Application.Errors;
 using Agrivision.Backend.Application.Features.Auth.Commands;
 using Agrivision.Backend.Application.Models;
@@ -12,7 +13,7 @@ using Microsoft.Extensions.Options;
 
 namespace Agrivision.Backend.Application.Features.Auth.Handlers;
 
-public class RegisterCommandHandler(IUserRepository userRepository, ILogger<RegisterCommandHandler> logger, IEmailBodyBuilder emailBodyBuilder, IOptions<AppSettings> appSettings, IEmailService emailService) : IRequestHandler<RegisterCommand, Result>
+public class RegisterCommandHandler(IUserRepository userRepository, ILogger<RegisterCommandHandler> logger, IOptions<AppSettings> appSettings, IEmailService emailService, IJwtProvider jwtProvider) : IRequestHandler<RegisterCommand, Result>
 {
     public async Task<Result> Handle(RegisterCommand request, CancellationToken cancellationToken)
     {
@@ -40,25 +41,12 @@ public class RegisterCommandHandler(IUserRepository userRepository, ILogger<Regi
         if (applicationUser is null)
             return Result.Failure(UserErrors.UserNotFound); // but this is impossible but just in case like :|
 
-        var code = await userRepository.GenerateEmailConfirmationTokenInLinkAsync(applicationUser);
+        var token = jwtProvider.GenerateEmailConfirmationToken(applicationUser.Id);
 
-        await SendConfirmationEmail(applicationUser, code);
+        await emailService.SendConfirmationEmail(applicationUser.Email, token);
         
-        logger.LogInformation("Confirmation Code: {code}", code);
+        logger.LogInformation("Confirmation Token: {token}", token);
         
         return Result.Success();
-    }
-    
-    private async Task SendConfirmationEmail(IApplicationUser user, string code)
-    {
-        var encodedUserId = userRepository.EncodeUserId(user.Id);
-        
-        logger.LogInformation("Encoded UserId: {encodedUserId}", encodedUserId);
-        var emailBody = emailBodyBuilder.GenerateEmailBody("EmailConfirmation", new Dictionary<string, string>
-        {
-            {"{{link}}", $"{appSettings.Value.BaseUrl}/auth/emailConfirmation?userId={encodedUserId}&code={code}"}
-        });
-
-        await emailService.SendEmailAsync(user.Email, "Agrivision: Email Confirmation", emailBody);
     }
 }

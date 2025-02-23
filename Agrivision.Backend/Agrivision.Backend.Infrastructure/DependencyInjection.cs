@@ -37,9 +37,7 @@ public static class DependencyInjection
         services.MapEmailSettings(config);
 
         services.AddEmailSender();
-
-        services.AddEmailBodyBuilder();
-
+        
         services.MapAppSettings(config);
         
         return services;
@@ -174,12 +172,5 @@ public static class DependencyInjection
 
         return services;
     }
-
-    private static IServiceCollection AddEmailBodyBuilder(this IServiceCollection services)
-    {
-        services.AddScoped<IEmailBodyBuilder, EmailBodyBuilder>();
-
-        return services;
-    }
-
+    
 }

@@ -53,52 +53,7 @@ public class UserRepository (UserManager<ApplicationUser> userManager) : IUserRe
         var result = await userManager.CreateAsync(applicationUser, password);
         return result.Succeeded;
     }
-
-    public async Task<string> GenerateEmailConfirmationTokenInLinkAsync(IApplicationUser user)
-    {
-        if (user is ApplicationUser applicationUser)
-        {
-            var code = await userManager.GenerateEmailConfirmationTokenAsync(applicationUser);
-            code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
-            return code;
-        }
-
-        throw new Exception("Can't use GenerateEmailConfirmationTokenAsync with non ApplicationUser type objects");
-    }
-
-    public bool TryDecodeConfirmationToken(string code, out string decodedCode)
-    {
-        try
-        {
-            decodedCode = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(code));
-            return true;
-        }
-        catch (FormatException)
-        {
-            decodedCode = string.Empty;
-            return false;
-        }
-    }
-
-    public string EncodeUserId(string userId)
-    {
-        return WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(userId));
-    }
-
-    public bool TryDecodeUserId(string userId, out string decodedUserId)
-    {
-        try
-        {
-            decodedUserId = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(userId));
-            return true;
-        }
-        catch (FormatException)
-        {
-            decodedUserId = string.Empty;
-            return false;
-        }
-    }
-
+    
     public async Task<bool> ConfirmEmailAsync(IApplicationUser user, string code)
     {
         if (user is ApplicationUser applicationUser)

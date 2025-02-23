@@ -13,26 +13,18 @@ using Microsoft.Extensions.Options;
 
 namespace Agrivision.Backend.Application.Features.Auth.Handlers;
 
-public class AuthQueryHandler(IAuthRepository authRepository, IUserRepository userRepository, IJwtProvider jwtProvider, IOptions<RefreshTokenSettings> refreshTokenSettings) : IRequestHandler<AuthQuery, Result<AuthResponse>>
+public class AuthQueryHandler(IUserRepository userRepository, IJwtProvider jwtProvider, IOptions<RefreshTokenSettings> refreshTokenSettings) : IRequestHandler<AuthQuery, Result<AuthResponse>>
 {
     public async Task<Result<AuthResponse>> Handle(AuthQuery request, CancellationToken cancellationToken)
     {
         if (await userRepository.FindByEmailAsync(request.Email) is not { } user)
-            return Result.Failure<AuthResponse>(UserErrors.UserNotFound);
+            return Result.Failure<AuthResponse>(UserErrors.InvalidCredentials);
 
-        var checkPasswordResult = await authRepository.PasswordSignInAsync(user, request.Password);
+        if (!await userRepository.CheckPasswordAsync(user, request.Password))
+            return Result.Failure<AuthResponse>(UserErrors.InvalidCredentials);
 
-        switch (checkPasswordResult)
-        {
-            case SignInStatus.InvalidCredentials:
-                return Result.Failure<AuthResponse>(UserErrors.InvalidCredentials);
-            case SignInStatus.EmailNotConfirmed:
-                return Result.Failure<AuthResponse>(UserErrors.EmailNotConfirmed);
-            case SignInStatus.Success:
-                break;
-            default:
-                throw new ArgumentOutOfRangeException();
-        }
+        if (!user.EmailConfirmed)
+            return Result.Failure<AuthResponse>(UserErrors.EmailNotConfirmed);
         
         var (token, expiresIn) = jwtProvider.GenerateToken(user);
         

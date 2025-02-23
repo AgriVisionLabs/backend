@@ -17,7 +17,7 @@ public class ApplicationUserModel : IApplicationUser
     public string? PhoneNumber { get; set; } = string.Empty;
     public DateTime? PasswordChangedAt { get; set; }
     public ApplicationUserStatus Status { get; set; }
-    public bool EmailConfirmed { get; }
+    public bool EmailConfirmed { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
     public List<RefreshToken> RefreshTokens { get; set; }

@@ -11,7 +11,6 @@ using Agrivision.Backend.Infrastructure.Services.Email;
 using Agrivision.Backend.Infrastructure.Settings;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -171,7 +170,7 @@ public static class DependencyInjection
 
     private static IServiceCollection AddEmailSender(this IServiceCollection services)
     {
-        services.AddScoped<IEmailSender, EmailSender>();
+        services.AddScoped<IEmailService, EmailService>();
 
         return services;
     }

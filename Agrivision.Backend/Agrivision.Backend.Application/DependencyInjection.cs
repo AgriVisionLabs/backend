@@ -1,5 +1,5 @@
 using Agrivision.Backend.Application.Errors;
-using Agrivision.Backend.Application.Services.Auth;
+using Agrivision.Backend.Application.Settings;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,7 +12,8 @@ public static class DependencyInjection
     {
         services.AddFluentValidationConfig();
         services.AddExceptionHandler();
-        services.AddAuthService();
+        services.AddMediatRConfiguration();
+        services.AddApplicationLayerSettings();
         
         return services;
     }
@@ -32,12 +33,27 @@ public static class DependencyInjection
 
         return services;
     }
+    
 
-    private static IServiceCollection AddAuthService(this IServiceCollection services)
+    private static IServiceCollection AddMediatRConfiguration(this IServiceCollection services)
     {
-        services.AddScoped<IAuthService, AuthService>();
+        services.AddMediatR(config => config.RegisterServicesFromAssembly(typeof(ApplicationAssemblyMarker).Assembly));
 
         return services;
     }
 
+    private static IServiceCollection AddApplicationLayerSettings(this IServiceCollection services)
+    {
+        services.AddOptions<AppSettings>()
+            .BindConfiguration(AppSettings.SectionName)
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+
+        services.AddOptions<RefreshTokenSettings>()
+            .BindConfiguration(RefreshTokenSettings.SectionName)
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+        
+        return services;
+    }
 }

@@ -47,7 +47,8 @@ public class UserRepository (UserManager<ApplicationUser> userManager) : IUserRe
             UserName = user.UserName,
             Email = user.Email,
             FirstName = user.FirstName,
-            LastName = user.LastName
+            LastName = user.LastName,
+            PhoneNumber = user.PhoneNumber
         };
         var result = await userManager.CreateAsync(applicationUser, password);
         return result.Succeeded;

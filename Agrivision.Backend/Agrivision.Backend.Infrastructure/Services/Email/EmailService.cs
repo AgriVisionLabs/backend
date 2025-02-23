@@ -1,15 +1,14 @@
-using System.Collections.Immutable;
+using Agrivision.Backend.Application.Services.Email;
 using Agrivision.Backend.Infrastructure.Settings;
 using MailKit.Net.Smtp;
 using MailKit.Security;
-using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MimeKit;
 
 namespace Agrivision.Backend.Infrastructure.Services.Email;
 
-public class EmailSender(IOptions<MailSettings> mailSettings, ILogger<EmailSender> logger) : IEmailSender
+public class EmailService(IOptions<MailSettings> mailSettings, ILogger<EmailService> logger) : IEmailService
 {
     public async Task SendEmailAsync(string email, string subject, string htmlMessage)
     {

@@ -10,8 +10,8 @@ public static class ErrorMapping
         "User.NotFound" => StatusCodes.Status404NotFound,
         "User.DuplicateEmail" => StatusCodes.Status409Conflict,
         "User.DuplicateUserName" => StatusCodes.Status409Conflict,
-        "User.EmailNotConfirmed" => StatusCodes.Status401Unauthorized,
-        "User.InvalidEmailConfirmationCode" => StatusCodes.Status401Unauthorized,
+        "User.EmailNotConfirmed" => StatusCodes.Status403Forbidden,
+        "User.InvalidEmailConfirmationCode" => StatusCodes.Status403Forbidden,
         "User.EmailAlreadyConfirmed" => StatusCodes.Status400BadRequest,
         "Token.InvalidToken" => StatusCodes.Status401Unauthorized,
         _ => StatusCodes.Status400BadRequest // Default case

@@ -1,4 +1,4 @@
-namespace Agrivision.Backend.Application.Contracts.Auth;
+namespace Agrivision.Backend.Application.Features.Auth.Contracts;
 
 public record AuthResponse
 (

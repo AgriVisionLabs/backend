@@ -37,12 +37,10 @@ public class JwtProvider(IOptions<JwtOptions> jwtOptions) : IJwtProvider
         return (token: new JwtSecurityTokenHandler().WriteToken(token), jwtOptions.Value.ExpiryMinutes);
     }
 
-    public string? ValidateToken(string token, bool isEmailConfirmationToken)
+    public string? ValidateToken(string token)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
-        SymmetricSecurityKey symmetricSecurityKey;
-
-        symmetricSecurityKey = !isEmailConfirmationToken ? new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.Value.Key)) : new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.Value.ConfirmationEmailKey));
+        var symmetricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.Value.Key));
 
         try
         {
@@ -64,11 +62,15 @@ public class JwtProvider(IOptions<JwtOptions> jwtOptions) : IJwtProvider
         }
     }
     
-    public string GenerateEmailConfirmationToken(string userId)
+    public string GenerateEmailConfirmationJwtToken(string userId, string confirmationCode)
     {
+        if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(confirmationCode))
+            throw new ArgumentException("To generate EmailConfirmationToken User ID and confirmation code cannot be null or empty.");
+
         Claim[] claims =
         [
             new (JwtRegisteredClaimNames.Sub, userId), // Store User ID
+            new ("confirmationCode", confirmationCode),
             new (JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()) // Unique token ID
         ];
 
@@ -85,5 +87,32 @@ public class JwtProvider(IOptions<JwtOptions> jwtOptions) : IJwtProvider
         );
 
         return new JwtSecurityTokenHandler().WriteToken(token);
+    }
+    
+    public (string?, string?) ValidateEmailConfirmationJwtToken(string token)
+    {
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var symmetricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.Value.ConfirmationEmailKey));
+
+        try
+        {
+            tokenHandler.ValidateToken(token, new TokenValidationParameters
+            {
+                IssuerSigningKey = symmetricSecurityKey,
+                ValidateIssuerSigningKey = true,
+                ValidateIssuer = false,
+                ValidateAudience = false,
+                ClockSkew = TimeSpan.Zero
+            }, out SecurityToken validatedToken);
+
+            var jwtToken = (JwtSecurityToken)validatedToken;
+            var userId = jwtToken.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Sub)?.Value;
+            var confirmationCode = jwtToken.Claims.FirstOrDefault(c => c.Type == "confirmationCode")?.Value;
+            return (userId, confirmationCode);
+        }
+        catch
+        {
+            return (null, null);
+        }
     }
 }

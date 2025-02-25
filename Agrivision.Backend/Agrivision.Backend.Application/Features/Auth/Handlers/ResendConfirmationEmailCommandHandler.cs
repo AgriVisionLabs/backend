@@ -23,7 +23,9 @@ public class ResendConfirmationEmailCommandHandler(IUserRepository userRepositor
         if (user.EmailConfirmed)
             return Result.Failure(UserErrors.EmailAlreadyConfirmed);
 
-        var token = jwtProvider.GenerateEmailConfirmationToken(user.Id);
+        var confirmationCode = await userRepository.GenerateEmailConfirmationTokenAsync(user);
+        
+        var token = jwtProvider.GenerateEmailConfirmationJwtToken(user.Id, confirmationCode);
         
         await emailService.SendConfirmationEmail(user.Email, token);
 

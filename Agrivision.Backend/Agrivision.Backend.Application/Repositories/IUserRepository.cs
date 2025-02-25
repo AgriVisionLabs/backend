@@ -10,4 +10,6 @@ public interface IUserRepository
     Task<bool> CheckPasswordAsync(IApplicationUser user, string password);
     Task UpdateAsync(IApplicationUser user);
     Task<bool> CreateUserAsync(IApplicationUser user, string password);
+    Task<string> GenerateEmailConfirmationTokenAsync(IApplicationUser user);
+    Task<bool> ConfirmEmailAsync(IApplicationUser user, string code);
 }

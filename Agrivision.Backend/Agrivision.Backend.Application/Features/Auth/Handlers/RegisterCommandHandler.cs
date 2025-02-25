@@ -41,7 +41,9 @@ public class RegisterCommandHandler(IUserRepository userRepository, ILogger<Regi
         if (applicationUser is null)
             return Result.Failure(UserErrors.UserNotFound); // but this is impossible but just in case like :|
 
-        var token = jwtProvider.GenerateEmailConfirmationToken(applicationUser.Id);
+        var emailConfirmationToken = await userRepository.GenerateEmailConfirmationTokenAsync(applicationUser);
+
+        var token = jwtProvider.GenerateEmailConfirmationJwtToken(applicationUser.Id, emailConfirmationToken);
 
         await emailService.SendConfirmationEmail(applicationUser.Email, token);
         

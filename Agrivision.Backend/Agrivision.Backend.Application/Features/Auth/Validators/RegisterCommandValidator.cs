@@ -30,7 +30,8 @@ public class RegisterCommandValidator : AbstractValidator<RegisterCommand>
             .Length(3, 100);
 
         RuleFor(command => command.PhoneNumber)
-            .Length(12, 12)
-            .WithMessage("Phone number should be on the format +(country code)(phone number)");
+            .NotEmpty().WithMessage("Phone number is required.")
+            .Matches(@"^\+?[1-9]\d{1,14}$") // E.164 international format
+            .WithMessage("Invalid phone number format.");
     }
 }

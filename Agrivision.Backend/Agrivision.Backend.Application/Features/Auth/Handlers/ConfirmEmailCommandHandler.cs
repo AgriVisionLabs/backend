@@ -4,7 +4,6 @@ using Agrivision.Backend.Application.Features.Auth.Commands;
 using Agrivision.Backend.Application.Repositories;
 using Agrivision.Backend.Domain.Abstractions;
 using MediatR;
-using Microsoft.Extensions.Logging;
 
 namespace Agrivision.Backend.Application.Features.Auth.Handlers;
 
@@ -12,8 +11,8 @@ public class ConfirmEmailCommandHandler(IUserRepository userRepository,IJwtProvi
 {
     public async Task<Result> Handle(ConfirmEmailCommand request, CancellationToken cancellationToken)
     {
-        var userId = jwtProvider.ValidateToken(request.Token, true);
-        if (userId is null)
+        var (userId, confirmationCode) = jwtProvider.ValidateEmailConfirmationJwtToken(request.Token);
+        if (userId is null || confirmationCode is null)
             return Result.Failure(UserErrors.InvalidEmailConfirmationToken);
         
         if (await userRepository.FindByIdAsync(userId) is not { } user)  
@@ -22,9 +21,8 @@ public class ConfirmEmailCommandHandler(IUserRepository userRepository,IJwtProvi
         if (user.EmailConfirmed)
             return Result.Failure(UserErrors.EmailAlreadyConfirmed);
 
-        user.EmailConfirmed = true;
-        await userRepository.UpdateAsync(user);
+        var result = await userRepository.ConfirmEmailAsync(user, confirmationCode);
 
-        return Result.Success();
+        return result ? Result.Success() : Result.Failure(UserErrors.EmailConfirmationFailed);
     }
 }

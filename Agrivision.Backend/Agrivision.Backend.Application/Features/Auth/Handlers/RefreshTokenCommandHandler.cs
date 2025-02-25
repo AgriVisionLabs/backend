@@ -16,7 +16,7 @@ public class RefreshTokenCommandHandler(IUserRepository userRepository, IJwtProv
 {
     public async Task<Result<AuthResponse>> Handle(RefreshTokenCommand request, CancellationToken cancellationToken)
     {
-        var userId = jwtProvider.ValidateToken(request.Token, false);
+        var userId = jwtProvider.ValidateToken(request.Token);
         if (userId is null)
             return Result.Failure<AuthResponse>(TokenErrors.InvalidAuthentication);
 

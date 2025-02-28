@@ -4,16 +4,14 @@ using Agrivision.Backend.Application.Features.Auth.Commands;
 using Agrivision.Backend.Application.Models;
 using Agrivision.Backend.Application.Repositories;
 using Agrivision.Backend.Application.Services.Email;
-using Agrivision.Backend.Application.Settings;
+using Agrivision.Backend.Application.Services.Utility;
 using Agrivision.Backend.Domain.Abstractions;
-using Agrivision.Backend.Domain.Interfaces;
 using MediatR;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 namespace Agrivision.Backend.Application.Features.Auth.Handlers;
 
-public class RegisterCommandHandler(IUserRepository userRepository, ILogger<RegisterCommandHandler> logger, IOptions<AppSettings> appSettings, IEmailService emailService, IJwtProvider jwtProvider) : IRequestHandler<RegisterCommand, Result>
+public class RegisterCommandHandler(IUserRepository userRepository, ILogger<RegisterCommandHandler> logger, IEmailService emailService, IJwtProvider jwtProvider, IUtilityService utilityService) : IRequestHandler<RegisterCommand, Result>
 {
     public async Task<Result> Handle(RegisterCommand request, CancellationToken cancellationToken)
     {
@@ -45,9 +43,11 @@ public class RegisterCommandHandler(IUserRepository userRepository, ILogger<Regi
 
         var token = jwtProvider.GenerateEmailConfirmationJwtToken(applicationUser.Id, emailConfirmationToken);
 
-        await emailService.SendConfirmationEmail(applicationUser.Email, token);
+        var encodedToken = utilityService.Encode(token);
+
+        await emailService.SendConfirmationEmail(applicationUser.Email, encodedToken);
         
-        logger.LogInformation("Confirmation Token: {token}", token);
+        logger.LogInformation("Confirmation Token: {token}", encodedToken);
         
         return Result.Success();
     }

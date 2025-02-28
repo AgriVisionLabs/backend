@@ -2,12 +2,14 @@ using System.Text;
 using Agrivision.Backend.Application.Auth;
 using Agrivision.Backend.Application.Repositories;
 using Agrivision.Backend.Application.Services.Email;
+using Agrivision.Backend.Application.Services.Utility;
 using Agrivision.Backend.Application.Settings;
 using Agrivision.Backend.Infrastructure.Auth;
 using Agrivision.Backend.Infrastructure.Persistence.Identity;
 using Agrivision.Backend.Infrastructure.Persistence.Identity.Entities;
 using Agrivision.Backend.Infrastructure.Repositories;
 using Agrivision.Backend.Infrastructure.Services.Email;
+using Agrivision.Backend.Infrastructure.Services.Utility;
 using Agrivision.Backend.Infrastructure.Settings;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -32,13 +34,13 @@ public static class DependencyInjection
 
         services.AddAuthenticationServices(config);
         
-        services.AddIdentityConfigurations();
-
         services.MapEmailSettings(config);
 
         services.AddEmailSender();
         
         services.MapAppSettings(config);
+
+        services.AddUtilityService();
         
         return services;
     }
@@ -56,13 +58,32 @@ public static class DependencyInjection
 
     private static IServiceCollection AddIdentityServices(this IServiceCollection services)
     {
+        services.AddIdentity<ApplicationUser, IdentityRole>(options =>
+            {
+                // Password Configuration
+                options.Password.RequireDigit = true;
+                options.Password.RequiredLength = 8;
+                options.Password.RequireNonAlphanumeric = true;
+                options.Password.RequireUppercase = true;
+                options.Password.RequireLowercase = true;
+
+                // Lockout Configuration
+                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(10);
+                options.Lockout.MaxFailedAccessAttempts = 5;
+
+                // Email Configuration
+                options.SignIn.RequireConfirmedEmail = true;
+                options.User.RequireUniqueEmail = true;
+            })
+            .AddEntityFrameworkStores<ApplicationUserDbContext>()  // Store identity data in our DB
+            .AddDefaultTokenProviders(); // Enables email confirmation, password reset, etc.
+
+        // Register User Repository
         services.AddScoped<IUserRepository, UserRepository>();
+        
+        // Register Auth Repository
         services.AddScoped<IAuthRepository, AuthRepository>();
         
-        services.AddIdentity<ApplicationUser, IdentityRole>()
-            .AddEntityFrameworkStores<ApplicationUserDbContext>()
-            .AddDefaultTokenProviders(); // added this to allow the Confirmation Email token to be generated otherwise it will throw an exception since it doesn't know which token provider to use but here we are telling it to use the default 
-
         return services;
     }
     
@@ -136,22 +157,6 @@ public static class DependencyInjection
         return hostBuilder;
     }
 
-    private static IServiceCollection AddIdentityConfigurations(this IServiceCollection services)
-    {
-        
-        services.Configure<IdentityOptions>(options =>
-        {
-            // password configuration 
-            options.Password.RequiredLength = 8;
-            // email configuration
-            options.SignIn.RequireConfirmedEmail = true;
-            options.User.RequireUniqueEmail = true;
-        });
-        
-
-        return services;
-    }
-
     private static IServiceCollection MapEmailSettings(this IServiceCollection services, IConfiguration configuration)
     {
         services.Configure<MailSettings>(configuration.GetSection(nameof(MailSettings)));
@@ -172,5 +177,11 @@ public static class DependencyInjection
 
         return services;
     }
-    
+
+    private static IServiceCollection AddUtilityService(this IServiceCollection services)
+    {
+        services.AddScoped<IUtilityService, UtilityService>();
+
+        return services;
+    }
 }

@@ -14,11 +14,17 @@ public class FarmRepository(CoreDbContext context, ILogger logger) : IFarmReposi
         return await context.Farms.ToListAsync(cancellationToken);
     }
 
-    public async Task<List<Farm>> GetAllByUserIdAsync(string userId, CancellationToken cancellationToken = default)
+    public async Task<List<Farm>> GetAllCreatedByUserIdAsync(string userId, CancellationToken cancellationToken = default)
     {
         return await context.Farms
             .Where(farm => farm.CreatedById == userId)
             .ToListAsync(cancellationToken);
+    }
+
+    public async Task<Farm?> GetByIdAsync(Guid farmId, CancellationToken cancellationToken = default)
+    {
+        return await context.Farms
+            .FirstOrDefaultAsync(farm => farm.Id == farmId, cancellationToken);
     }
 
     public async Task<Farm?> FindByNameAndUserAsync(string name, string userId, CancellationToken cancellationToken = default)

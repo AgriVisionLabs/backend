@@ -17,14 +17,21 @@ namespace Agrivision.Backend.Api.Controllers
     [Authorize]
     public class FarmsController(IMediator mediator) : ControllerBase
     {
-        [HttpGet("")]
-        public async Task<IActionResult> GetAllAsync(CancellationToken cancellationToken = default)
+        [HttpGet("created")]
+        public async Task<IActionResult> GetAllCreatedByUserAsync(CancellationToken cancellationToken = default)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userId))
                 return Result.Failure(TokenErrors.InvalidToken).ToProblem(TokenErrors.InvalidToken.ToStatusCode());
             
-            var result = await mediator.Send(new GetAllFarmsQuery(userId), cancellationToken);
+            var result = await mediator.Send(new GetAllFarmsCreatedByUserIdQuery(userId), cancellationToken);
+            return result.Succeeded ? Ok(result.Value) : result.ToProblem(result.Error.ToStatusCode());
+        }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetById([FromRoute] string id, CancellationToken cancellationToken = default)
+        {
+            var result = await mediator.Send(new GetFarmByIdQuery(id), cancellationToken);
             return result.Succeeded ? Ok(result.Value) : result.ToProblem(result.Error.ToStatusCode());
         }
 

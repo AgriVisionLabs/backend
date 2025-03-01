@@ -3,6 +3,7 @@ using Agrivision.Backend.Application.Auth;
 using Agrivision.Backend.Application.Repositories.Core;
 using Agrivision.Backend.Application.Repositories.Identity;
 using Agrivision.Backend.Application.Services.Email;
+using Agrivision.Backend.Application.Services.Utility;
 using Agrivision.Backend.Application.Settings;
 using Agrivision.Backend.Infrastructure.Auth;
 using Agrivision.Backend.Infrastructure.Persistence.Core;
@@ -11,6 +12,7 @@ using Agrivision.Backend.Infrastructure.Persistence.Identity.Entities;
 using Agrivision.Backend.Infrastructure.Repositories.Core;
 using Agrivision.Backend.Infrastructure.Repositories.Identity;
 using Agrivision.Backend.Infrastructure.Services.Email;
+using Agrivision.Backend.Infrastructure.Services.Utility;
 using Agrivision.Backend.Infrastructure.Settings;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -44,6 +46,8 @@ public static class DependencyInjection
         services.MapAppSettings(config);
 
         services.AddFarmRepository();
+
+        services.AddUtilityService();
         
         return services;
     }
@@ -194,6 +198,13 @@ public static class DependencyInjection
     private static IServiceCollection AddFarmRepository(this IServiceCollection services)
     {
         services.AddScoped<IFarmRepository, FarmRepository>();
+
+        return services;
+    }
+    
+    private static IServiceCollection AddUtilityService(this IServiceCollection services)
+    {
+        services.AddScoped<IUtilityService, UtilityService>();
 
         return services;
     }

@@ -4,7 +4,7 @@ namespace Agrivision.Backend.Application.Features.Farm.Contracts;
 
 public record FarmResponse
 (
-    Guid Id,
+    string Id,
     string Name,
     double Area,
     string Location,

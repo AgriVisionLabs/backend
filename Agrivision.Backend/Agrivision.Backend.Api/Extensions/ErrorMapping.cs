@@ -16,6 +16,8 @@ public static class ErrorMapping
         "Token.Invalid" => StatusCodes.Status401Unauthorized,
         "Farm.DuplicateName" => StatusCodes.Status409Conflict,
         "Farm.NoFarmsFound" => StatusCodes.Status404NotFound,
+        "Farm.NotFound" => StatusCodes.Status404NotFound,
+        "Farm.InvalidFarmId" => StatusCodes.Status400BadRequest,
         _ => StatusCodes.Status400BadRequest // Default case
     };
 }

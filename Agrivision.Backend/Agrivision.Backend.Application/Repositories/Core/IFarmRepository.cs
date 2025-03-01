@@ -6,7 +6,8 @@ namespace Agrivision.Backend.Application.Repositories.Core;
 public interface IFarmRepository
 {
     Task<List<Farm>> GetAllAsync(CancellationToken cancellationToken = default);
-    Task<List<Farm>> GetAllByUserIdAsync(string userId, CancellationToken cancellationToken = default);
+    Task<List<Farm>> GetAllCreatedByUserIdAsync(string userId, CancellationToken cancellationToken = default);
+    Task<Farm?> GetByIdAsync(Guid farmId, CancellationToken cancellationToken = default);
     Task<Farm?> FindByNameAndUserAsync(string name, string userId, CancellationToken cancellationToken = default);
     Task AddAsync(Farm farm, CancellationToken cancellationToken = default);
 }

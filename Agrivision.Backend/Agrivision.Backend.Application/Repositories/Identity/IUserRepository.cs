@@ -1,4 +1,4 @@
-using Agrivision.Backend.Domain.Interfaces;
+using Agrivision.Backend.Domain.Interfaces.Identity;
 
 namespace Agrivision.Backend.Application.Repositories;
 

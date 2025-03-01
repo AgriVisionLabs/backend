@@ -1,9 +1,9 @@
-using Agrivision.Backend.Application.Repositories;
+using Agrivision.Backend.Application.Repositories.Identity;
 using Agrivision.Backend.Domain.Interfaces.Identity;
 using Agrivision.Backend.Infrastructure.Persistence.Identity.Entities;
 using Microsoft.AspNetCore.Identity;
 
-namespace Agrivision.Backend.Infrastructure.Repositories;
+namespace Agrivision.Backend.Infrastructure.Repositories.Identity;
 
 public class UserRepository(UserManager<ApplicationUser> userManager) : IUserRepository
 {

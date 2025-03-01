@@ -28,5 +28,7 @@ public class FarmConfigurations : IEntityTypeConfiguration<Farm>
 
         builder.Property(farm => farm.SoilType)
             .IsRequired();
+
+        builder.HasIndex(farm => new { farm.Name, farm.CreatedById }).IsUnique();
     }
 }

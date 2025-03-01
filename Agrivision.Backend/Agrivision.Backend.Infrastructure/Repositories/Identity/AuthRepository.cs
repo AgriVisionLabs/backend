@@ -1,10 +1,10 @@
-using Agrivision.Backend.Application.Repositories;
+using Agrivision.Backend.Application.Repositories.Identity;
 using Agrivision.Backend.Domain.Enums.Identity;
 using Agrivision.Backend.Domain.Interfaces.Identity;
 using Agrivision.Backend.Infrastructure.Persistence.Identity.Entities;
 using Microsoft.AspNetCore.Identity;
 
-namespace Agrivision.Backend.Infrastructure.Repositories;
+namespace Agrivision.Backend.Infrastructure.Repositories.Identity;
 
 public class AuthRepository(SignInManager<ApplicationUser> signInManager) : IAuthRepository // currently not used though because when used with login it will tell the user the email is not verified even though the password is incorrect 
 {

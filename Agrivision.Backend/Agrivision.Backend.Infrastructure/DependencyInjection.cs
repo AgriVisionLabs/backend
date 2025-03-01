@@ -1,13 +1,15 @@
 using System.Text;
 using Agrivision.Backend.Application.Auth;
-using Agrivision.Backend.Application.Repositories;
+using Agrivision.Backend.Application.Repositories.Core;
+using Agrivision.Backend.Application.Repositories.Identity;
 using Agrivision.Backend.Application.Services.Email;
 using Agrivision.Backend.Application.Settings;
 using Agrivision.Backend.Infrastructure.Auth;
 using Agrivision.Backend.Infrastructure.Persistence.Core;
 using Agrivision.Backend.Infrastructure.Persistence.Identity;
 using Agrivision.Backend.Infrastructure.Persistence.Identity.Entities;
-using Agrivision.Backend.Infrastructure.Repositories;
+using Agrivision.Backend.Infrastructure.Repositories.Core;
+using Agrivision.Backend.Infrastructure.Repositories.Identity;
 using Agrivision.Backend.Infrastructure.Services.Email;
 using Agrivision.Backend.Infrastructure.Settings;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -40,6 +42,8 @@ public static class DependencyInjection
         services.AddEmailSender();
         
         services.MapAppSettings(config);
+
+        services.AddFarmRepository();
         
         return services;
     }
@@ -183,6 +187,13 @@ public static class DependencyInjection
     private static IServiceCollection AddEmailSender(this IServiceCollection services)
     {
         services.AddScoped<IEmailService, EmailService>();
+
+        return services;
+    }
+
+    private static IServiceCollection AddFarmRepository(this IServiceCollection services)
+    {
+        services.AddScoped<IFarmRepository, FarmRepository>();
 
         return services;
     }

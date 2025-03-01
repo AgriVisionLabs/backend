@@ -1,4 +1,4 @@
-namespace Agrivision.Backend.Domain.Entities;
+namespace Agrivision.Backend.Domain.Entities.Identity;
 
 
 public class RefreshToken

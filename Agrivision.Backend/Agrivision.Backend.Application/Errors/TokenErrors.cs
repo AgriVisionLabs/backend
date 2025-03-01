@@ -4,5 +4,6 @@ namespace Agrivision.Backend.Application.Errors;
 
 public static class TokenErrors
 {
-    public static readonly Error InvalidAuthentication = new("Token.InvalidAuthentication", "Invalid authentication credentials.");
+    public static readonly Error InvalidToken =
+        new("Token.Invalid", "The token provided is invalid or malformed.");
 }

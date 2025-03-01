@@ -1,7 +1,9 @@
+using System.Reflection;
 using Agrivision.Backend.Application.Errors;
 using Agrivision.Backend.Application.Settings;
 using FluentValidation;
 using FluentValidation.AspNetCore;
+using Mapster;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Agrivision.Backend.Application;
@@ -14,6 +16,7 @@ public static class DependencyInjection
         services.AddExceptionHandler();
         services.AddMediatRConfiguration();
         services.AddApplicationLayerSettings();
+        services.AddMapsterConfigurations();
         
         return services;
     }
@@ -37,7 +40,7 @@ public static class DependencyInjection
 
     private static IServiceCollection AddMediatRConfiguration(this IServiceCollection services)
     {
-        services.AddMediatR(config => config.RegisterServicesFromAssembly(typeof(ApplicationAssemblyMarker).Assembly));
+        services.AddMediatR(config => config.RegisterServicesFromAssembly(typeof(ApplicationAssemblyMarker).Assembly)); // registers all the commands and queries (must implement IRequest) and all the handlers (must implement IRequestHandler)
 
         return services;
     }
@@ -54,6 +57,14 @@ public static class DependencyInjection
             .ValidateDataAnnotations()
             .ValidateOnStart();
         
+        return services;
+    }
+
+    private static IServiceCollection AddMapsterConfigurations(this IServiceCollection services)
+    {
+        var mappingConfig = TypeAdapterConfig.GlobalSettings;
+        mappingConfig.Scan(typeof(ApplicationAssemblyMarker).Assembly);
+
         return services;
     }
 }

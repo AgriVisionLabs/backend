@@ -3,11 +3,10 @@ using Agrivision.Backend.Application.Auth;
 using Agrivision.Backend.Application.Errors;
 using Agrivision.Backend.Application.Features.Auth.Contracts;
 using Agrivision.Backend.Application.Features.Auth.Queries;
-using Agrivision.Backend.Application.Repositories;
+using Agrivision.Backend.Application.Repositories.Identity;
 using Agrivision.Backend.Application.Settings;
 using Agrivision.Backend.Domain.Abstractions;
-using Agrivision.Backend.Domain.Entities;
-using Agrivision.Backend.Domain.Enums;
+using Agrivision.Backend.Domain.Entities.Identity;
 using MediatR;
 using Microsoft.Extensions.Options;
 

@@ -13,7 +13,9 @@ public static class ErrorMapping
         "User.EmailNotConfirmed" => StatusCodes.Status403Forbidden,
         "User.InvalidEmailConfirmationCode" => StatusCodes.Status403Forbidden,
         "User.EmailAlreadyConfirmed" => StatusCodes.Status400BadRequest,
-        "Token.InvalidToken" => StatusCodes.Status401Unauthorized,
+        "Token.Invalid" => StatusCodes.Status401Unauthorized,
+        "Farm.DuplicateName" => StatusCodes.Status409Conflict,
+        "Farm.NoFarmsFound" => StatusCodes.Status404NotFound,
         _ => StatusCodes.Status400BadRequest // Default case
     };
 }

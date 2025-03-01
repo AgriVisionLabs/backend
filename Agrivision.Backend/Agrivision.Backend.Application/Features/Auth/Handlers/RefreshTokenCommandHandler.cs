@@ -3,10 +3,10 @@ using Agrivision.Backend.Application.Auth;
 using Agrivision.Backend.Application.Errors;
 using Agrivision.Backend.Application.Features.Auth.Commands;
 using Agrivision.Backend.Application.Features.Auth.Contracts;
-using Agrivision.Backend.Application.Repositories;
+using Agrivision.Backend.Application.Repositories.Identity;
 using Agrivision.Backend.Application.Settings;
 using Agrivision.Backend.Domain.Abstractions;
-using Agrivision.Backend.Domain.Entities;
+using Agrivision.Backend.Domain.Entities.Identity;
 using MediatR;
 using Microsoft.Extensions.Options;
 
@@ -18,7 +18,7 @@ public class RefreshTokenCommandHandler(IUserRepository userRepository, IJwtProv
     {
         var userId = jwtProvider.ValidateToken(request.Token);
         if (userId is null)
-            return Result.Failure<AuthResponse>(TokenErrors.InvalidAuthentication);
+            return Result.Failure<AuthResponse>(TokenErrors.InvalidToken);
 
         var user = await userRepository.FindByIdAsync(userId);
         if (user is null)
@@ -27,7 +27,7 @@ public class RefreshTokenCommandHandler(IUserRepository userRepository, IJwtProv
         var userRefreshToken =
             user.RefreshTokens.SingleOrDefault(token => token.Token == request.RefreshToken && token.IsActive);
         if (userRefreshToken is null)
-            return Result.Failure<AuthResponse>(TokenErrors.InvalidAuthentication);
+            return Result.Failure<AuthResponse>(TokenErrors.InvalidToken);
 
         // revoke now since we will refresh the both the refresh token and jwt token
         userRefreshToken.RevokedOn = DateTime.UtcNow;

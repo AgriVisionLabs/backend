@@ -1,4 +1,4 @@
-namespace agrivision_backend.Domain.Enums;
+namespace Agrivision.Backend.Domain.Enums.Identity;
 
 public enum ApplicationUserStatus
 {

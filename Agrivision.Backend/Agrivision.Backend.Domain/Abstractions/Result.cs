@@ -21,7 +21,7 @@ public class Result
     public static Result<TValue> Failure<TValue>(Error error) => new(false, error, default);
 }
 
-public class Result<TValue>(bool isSuccess, Error error, TValue? value) : Result(isSuccess, error)
+public class Result<TValue>(bool succeeded, Error error, TValue? value) : Result(succeeded, error)
 {
     public TValue Value =>
         Succeeded ? value! : throw new InvalidOperationException("Failure results cannot contain a value");  // throw the exception since he is trying to access the Value while IsSuccess is false

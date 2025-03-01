@@ -1,26 +1,26 @@
-using Agrivision.Backend.Application.Features.Farm.Commands;
+using Agrivision.Backend.Application.Features.Farm.Contracts;
 using FluentValidation;
 
 namespace Agrivision.Backend.Application.Features.Farm.Validators;
 
-public class CreateFarmCommandValidator : AbstractValidator<CreateFarmCommand>
+public class CreateFarmRequestValidator : AbstractValidator<CreateFarmRequest>
 {
-    public CreateFarmCommandValidator()
+    public CreateFarmRequestValidator()
     {
-        RuleFor(command => command.Name)
+        RuleFor(request => request.Name)
             .NotEmpty()
             .Length(3, 100);
 
-        RuleFor(command => command.Area)
+        RuleFor(request => request.Area)
             .NotEmpty()
             .GreaterThanOrEqualTo(0.25)
             .WithMessage("The farm area must be at least 0.25 acres.");
 
-        RuleFor(command => command.Location)
+        RuleFor(request => request.Location)
             .NotEmpty()
             .Length(3, 200);
 
-        RuleFor(command => command.SoilType)
+        RuleFor(request => request.SoilType)
             .NotEmpty();
     }
 }

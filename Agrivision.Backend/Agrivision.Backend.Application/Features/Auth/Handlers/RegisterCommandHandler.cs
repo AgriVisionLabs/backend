@@ -2,16 +2,15 @@ using Agrivision.Backend.Application.Auth;
 using Agrivision.Backend.Application.Errors;
 using Agrivision.Backend.Application.Features.Auth.Commands;
 using Agrivision.Backend.Application.Models;
-using Agrivision.Backend.Application.Repositories;
+using Agrivision.Backend.Application.Repositories.Identity;
 using Agrivision.Backend.Application.Services.Email;
-using Agrivision.Backend.Application.Services.Utility;
 using Agrivision.Backend.Domain.Abstractions;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
 namespace Agrivision.Backend.Application.Features.Auth.Handlers;
 
-public class RegisterCommandHandler(IUserRepository userRepository, ILogger<RegisterCommandHandler> logger, IEmailService emailService, IJwtProvider jwtProvider, IUtilityService utilityService) : IRequestHandler<RegisterCommand, Result>
+public class RegisterCommandHandler(IUserRepository userRepository, ILogger<RegisterCommandHandler> logger, IEmailService emailService, IJwtProvider jwtProvider) : IRequestHandler<RegisterCommand, Result>
 {
     public async Task<Result> Handle(RegisterCommand request, CancellationToken cancellationToken)
     {
@@ -41,13 +40,11 @@ public class RegisterCommandHandler(IUserRepository userRepository, ILogger<Regi
 
         var emailConfirmationToken = await userRepository.GenerateEmailConfirmationTokenAsync(applicationUser);
 
-        var token = jwtProvider.GenerateEmailConfirmationJwtToken(applicationUser.Id, emailConfirmationToken);
-
-        var encodedToken = utilityService.Encode(token);
-
-        await emailService.SendConfirmationEmail(applicationUser.Email, encodedToken);
+        var token = jwtProvider.GenerateEmailConfirmationJwtToken(applicationUser.Id, emailConfirmationToken, applicationUser.Email);
         
-        logger.LogInformation("Confirmation Token: {token}", encodedToken);
+        await emailService.SendConfirmationEmail(applicationUser.Email, token);
+        
+        logger.LogInformation("Confirmation Token: {token}", token);
         
         return Result.Success();
     }

@@ -1,7 +1,6 @@
-using System.Runtime.InteropServices.JavaScript;
-using agrivision_backend.Domain.Enums;
-using Agrivision.Backend.Domain.Entities;
-using Agrivision.Backend.Domain.Interfaces;
+using Agrivision.Backend.Domain.Entities.Identity;
+using Agrivision.Backend.Domain.Enums.Identity;
+using Agrivision.Backend.Domain.Interfaces.Identity;
 
 namespace Agrivision.Backend.Application.Models;
 

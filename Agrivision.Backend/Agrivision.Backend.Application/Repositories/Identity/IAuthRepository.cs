@@ -1,7 +1,7 @@
 using Agrivision.Backend.Domain.Enums.Identity;
 using Agrivision.Backend.Domain.Interfaces.Identity;
 
-namespace Agrivision.Backend.Application.Repositories;
+namespace Agrivision.Backend.Application.Repositories.Identity;
 
 public interface IAuthRepository
 {

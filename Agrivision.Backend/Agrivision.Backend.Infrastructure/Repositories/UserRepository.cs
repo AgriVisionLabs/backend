@@ -1,9 +1,7 @@
-using System.Text;
 using Agrivision.Backend.Application.Repositories;
-using Agrivision.Backend.Domain.Interfaces;
+using Agrivision.Backend.Domain.Interfaces.Identity;
 using Agrivision.Backend.Infrastructure.Persistence.Identity.Entities;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.WebUtilities;
 
 namespace Agrivision.Backend.Infrastructure.Repositories;
 

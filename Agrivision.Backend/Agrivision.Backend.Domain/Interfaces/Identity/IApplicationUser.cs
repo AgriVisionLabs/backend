@@ -1,5 +1,5 @@
-using agrivision_backend.Domain.Enums;
-using Agrivision.Backend.Domain.Entities;
+using Agrivision.Backend.Domain.Entities.Identity;
+using Agrivision.Backend.Domain.Enums.Identity;
 
 namespace Agrivision.Backend.Domain.Interfaces;
 

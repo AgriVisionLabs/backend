@@ -8,10 +8,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Folder Include="Persistence\Farm\EntitiesConfigurations\" />
-    </ItemGroup>
-
-    <ItemGroup>
       <PackageReference Include="MailKit" Version="4.10.0" />
       <PackageReference Include="Mapster" Version="7.4.0" />
       <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.2" />
@@ -32,6 +28,10 @@
     <ItemGroup>
       <ProjectReference Include="..\Agrivision.Backend.Application\Agrivision.Backend.Application.csproj" />
       <ProjectReference Include="..\Agrivision.Backend.Domain\Agrivision.Backend.Domain.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Persistence\Identity\Migrations\Core\" />
     </ItemGroup>
 
 </Project>

@@ -9,7 +9,10 @@ public class ApplicationUserDbContext(DbContextOptions<ApplicationUserDbContext>
 {
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.ApplyConfigurationsFromAssembly(typeof(InfrastructureAssemblyMarker).Assembly);
+        modelBuilder.ApplyConfigurationsFromAssembly(
+            typeof(InfrastructureAssemblyMarker).Assembly,
+            x => x.Namespace != null && x.Namespace.Contains("Identity"));
+        
         base.OnModelCreating(modelBuilder);
     }
 }

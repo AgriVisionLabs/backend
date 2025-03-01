@@ -2,7 +2,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Agrivision.Backend.Application.Auth;
-using Agrivision.Backend.Domain.Interfaces;
+using Agrivision.Backend.Domain.Interfaces.Identity;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using JwtRegisteredClaimNames = Microsoft.IdentityModel.JsonWebTokens.JwtRegisteredClaimNames;
@@ -62,14 +62,15 @@ public class JwtProvider(IOptions<JwtOptions> jwtOptions) : IJwtProvider
         }
     }
     
-    public string GenerateEmailConfirmationJwtToken(string userId, string confirmationCode)
+    public string GenerateEmailConfirmationJwtToken(string userId, string confirmationCode, string email)
     {
         if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(confirmationCode))
             throw new ArgumentException("To generate EmailConfirmationToken User ID and confirmation code cannot be null or empty.");
 
         Claim[] claims =
         [
-            new (JwtRegisteredClaimNames.Sub, userId), // Store User ID
+            new (JwtRegisteredClaimNames.Sub, userId),
+            new (JwtRegisteredClaimNames.Email, email),
             new ("confirmationCode", confirmationCode),
             new (JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()) // Unique token ID
         ];
@@ -89,7 +90,7 @@ public class JwtProvider(IOptions<JwtOptions> jwtOptions) : IJwtProvider
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
     
-    public (string?, string?) ValidateEmailConfirmationJwtToken(string token)
+    public (string?, string?, string?) ValidateEmailConfirmationJwtToken(string token)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
         var symmetricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.Value.ConfirmationEmailKey));
@@ -107,12 +108,13 @@ public class JwtProvider(IOptions<JwtOptions> jwtOptions) : IJwtProvider
 
             var jwtToken = (JwtSecurityToken)validatedToken;
             var userId = jwtToken.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Sub)?.Value;
+            var email = jwtToken.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Email)?.Value;
             var confirmationCode = jwtToken.Claims.FirstOrDefault(c => c.Type == "confirmationCode")?.Value;
-            return (userId, confirmationCode);
+            return (userId, confirmationCode, email);
         }
         catch
         {
-            return (null, null);
+            return (null, null, null);
         }
     }
 }

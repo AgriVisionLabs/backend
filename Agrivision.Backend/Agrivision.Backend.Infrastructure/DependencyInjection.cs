@@ -2,14 +2,13 @@ using System.Text;
 using Agrivision.Backend.Application.Auth;
 using Agrivision.Backend.Application.Repositories;
 using Agrivision.Backend.Application.Services.Email;
-using Agrivision.Backend.Application.Services.Utility;
 using Agrivision.Backend.Application.Settings;
 using Agrivision.Backend.Infrastructure.Auth;
+using Agrivision.Backend.Infrastructure.Persistence.Core;
 using Agrivision.Backend.Infrastructure.Persistence.Identity;
 using Agrivision.Backend.Infrastructure.Persistence.Identity.Entities;
 using Agrivision.Backend.Infrastructure.Repositories;
 using Agrivision.Backend.Infrastructure.Services.Email;
-using Agrivision.Backend.Infrastructure.Services.Utility;
 using Agrivision.Backend.Infrastructure.Settings;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -29,6 +28,8 @@ public static class DependencyInjection
         IConfiguration config)
     {
         services.AddApplicationUserDbContext(config);
+
+        services.AddCoreDbContext(config);
         
         services.AddIdentityServices();
 
@@ -39,8 +40,6 @@ public static class DependencyInjection
         services.AddEmailSender();
         
         services.MapAppSettings(config);
-
-        services.AddUtilityService();
         
         return services;
     }
@@ -50,9 +49,19 @@ public static class DependencyInjection
     {
         var identityDbConnectionString = config.GetConnectionString("IdentityDbConnectionString") ??
                                          throw new InvalidOperationException(
-                                             "Can't find IdentityDb Connection String lil bro");
+                                             "Can't find IdentityDb connection string.");
         services.AddDbContext<ApplicationUserDbContext>(options => options.UseSqlServer(identityDbConnectionString));
 
+        return services;
+    }
+
+    private static IServiceCollection AddCoreDbContext(this IServiceCollection services, IConfiguration config)
+    {
+        var coreDbConnectionString = config.GetConnectionString("CoreDbConnectionString") ??
+                                     throw new InvalidOperationException("Can't find CoreDb connection string.");
+
+        services.AddDbContext<CoreDbContext>(options => options.UseSqlServer(coreDbConnectionString));
+        
         return services;
     }
 
@@ -178,10 +187,4 @@ public static class DependencyInjection
         return services;
     }
 
-    private static IServiceCollection AddUtilityService(this IServiceCollection services)
-    {
-        services.AddScoped<IUtilityService, UtilityService>();
-
-        return services;
-    }
 }

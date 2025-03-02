@@ -2,13 +2,14 @@ using Agrivision.Backend.Application.Errors;
 using Agrivision.Backend.Application.Features.Farm.Commands;
 using Agrivision.Backend.Application.Features.Farm.Contracts;
 using Agrivision.Backend.Application.Repositories.Core;
+using Agrivision.Backend.Application.Services.Utility;
 using Agrivision.Backend.Domain.Abstractions;
 using Mapster;
 using MediatR;
 
 namespace Agrivision.Backend.Application.Features.Farm.Handlers;
 
-public class CreateFarmCommandHandler(IFarmRepository farmRepository) : IRequestHandler<CreateFarmCommand, Result<FarmResponse>>
+public class CreateFarmCommandHandler(IFarmRepository farmRepository, IUtilityService utilityService) : IRequestHandler<CreateFarmCommand, Result<FarmResponse>>
 {
     public async Task<Result<FarmResponse>> Handle(CreateFarmCommand request, CancellationToken cancellationToken)
     {
@@ -23,8 +24,8 @@ public class CreateFarmCommandHandler(IFarmRepository farmRepository) : IRequest
         
         // save to the database
         await farmRepository.AddAsync(farm, cancellationToken);
-        
         // convert to response
-        return Result.Success(farm.Adapt<FarmResponse>());
+        return Result.Success(new FarmResponse(utilityService.Encode(farm.Id.ToString()), farm.Name, farm.Area,
+            farm.Location, farm.SoilType, farm.CreatedById));
     }
 }

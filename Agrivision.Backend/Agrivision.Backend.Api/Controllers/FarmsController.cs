@@ -42,7 +42,7 @@ namespace Agrivision.Backend.Api.Controllers
             if (string.IsNullOrEmpty(userId))
                 return Result.Failure(TokenErrors.InvalidToken).ToProblem(TokenErrors.InvalidToken.ToStatusCode());
 
-            var command = new CreateFarmCommand(request.Name, request.Area, request.Location, request.SoilType, userId);
+            var command = new CreateFarmCommand(request.Name, request.Area, request.Location, request.SoilType, userId,request.FarmMembers);
             var result = await mediator.Send(command, cancellationToken);
 
             return result.Succeeded ? Ok(result.Value) : result.ToProblem(result.Error.ToStatusCode()); //change to created at action though CreatedAtAction(nameof(Get), new { id = response.Id }, response.Adapt<PollResponse>());

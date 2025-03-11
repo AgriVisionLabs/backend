@@ -1,8 +1,10 @@
 using Agrivision.Backend.Application.Errors;
+using Agrivision.Backend.Application.Features.Farm.Commands;
 using Agrivision.Backend.Application.Features.Farm.Contracts;
 using Agrivision.Backend.Application.Repositories.Core;
 using Agrivision.Backend.Application.Services.Utility;
 using Agrivision.Backend.Domain.Abstractions;
+using Agrivision.Backend.Domain.Entities.Core;
 using Mapster;
 using MediatR;
 
@@ -18,7 +20,7 @@ public class GetAllFarmsCreatedByUserIdQueryHandler(IFarmRepository farmReposito
             return Result.Failure<List<FarmResponse>>(FarmErrors.NoFarmsFound);
     
         var responses = farms.Select(farm => new FarmResponse(utilityService.Encode(farm.Id.ToString()), farm.Name, farm.Area, farm.Location,
-                farm.SoilType, farm.CreatedById)).ToList();
+                farm.SoilType, farm.CreatedById, farm.FarmMembers.Adapt<IEnumerable<CreateFarm_FarmMembers>>().ToList())).ToList();
         
         return Result.Success(responses);
     }

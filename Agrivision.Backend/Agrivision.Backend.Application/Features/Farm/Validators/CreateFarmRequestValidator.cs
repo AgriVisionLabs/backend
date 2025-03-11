@@ -22,5 +22,7 @@ public class CreateFarmRequestValidator : AbstractValidator<CreateFarmRequest>
 
         RuleFor(request => request.SoilType)
             .NotEmpty();
+        RuleForEach(x => x.FarmMembers)
+                   .SetInheritanceValidator(v => v.Add(new CreateFarm_FarmMembers_RequestValidator()));
     }
 }

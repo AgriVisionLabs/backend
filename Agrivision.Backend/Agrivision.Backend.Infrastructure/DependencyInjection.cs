@@ -75,7 +75,7 @@ public static class DependencyInjection
 
     private static IServiceCollection AddIdentityServices(this IServiceCollection services)
     {
-        services.AddIdentity<ApplicationUser, IdentityRole>(options =>
+        services.AddIdentity<ApplicationUser, ApplicationRole>(options =>
             {
                 // Password Configuration
                 options.Password.RequireDigit = true;

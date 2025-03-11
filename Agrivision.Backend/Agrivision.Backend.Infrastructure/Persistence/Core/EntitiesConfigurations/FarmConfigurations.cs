@@ -30,5 +30,11 @@ public class FarmConfigurations : IEntityTypeConfiguration<Farm>
             .IsRequired();
 
         builder.HasIndex(farm => new { farm.Name, farm.CreatedById }).IsUnique();
+
+
+        builder.OwnsMany(x => x.FarmMembers)
+              .ToTable("farmMembers")
+              .WithOwner()
+              .HasForeignKey("UserId");
     }
 }

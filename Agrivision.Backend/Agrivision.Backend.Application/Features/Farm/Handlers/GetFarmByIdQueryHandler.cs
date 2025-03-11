@@ -23,7 +23,7 @@ public class GetFarmByIdQueryHandler(IFarmRepository farmRepository, IUtilitySer
             return Result.Failure<FarmResponse>(FarmErrors.FarmNotFound);
 
         var response = new FarmResponse(utilityService.Encode(farm.Id.ToString()), farm.Name, farm.Area, farm.Location,
-            farm.SoilType, farm.CreatedById);
+            farm.SoilType, farm.CreatedById, []);
 
         return Result.Success(response);
     }

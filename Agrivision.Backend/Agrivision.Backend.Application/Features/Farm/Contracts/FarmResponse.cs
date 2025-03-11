@@ -1,3 +1,4 @@
+using Agrivision.Backend.Application.Features.Farm.Commands;
 using Agrivision.Backend.Domain.Enums.Core;
 
 namespace Agrivision.Backend.Application.Features.Farm.Contracts;
@@ -9,5 +10,7 @@ public record FarmResponse
     double Area,
     string Location,
     SoilTypes SoilType,
-    string OwnerId
+    string OwnerId,
+    List<CreateFarm_FarmMembers> FarmMembers
+
 );

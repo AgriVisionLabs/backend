@@ -11,5 +11,6 @@ public record CreateFarmCommand
     double Area,
     string Location,
     SoilTypes SoilType,
-    string CreatedById
+    string CreatedById,
+    IEnumerable<CreateFarm_FarmMembers> FarmMembers
 ) : IRequest<Result<FarmResponse>>;

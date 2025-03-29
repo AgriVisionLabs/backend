@@ -40,8 +40,7 @@ project.lock.json
 project.assets.json
 PackageRestoreFailed.*
 
-# Ignore Entity Framework Migrations
-Migrations/
+
 
 # Ignore Database files
 *.mdf

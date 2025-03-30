@@ -11,6 +11,6 @@ public record FarmResponse
     string Location,
     SoilTypes SoilType,
     string OwnerId,
-    List<CreateFarm_FarmMembers> FarmMembers
+    List<FarmMembers_Contract> FarmMembers
 
 );

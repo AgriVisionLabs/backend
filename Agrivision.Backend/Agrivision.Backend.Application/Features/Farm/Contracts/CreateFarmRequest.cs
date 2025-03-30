@@ -9,5 +9,5 @@ public record CreateFarmRequest
     double Area,
     string Location,
     SoilTypes SoilType,
-    IEnumerable <CreateFarm_FarmMembers> FarmMembers
+    IEnumerable<FarmMembers_Contract> FarmMembers
 );

@@ -77,4 +77,14 @@ public class UserRepository(UserManager<ApplicationUser> userManager) : IUserRep
 
         throw new Exception("Can't use ConfirmEmailAsync with non ApplicationUser type objects");
     }
+
+    public async Task<bool> AddToRoleAsync(IApplicationUser user, string role)
+    {
+        if(user is ApplicationUser applicationUser)
+        {          
+            var result= await userManager.AddToRoleAsync(applicationUser, role);
+            return result.Succeeded;
+        }
+        throw new Exception("Can't use AddToRoleAsync with non ApplicationUser type objects");
+    }
 }

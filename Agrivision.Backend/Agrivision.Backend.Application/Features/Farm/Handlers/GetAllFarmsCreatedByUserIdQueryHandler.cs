@@ -20,7 +20,7 @@ public class GetAllFarmsCreatedByUserIdQueryHandler(IFarmRepository farmReposito
             return Result.Failure<List<FarmResponse>>(FarmErrors.NoFarmsFound);
     
         var responses = farms.Select(farm => new FarmResponse(utilityService.Encode(farm.Id.ToString()), farm.Name, farm.Area, farm.Location,
-                farm.SoilType, farm.CreatedById, farm.FarmMembers.Adapt<IEnumerable<CreateFarm_FarmMembers>>().ToList())).ToList();
+                farm.SoilType, farm.CreatedById, farm.FarmMembers.Adapt<List<FarmMembers_Contract>>())).ToList();
         
         return Result.Success(responses);
     }

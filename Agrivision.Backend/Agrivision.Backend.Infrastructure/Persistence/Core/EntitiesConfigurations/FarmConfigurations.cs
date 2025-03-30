@@ -35,6 +35,6 @@ public class FarmConfigurations : IEntityTypeConfiguration<Farm>
         builder.OwnsMany(x => x.FarmMembers)
               .ToTable("farmMembers")
               .WithOwner()
-              .HasForeignKey("UserId");
+              .HasForeignKey("FarmId");
     }
 }

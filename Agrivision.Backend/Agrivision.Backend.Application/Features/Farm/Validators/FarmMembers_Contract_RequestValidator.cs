@@ -8,9 +8,9 @@ using Agrivision.Backend.Application.Features.Farm.Contracts;
 using FluentValidation;
 
 namespace Agrivision.Backend.Application.Features.Farm.Validators;
-public class CreateFarm_FarmMembers_RequestValidator : AbstractValidator<CreateFarm_FarmMembers>                                                                    
+public class FarmMembers_Contract_RequestValidator : AbstractValidator<FarmMembers_Contract>                                                                    
 {
-    public CreateFarm_FarmMembers_RequestValidator()
+    public FarmMembers_Contract_RequestValidator()
     {
         RuleFor(request => request.Email)
             .NotEmpty()

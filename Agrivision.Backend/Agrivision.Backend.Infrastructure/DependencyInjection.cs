@@ -100,7 +100,8 @@ public static class DependencyInjection
         
         // Register Auth Repository
         services.AddScoped<IAuthRepository, AuthRepository>();
-        
+
+      
         return services;
     }
     

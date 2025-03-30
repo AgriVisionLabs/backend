@@ -21,7 +21,7 @@ public class FarmMappingConfigurations : IRegister
         config.NewConfig<CreateFarmCommand, Domain.Entities.Core.Farm>()
             .Ignore(dest => dest.FarmMembers);
 
-        config.NewConfig<FarmMember, CreateFarm_FarmMembers>()
+        config.NewConfig<FarmMember, FarmMembers_Contract>()
             .Map(dest => dest.Email, src => src.Email) 
             .Map(dest => dest.Role, src => src.Role);
 

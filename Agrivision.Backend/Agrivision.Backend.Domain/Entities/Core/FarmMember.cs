@@ -8,6 +8,8 @@ using Agrivision.Backend.Domain.Enums.Core;
 namespace Agrivision.Backend.Domain.Entities.Core;
 public class FarmMember
 {
+    public int Id { get; set; }
+    public Guid FarmId { get; set; }
     public string Email { get; set; }
     public FarmRoles Role { get; set; }
 }

@@ -3,9 +3,9 @@ using FluentValidation;
 
 namespace Agrivision.Backend.Application.Features.Farm.Validators;
 
-public class CreateFarmRequestValidator : AbstractValidator<CreateFarmRequest>
+public class FarmRequestValidator : AbstractValidator<FarmRequest>
 {
-    public CreateFarmRequestValidator()
+    public FarmRequestValidator()
     {
         RuleFor(request => request.Name)
             .NotEmpty()

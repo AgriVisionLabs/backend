@@ -8,7 +8,7 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core;
 public class CoreDbContext(DbContextOptions<CoreDbContext> options) : DbContext(options)
 {
     public DbSet<Farm> Farms { get; set; }
-    
+    public DbSet<FarmMember> FarmMembers { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfigurationsFromAssembly(

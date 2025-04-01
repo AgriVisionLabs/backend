@@ -3,7 +3,7 @@ using Agrivision.Backend.Domain.Enums.Core;
 
 namespace Agrivision.Backend.Application.Features.Farm.Contracts;
 
-public record CreateFarmRequest
+public record FarmRequest
 (
     string Name,
     double Area,

@@ -1,7 +1,11 @@
+using System.Data;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using System.Text.Json;
 using Agrivision.Backend.Application.Auth;
+using Agrivision.Backend.Domain.Entities.Core;
+using Agrivision.Backend.Domain.Enums.Core;
 using Agrivision.Backend.Domain.Interfaces.Identity;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -11,16 +15,23 @@ namespace Agrivision.Backend.Infrastructure.Auth;
 
 public class JwtProvider(IOptions<JwtOptions> jwtOptions) : IJwtProvider
 {
-    public (string token, int expiresIn) GenerateToken(IApplicationUser user)
+    public (string token, int expiresIn) GenerateToken(IApplicationUser user, IEnumerable<string> roles, IEnumerable<FarmMember> userFarmRoles)
     {
-        Claim[] claims =
+        List<Claim> claims=
         [
             new(JwtRegisteredClaimNames.Sub, user.Id),
             new(JwtRegisteredClaimNames.Email, user.Email!),
             new(JwtRegisteredClaimNames.GivenName, user.FirstName),
             new(JwtRegisteredClaimNames.FamilyName, user.LastName),
-            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            new(nameof(roles), JsonSerializer.Serialize(roles), JsonClaimValueTypes.JsonArray)
+
         ];
+        foreach (var farmRole in userFarmRoles)
+        {
+            claims.Add(
+             new Claim($"Farm:{farmRole.FarmId}:Role", farmRole.Role.ToString()));
+        }
 
         var symmetricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.Value.Key));
         var signingCredentials = new SigningCredentials(symmetricSecurityKey, SecurityAlgorithms.HmacSha256);

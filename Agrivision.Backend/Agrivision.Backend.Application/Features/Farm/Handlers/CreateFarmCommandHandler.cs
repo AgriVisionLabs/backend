@@ -1,15 +1,13 @@
-using System.Data;
 using Agrivision.Backend.Application.Errors;
 using Agrivision.Backend.Application.Features.Farm.Commands;
 using Agrivision.Backend.Application.Features.Farm.Contracts;
-using Agrivision.Backend.Application.Models;
+using Agrivision.Backend.Domain.Enums.Core;
+
 using Agrivision.Backend.Application.Repositories.Core;
 using Agrivision.Backend.Application.Repositories.Identity;
 using Agrivision.Backend.Application.Services.Utility;
 using Agrivision.Backend.Domain.Abstractions;
 using Agrivision.Backend.Domain.Entities.Core;
-using Agrivision.Backend.Domain.Enums.Core;
-using Agrivision.Backend.Domain.Interfaces.Identity;
 using Mapster;
 using MediatR;
 

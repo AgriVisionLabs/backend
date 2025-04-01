@@ -87,4 +87,14 @@ public class UserRepository(UserManager<ApplicationUser> userManager) : IUserRep
         }
         throw new Exception("Can't use AddToRoleAsync with non ApplicationUser type objects");
     }
+    public async Task<IEnumerable<string>> GetRolesAsync(IApplicationUser user)
+    {
+        if (user is ApplicationUser applicationUser)
+        {
+         return   await userManager.GetRolesAsync(applicationUser);
+        }
+        throw new Exception("Can't use GetRolesAsync with non ApplicationUser type objects");
+
+    }
+
 }

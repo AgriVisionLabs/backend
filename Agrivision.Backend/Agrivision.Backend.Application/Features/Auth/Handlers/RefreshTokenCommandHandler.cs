@@ -33,7 +33,7 @@ public class RefreshTokenCommandHandler(IUserRepository userRepository, IJwtProv
         userRefreshToken.RevokedOn = DateTime.UtcNow;
 
         // generate new jwt token for the user
-        var (newToken, expiresIn) = jwtProvider.GenerateToken(user);
+        var (newToken, expiresIn) = jwtProvider.GenerateToken(user,null,null);
 
         // generate a new refresh token using the private method here (the one with the random number generator)
         var newRefreshToken = GenerateRefreshToken(); 

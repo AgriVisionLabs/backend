@@ -6,6 +6,7 @@ using Agrivision.Backend.Application.Features.Farm.Commands;
 using Agrivision.Backend.Application.Features.Farm.Contracts;
 using Agrivision.Backend.Application.Features.Farm.Queries;
 using Agrivision.Backend.Domain.Abstractions;
+using Agrivision.Backend.Infrastructure.Auth.Filters;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -27,16 +28,17 @@ namespace Agrivision.Backend.Api.Controllers
             var result = await mediator.Send(new GetAllFarmsCreatedByUserIdQuery(userId), cancellationToken);
             return result.Succeeded ? Ok(result.Value) : result.ToProblem(result.Error.ToStatusCode());
         }
-
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetById([FromRoute] string id, CancellationToken cancellationToken = default)
+        //[FarmRole("Manager", "Owner")]
+        [FarmRole("Worker")]
+        [HttpGet("{farmId}")]
+        public async Task<IActionResult> GetById([FromRoute] string farmId, CancellationToken cancellationToken = default)
         {
-            var result = await mediator.Send(new GetFarmByIdQuery(id), cancellationToken);
+            var result = await mediator.Send(new GetFarmByIdQuery(farmId), cancellationToken);
             return result.Succeeded ? Ok(result.Value) : result.ToProblem(result.Error.ToStatusCode());
         }
 
         [HttpPost("")]
-        public async Task<IActionResult> AddAsync([FromBody] CreateFarmRequest request, CancellationToken cancellationToken = default)
+        public async Task<IActionResult> AddAsync([FromBody] FarmRequest request, CancellationToken cancellationToken = default)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userId))

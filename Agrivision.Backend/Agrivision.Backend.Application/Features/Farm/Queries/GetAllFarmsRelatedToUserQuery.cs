@@ -5,4 +5,4 @@ using MediatR;
 
 namespace Agrivision.Backend.Application.Features.Farm.Queries;
 
-public record GetAllFarmsCreatedByUserIdQuery(string UserId)  : IRequest<Result<List<FarmResponse>>>;
+public record GetAllFarmsRelatedToUserQuery(string UserId)  : IRequest<Result<List<FarmResponse>>>;

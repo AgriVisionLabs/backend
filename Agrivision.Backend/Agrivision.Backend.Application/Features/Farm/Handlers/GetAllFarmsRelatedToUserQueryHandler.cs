@@ -2,6 +2,7 @@ using Agrivision.Backend.Application.Errors;
 using Agrivision.Backend.Application.Features.Farm.Commands;
 using Agrivision.Backend.Application.Features.Farm.Contracts;
 using Agrivision.Backend.Application.Repositories.Core;
+using Agrivision.Backend.Application.Repositories.Identity;
 using Agrivision.Backend.Application.Services.Utility;
 using Agrivision.Backend.Domain.Abstractions;
 using Agrivision.Backend.Domain.Entities.Core;
@@ -10,11 +11,13 @@ using MediatR;
 
 namespace Agrivision.Backend.Application.Features.Farm.Handlers;
 
-public class GetAllFarmsCreatedByUserIdQueryHandler(IFarmRepository farmRepository, IUtilityService utilityService) : IRequestHandler<Queries.GetAllFarmsCreatedByUserIdQuery, Result<List<FarmResponse>>>
+public class GetAllFarmsRelatedToUserQueryHandler(IFarmRepository farmRepository,IUserRepository userRepository, IUtilityService utilityService) : IRequestHandler<Queries.GetAllFarmsRelatedToUserQuery, Result<List<FarmResponse>>>
 {
-    public async Task<Result<List<FarmResponse>>> Handle(Queries.GetAllFarmsCreatedByUserIdQuery request, CancellationToken cancellationToken)
+    public async Task<Result<List<FarmResponse>>> Handle(Queries.GetAllFarmsRelatedToUserQuery request, CancellationToken cancellationToken)
     {
-        var farms = await farmRepository.GetAllCreatedByUserIdAsync(request.UserId, cancellationToken);
+        var user= await userRepository.FindByIdAsync(request.UserId);
+        var userEmail = user!.Email;
+        var farms = await farmRepository.GetAllFarmsRelatedToUserAsync(userEmail, cancellationToken);
     
         if (farms.Count == 0)
             return Result.Failure<List<FarmResponse>>(FarmErrors.NoFarmsFound);

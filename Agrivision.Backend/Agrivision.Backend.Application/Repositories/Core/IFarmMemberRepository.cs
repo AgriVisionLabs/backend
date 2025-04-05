@@ -12,4 +12,5 @@ public interface IFarmMemberRepository
     Task DeleteAsync(FarmMember farmMember, CancellationToken cancellationToken);
     Task<bool> AnyAsync(Func<FarmMember, bool> predicate, CancellationToken cancellationToken);
     Task<IEnumerable<FarmMember>> GetUser_FarmRoles(string Email);
+    Task<bool> DeleteListByEmails(List<string> emailsList, CancellationToken cancellationToken);
 }

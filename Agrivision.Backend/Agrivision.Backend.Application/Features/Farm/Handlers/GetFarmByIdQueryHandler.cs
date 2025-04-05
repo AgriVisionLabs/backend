@@ -1,4 +1,5 @@
 using Agrivision.Backend.Application.Errors;
+using Agrivision.Backend.Application.Features.Farm.Commands;
 using Agrivision.Backend.Application.Features.Farm.Contracts;
 using Agrivision.Backend.Application.Features.Farm.Queries;
 using Agrivision.Backend.Application.Repositories.Core;
@@ -22,8 +23,9 @@ public class GetFarmByIdQueryHandler(IFarmRepository farmRepository, IUtilitySer
         if (farm is null)
             return Result.Failure<FarmResponse>(FarmErrors.FarmNotFound);
 
+
         var response = new FarmResponse(utilityService.Encode(farm.Id.ToString()), farm.Name, farm.Area, farm.Location,
-            farm.SoilType, farm.CreatedById, []);
+            farm.SoilType, farm.CreatedById, farm.FarmMembers.Adapt<List<FarmMembers_Contract>>());
 
         return Result.Success(response);
     }

@@ -46,6 +46,29 @@ public class FarmMemberRepository(
         context.FarmMembers.Remove(farmMember);
         await context.SaveChangesAsync(cancellationToken);
     }
+    public async Task<bool> DeleteListByEmails(List<string> emailsList, CancellationToken cancellationToken)
+    {
+        if (emailsList == null || !emailsList.Any())
+        {
+            return false;
+        }
+
+        var membersToDelete = await context.FarmMembers
+            .Where(fm => emailsList.Contains(fm.Email))
+            .ToListAsync(cancellationToken);
+
+        if (!membersToDelete.Any())
+        {
+            return false;
+        }
+
+        context.FarmMembers.RemoveRange(membersToDelete);
+        var rowsAffected = await context.SaveChangesAsync(cancellationToken);
+        return rowsAffected > 0;
+    }
+
+    // Other methods...
+    
     public async Task<bool> AnyAsync(Func<FarmMember, bool> predicate, CancellationToken cancellationToken)
     {
         return await context.FarmMembers

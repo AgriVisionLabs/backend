@@ -19,17 +19,17 @@ namespace Agrivision.Backend.Api.Controllers
     public class FarmsController(IMediator mediator) : ControllerBase
     {
         [HttpGet("created")]
-        public async Task<IActionResult> GetAllCreatedByUserAsync(CancellationToken cancellationToken = default)
+        public async Task<IActionResult> GetAllFarmsRelatedToUserAsync(CancellationToken cancellationToken = default)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userId))
                 return Result.Failure(TokenErrors.InvalidToken).ToProblem(TokenErrors.InvalidToken.ToStatusCode());
             
-            var result = await mediator.Send(new GetAllFarmsCreatedByUserIdQuery(userId), cancellationToken);
+            var result = await mediator.Send(new GetAllFarmsRelatedToUserQuery(userId), cancellationToken);
             return result.Succeeded ? Ok(result.Value) : result.ToProblem(result.Error.ToStatusCode());
         }
-        //[FarmRole("Manager", "Owner")]
-        [FarmRole("Worker")]
+        [FarmRole("Manager", "Owner")]
+     
         [HttpGet("{farmId}")]
         public async Task<IActionResult> GetById([FromRoute] string farmId, CancellationToken cancellationToken = default)
         {
@@ -48,6 +48,19 @@ namespace Agrivision.Backend.Api.Controllers
             var result = await mediator.Send(command, cancellationToken);
 
             return result.Succeeded ? Ok(result.Value) : result.ToProblem(result.Error.ToStatusCode()); //change to created at action though CreatedAtAction(nameof(Get), new { id = response.Id }, response.Adapt<PollResponse>());
+        }
+     
+        [FarmRole("Worker")]
+        [HttpPut("{farmId}")]
+        public async Task<IActionResult> UpdateAsync([FromRoute]string farmId, [FromBody] FarmRequest request,CancellationToken cancellationToken=default)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+                return Result.Failure(TokenErrors.InvalidToken).ToProblem(TokenErrors.InvalidToken.ToStatusCode());
+            var command = new UpdateFarmCommand(request.Name, request.Area, request.Location, request.SoilType, userId, request.FarmMembers,farmId);
+            var result = await mediator.Send(command, cancellationToken);
+
+            return result.Succeeded ? NoContent() : result.ToProblem(result.Error.ToStatusCode());
         }
     }
 }

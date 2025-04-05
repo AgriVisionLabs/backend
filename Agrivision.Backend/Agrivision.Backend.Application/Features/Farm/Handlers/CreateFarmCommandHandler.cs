@@ -53,7 +53,7 @@ public class CreateFarmCommandHandler(IFarmRepository farmRepository
 
             farm.FarmMembers.Add(new FarmMember { Email = user.Email, Role = member.Role });
             addedMemberEmails.Add(user.Email);
-            await userRepository.AddToRoleAsync(user, member.Role.ToString());
+           // await userRepository.AddToRoleAsync(user, member.Role.ToString());
         }
             // save to the database
             await farmRepository.AddAsync(farm, cancellationToken);

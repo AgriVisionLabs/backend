@@ -3,7 +3,6 @@ using Agrivision.Backend.Application.Auth;
 using Agrivision.Backend.Application.Errors;
 using Agrivision.Backend.Application.Features.Auth.Contracts;
 using Agrivision.Backend.Application.Features.Auth.Queries;
-using Agrivision.Backend.Application.Repositories.Core;
 using Agrivision.Backend.Application.Repositories.Identity;
 using Agrivision.Backend.Application.Settings;
 using Agrivision.Backend.Domain.Abstractions;
@@ -13,7 +12,7 @@ using Microsoft.Extensions.Options;
 
 namespace Agrivision.Backend.Application.Features.Auth.Handlers;
 
-public class AuthQueryHandler(IUserRepository userRepository,IFarmMemberRepository farmMemberRepository, IJwtProvider jwtProvider, IOptions<RefreshTokenSettings> refreshTokenSettings) : IRequestHandler<AuthQuery, Result<AuthResponse>>
+public class AuthQueryHandler(IUserRepository userRepository, IJwtProvider jwtProvider, IOptions<RefreshTokenSettings> refreshTokenSettings) : IRequestHandler<AuthQuery, Result<AuthResponse>>
 {
     public async Task<Result<AuthResponse>> Handle(AuthQuery request, CancellationToken cancellationToken)
     {
@@ -25,10 +24,8 @@ public class AuthQueryHandler(IUserRepository userRepository,IFarmMemberReposito
 
         if (!user.EmailConfirmed)
             return Result.Failure<AuthResponse>(UserErrors.EmailNotConfirmed);
-
-        var userFarmRoles =  await farmMemberRepository.GetUser_FarmRoles(user.Email);
-        var roles = await userRepository.GetRolesAsync(user);
-         var (token, expiresIn) = jwtProvider.GenerateToken(user, roles, userFarmRoles);
+        
+        var (token, expiresIn) = jwtProvider.GenerateToken(user);
         
         var refreshToken = GenerateRefreshToken();
         var refreshTokenExpiration = DateTime.UtcNow.AddDays(refreshTokenSettings.Value.RefreshTokenExpiryDays);

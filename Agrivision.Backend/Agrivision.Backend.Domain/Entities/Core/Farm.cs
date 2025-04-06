@@ -10,5 +10,9 @@ public class Farm : AuditableEntity
     public double Area { get; set; }
     public string Location { get; set; }
     public SoilTypes SoilType { get; set; }
-    public List<FarmMember> FarmMembers { get; set; } = [];
+    
+    // navigational properties
+    public ICollection<Field> Fields { get; set; } = new List<Field>();
+    public ICollection<FarmUserRole> FarmUserRoles { get; set; } = new List<FarmUserRole>();
+
 }

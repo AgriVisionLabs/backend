@@ -29,11 +29,18 @@ public class FarmConfigurations : IEntityTypeConfiguration<Farm>
         builder.Property(farm => farm.SoilType)
             .IsRequired();
 
-        builder.HasIndex(farm => new { farm.Name, farm.CreatedById }).IsUnique();
+        builder.HasIndex(farm => new { farm.Name, farm.CreatedById })
+            .IsUnique() // farm name is unique per user
+            .HasFilter("[IsDeleted] = 0");
+        
+        builder.HasMany(farm => farm.Fields) // each farm has many fields
+            .WithOne(farm => farm.Farm) // each field has one farm 
+            .HasForeignKey(field => field.FarmId) // farmId is the foreign key
+            .OnDelete(DeleteBehavior.Restrict); // restrict deletion of fields when farms is deleted ig
 
-
-        builder.HasMany(x => x.FarmMembers)
-               .WithOne()
-               .HasForeignKey("FarmId");
+        builder.HasMany(farm => farm.FarmUserRoles)
+            .WithOne(fur => fur.Farm)
+            .HasForeignKey(fur => fur.FarmId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

@@ -46,7 +46,7 @@ public class EmailService(IOptions<MailSettings> mailSettings,IOptions<AppSettin
     {
         var emailBody = EmailBodyBuilder.GenerateEmailBody("EmailConfirmation", new Dictionary<string, string>
         {
-            {"{{link}}", $"{appSettings.Value.BaseUrl}/auth/emailConfirmation?token={token}"}
+            {"{{link}}", $"{appSettings.Value.BaseUrl}/emailConfirmation?token={token}"}
         });
 
         await SendEmailAsync(email, "Agrivision: Email Confirmation", emailBody);

@@ -30,4 +30,9 @@
       <ProjectReference Include="..\Agrivision.Backend.Domain\Agrivision.Backend.Domain.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Persistence\Core\Migrations\" />
+      <Folder Include="Persistence\Identity\Migrations\" />
+    </ItemGroup>
+
 </Project>

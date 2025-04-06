@@ -12,6 +12,4 @@ public interface IUserRepository
     Task<bool> CreateUserAsync(IApplicationUser user, string password);
     Task<string> GenerateEmailConfirmationTokenAsync(IApplicationUser user);
     Task<bool> ConfirmEmailAsync(IApplicationUser user, string code);
-    Task<bool> AddToRoleAsync(IApplicationUser user,string roleName);
-    Task <IEnumerable<string>> GetRolesAsync(IApplicationUser user);
 }

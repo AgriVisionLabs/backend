@@ -3,20 +3,16 @@ using Agrivision.Backend.Application.Auth;
 using Agrivision.Backend.Application.Repositories.Core;
 using Agrivision.Backend.Application.Repositories.Identity;
 using Agrivision.Backend.Application.Services.Email;
-using Agrivision.Backend.Application.Services.Utility;
 using Agrivision.Backend.Application.Settings;
 using Agrivision.Backend.Infrastructure.Auth;
-using Agrivision.Backend.Infrastructure.Auth.Filters;
 using Agrivision.Backend.Infrastructure.Persistence.Core;
 using Agrivision.Backend.Infrastructure.Persistence.Identity;
 using Agrivision.Backend.Infrastructure.Persistence.Identity.Entities;
 using Agrivision.Backend.Infrastructure.Repositories.Core;
 using Agrivision.Backend.Infrastructure.Repositories.Identity;
 using Agrivision.Backend.Infrastructure.Services.Email;
-using Agrivision.Backend.Infrastructure.Services.Utility;
 using Agrivision.Backend.Infrastructure.Settings;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -49,9 +45,13 @@ public static class DependencyInjection
 
         services.AddFarmRepository();
 
-        services.AddFarmMemberRepository();
+        services.AddFieldRepository();
 
-        services.AddUtilityService();
+        services.MapAdminSettings(config);
+
+        services.AddRoleRepository();
+
+        services.AddFarmUserRoleRepository();
         
         return services;
     }
@@ -79,7 +79,7 @@ public static class DependencyInjection
 
     private static IServiceCollection AddIdentityServices(this IServiceCollection services)
     {
-        services.AddIdentity<ApplicationUser, ApplicationRole>(options =>
+        services.AddIdentity<ApplicationUser, IdentityRole>(options =>
             {
                 // Password Configuration
                 options.Password.RequireDigit = true;
@@ -104,17 +104,13 @@ public static class DependencyInjection
         
         // Register Auth Repository
         services.AddScoped<IAuthRepository, AuthRepository>();
-
-      
+        
         return services;
     }
     
     private static IServiceCollection AddAuthenticationServices(this IServiceCollection services, IConfiguration config)
     {
         services.AddSingleton<IJwtProvider, JwtProvider>();
-
-        services.AddTransient<IAuthorizationHandler,FarmRoleHandler>();
-        services.AddTransient<IAuthorizationPolicyProvider, FarmRoleAuthorizationPolicyProvider>();
 
         services.AddOptions<JwtOptions>()
             .BindConfiguration(JwtOptions.SectionName)
@@ -206,19 +202,34 @@ public static class DependencyInjection
     private static IServiceCollection AddFarmRepository(this IServiceCollection services)
     {
         services.AddScoped<IFarmRepository, FarmRepository>();
-        
-        return services;
-    }
-    private static IServiceCollection AddFarmMemberRepository(this IServiceCollection services)
-    {
-        services.AddScoped<IFarmMemberRepository,FarmMemberRepository>();
-        
+
         return services;
     }
 
-    private static IServiceCollection AddUtilityService(this IServiceCollection services)
+    private static IServiceCollection AddFieldRepository(this IServiceCollection services)
     {
-        services.AddScoped<IUtilityService, UtilityService>();
+        services.AddScoped<IFieldRepository, FieldRepository>();
+
+        return services;
+    }
+    
+    private static IServiceCollection MapAdminSettings(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.Configure<AdminSettings>(configuration.GetSection(nameof(AdminSettings)));
+
+        return services;
+    }
+    
+    private static IServiceCollection AddRoleRepository(this IServiceCollection services)
+    {
+        services.AddScoped<IRoleRepository, RoleRepository>();
+
+        return services;
+    }
+    
+    private static IServiceCollection AddFarmUserRoleRepository(this IServiceCollection services)
+    {
+        services.AddScoped<IFarmUserRoleRepository, FarmUserRoleRepository>();
 
         return services;
     }

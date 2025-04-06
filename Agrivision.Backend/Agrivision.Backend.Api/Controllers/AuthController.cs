@@ -1,5 +1,6 @@
 using Agrivision.Backend.Api.Extensions;
 using Agrivision.Backend.Application.Features.Auth.Commands;
+using Agrivision.Backend.Application.Features.Auth.Contracts;
 using Agrivision.Backend.Application.Features.Auth.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -11,38 +12,38 @@ namespace Agrivision.Backend.Api.Controllers
     public class AuthController(IMediator mediator, ILogger<AuthController> logger) : ControllerBase
     {
         [HttpPost("")]
-        public async Task<IActionResult> LoginAsync([FromBody] AuthQuery query, CancellationToken cancellationToken = default)
+        public async Task<IActionResult> LoginAsync([FromBody] AuthRequest request, CancellationToken cancellationToken = default)
         {
-            var result = await mediator.Send(query, cancellationToken);
+            var result = await mediator.Send(new AuthQuery(request.Email, request.Password), cancellationToken);
             return result.Succeeded ? Ok(result.Value) : result.ToProblem(result.Error.ToStatusCode());
         }
 
         [HttpPost("refresh")]
-        public async Task<IActionResult> RefreshAsync([FromBody] RefreshTokenCommand command, CancellationToken cancellationToken = default)
+        public async Task<IActionResult> RefreshAsync([FromBody] RefreshTokenRequest request, CancellationToken cancellationToken = default)
         {
-            var result = await mediator.Send(command, cancellationToken);
+            var result = await mediator.Send(new RefreshTokenCommand(request.Token, request.RefreshToken), cancellationToken);
             return result.Succeeded ? Ok(result.Value) : result.ToProblem(result.Error.ToStatusCode());
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> RegisterAsync([FromBody] RegisterCommand command,
+        public async Task<IActionResult> RegisterAsync([FromBody] RegisterRequest request,
             CancellationToken cancellationToken = default)
         {
-            var result = await mediator.Send(command, cancellationToken);
+            var result = await mediator.Send(new RegisterCommand(request.UserName, request.Email, request.Password, request.FirstName, request.LastName, request.PhoneNumber), cancellationToken);
             return result.Succeeded ? Ok() : result.ToProblem(result.Error.ToStatusCode());
         }
 
         [HttpPost("confirm-email")]
-        public async Task<IActionResult> ConfirmEmail([FromBody] ConfirmEmailCommand command)
+        public async Task<IActionResult> ConfirmEmail([FromBody] ConfirmEmailRequest request)
         {
-            var result = await mediator.Send(command);
+            var result = await mediator.Send(new ConfirmEmailCommand(request.Token));
             return result.Succeeded ? Ok() : result.ToProblem(result.Error.ToStatusCode());
         }
 
         [HttpPost("resend-confirmation-email")]
-        public async Task<IActionResult> ResendConfrimaionEmail([FromBody] ResendConfirmationEmailCommand command)
+        public async Task<IActionResult> ResendConfirmationEmail([FromBody] ResendConfirmationEmailRequest request)
         {
-            var result = await mediator.Send(command);
+            var result = await mediator.Send(new ResendConfirmationEmailCommand(request.Email));
             return result.Succeeded ? Ok() : result.ToProblem(result.Error.ToStatusCode());
         }
     }

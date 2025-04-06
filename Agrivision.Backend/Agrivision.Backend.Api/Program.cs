@@ -1,6 +1,8 @@
 using Agrivision.Backend.Api;
 using Agrivision.Backend.Infrastructure;
+using Agrivision.Backend.Infrastructure.Persistence.Core;
 using Agrivision.Backend.Infrastructure.Persistence.Identity;
+using Agrivision.Backend.Infrastructure.Seeding;
 using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
 using Serilog;
@@ -12,11 +14,26 @@ builder.Services.AddDependencies(builder.Configuration);
 
 builder.Host.AddSerilog();
 
-
 builder.Services.AddDbContext<ApplicationUserDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("IdentityDbConnectionString")));
 
 var app = builder.Build();
+
+// seed the database(s)
+using (var scope = app.Services.CreateScope())
+{
+    // seed identity
+    var identityDbContext = scope.ServiceProvider.GetRequiredService<ApplicationUserDbContext>();
+    identityDbContext.Database.Migrate();
+    await IdentitySeeder.SeedGlobalRolesAsync(scope.ServiceProvider);
+    await IdentitySeeder.SeedAdminUserAsync(scope.ServiceProvider);
+    
+    // seed core
+    var coreDbContext = scope.ServiceProvider.GetRequiredService<CoreDbContext>();
+    coreDbContext.Database.Migrate();
+    await CoreSeeder.SeedRolesAsync(scope.ServiceProvider);
+    await CoreSeeder.SeedDemoFarm(scope.ServiceProvider);
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment() || builder.Configuration.GetValue<bool>("ApiDocumentation:Enabled")) 
@@ -35,6 +52,8 @@ app.UseSerilogRequestLogging();
 app.UseHttpsRedirection();
 
 app.UseCors("AllowAny");
+
+app.UseAuthentication();
 
 app.UseAuthorization();
 

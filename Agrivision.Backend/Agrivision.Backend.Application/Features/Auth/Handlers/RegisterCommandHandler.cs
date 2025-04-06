@@ -26,7 +26,7 @@ public class RegisterCommandHandler(IUserRepository userRepository, ILogger<Regi
             UserName = request.UserName,
             FirstName = request.FirstName,
             LastName = request.LastName,
-            PhoneNumber = request.PhoneNumber
+            PhoneNumber = request.PhoneNumber,
         };
 
         var success = await userRepository.CreateUserAsync(user, request.Password);

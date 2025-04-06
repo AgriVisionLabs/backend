@@ -1,84 +1,93 @@
 using Agrivision.Backend.Application.Repositories.Core;
-using Agrivision.Backend.Domain.Abstractions;
 using Agrivision.Backend.Domain.Entities.Core;
-using Agrivision.Backend.Domain.Enums.Core;
 using Agrivision.Backend.Infrastructure.Persistence.Core;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 
 namespace Agrivision.Backend.Infrastructure.Repositories.Core;
 
-public class FarmRepository(CoreDbContext context, ILogger logger) : IFarmRepository
+public class FarmRepository(CoreDbContext coreDbContext) : IFarmRepository
 {
-    public async Task<List<Farm>> GetAllAsync(CancellationToken cancellationToken = default)
+    // admin method
+    public async Task<List<Farm>> GetAllAsync(CancellationToken cancellationToken)
     {
-        return await context.Farms.Include(f => f.FarmMembers).ToListAsync(cancellationToken);
+        return await coreDbContext.Farms.ToListAsync(cancellationToken);
     }
 
-    public async Task<List<Farm>> GetAllFarmsRelatedToUserAsync(string email, CancellationToken cancellationToken = default)
+    // admin method
+    public async Task<List<Farm>> AdminGetAllCreatedByUserIdAsync(string userId, CancellationToken cancellationToken)
     {
-        
-         return await context.Farms
-         .Join(context.FarmMembers.Where(fm => fm.Email == email),
-             farm => farm.Id,
-             farmMember => farmMember.FarmId,
-             (farm, farmMember) => farm)
-         .Distinct()
-         .ToListAsync(cancellationToken);
-       
+        return await coreDbContext.Farms
+            .Where(farm => farm.CreatedById == userId)
+            .ToListAsync(cancellationToken);
+    }
+    
+    
+    public async Task<List<Farm>> GetAllCreatedByUserIdAsync(string userId, CancellationToken cancellationToken)
+    {
+        return await coreDbContext.Farms
+            .Where(farm => farm.CreatedById == userId && !farm.IsDeleted)
+            .ToListAsync(cancellationToken);
     }
 
-    public async Task<Farm?> GetByIdAsync(Guid farmId, CancellationToken cancellationToken = default)
+    // admin method
+    public async Task<Farm?> AdminFindByIdAsync(Guid farmId, CancellationToken cancellationToken)
     {
-        return await context.Farms
-        .Include(f => f.FarmMembers)
-        .FirstOrDefaultAsync(f => f.Id == farmId, cancellationToken);
-       
+        return await coreDbContext.Farms
+            .FirstOrDefaultAsync(farm => farm.Id == farmId, cancellationToken);
     }
 
-    public async Task<Farm?> FindByNameAndUserAsync(string name, string userId, CancellationToken cancellationToken = default)
+    public async Task<Farm?> FindByIdAsync(Guid farmId, CancellationToken cancellationToken)
     {
-        return await context.Farms
-            .FirstOrDefaultAsync(farm => farm.Name == name && farm.CreatedById == userId, cancellationToken);
+        return await coreDbContext.Farms
+            .FirstOrDefaultAsync(farm => farm.Id == farmId && !farm.IsDeleted, cancellationToken);
+    }
+    
+    public async Task<Farm?> AdminFindByIdWithFieldsAsync(Guid farmId, CancellationToken cancellationToken)
+    {
+        return await coreDbContext.Farms
+            .AsNoTracking()
+            .Include(farm => farm.Fields)
+            .FirstOrDefaultAsync(farm => farm.Id == farmId, cancellationToken);
     }
 
-    public async Task AddAsync(Farm farm, CancellationToken cancellationToken = default)
+    public async Task<Farm?> FindByIdWithFieldsAsync(Guid farmId, CancellationToken cancellationToken)
     {
-        try
-        {
-            await context.Farms.AddAsync(farm, cancellationToken);
-            var changes = await context.SaveChangesAsync(cancellationToken);
-
-            if (changes == 0)
-            {
-                throw new Exception("Failed to save the farm to the database.");
-            }
-        }
-        catch (Exception e)
-        {
-            logger.Error(e, "An error occurred while adding a farm with Name: {FarmName}, CreatedBy: {CreatedById}", farm.Name, farm.CreatedById);
-            throw new ApplicationException("An unexpected error occurred while saving the farm. Please try again later.");
-        }
+        return await coreDbContext.Farms
+            .AsNoTracking()
+            .Include(farm => farm.Fields)
+            .FirstOrDefaultAsync(farm => farm.Id == farmId && !farm.IsDeleted, cancellationToken);
+    }
+    
+    // admin method
+    public async Task<List<Farm>> AdminFindByNameAndUserAsync(string name, string userId, CancellationToken cancellationToken)
+    {
+        return await coreDbContext.Farms
+            .Where(farm => farm.Name == name && farm.CreatedById == userId)
+            .ToListAsync(cancellationToken);
+    }
+    
+    public async Task<Farm?> FindByNameAndUserAsync(string name, string userId, CancellationToken cancellationToken)
+    {
+        return await coreDbContext.Farms
+            .FirstOrDefaultAsync(farm => farm.Name == name && farm.CreatedById == userId && !farm.IsDeleted, cancellationToken);
     }
 
-    public async Task UpdateAsync(Farm farm, CancellationToken cancellationToken = default)
+    public async Task AddAsync(Farm farm, CancellationToken cancellationToken)
     {
-        try
-        {
-            context.Farms.Update(farm);
-            var changes = await context.SaveChangesAsync(cancellationToken);
-
-            if (changes == 0)
-            {
-                throw new Exception("Failed to save the updated farm to the database.");
-            }
-        }
-        catch (Exception e)
-        {
-            logger.Error(e, "An error occurred while Updating a farm with Name: {FarmName}, CreatedBy: {CreatedById}", farm.Name, farm.CreatedById);
-            throw new ApplicationException("An unexpected error occurred while saving the updated farm. Please try again later.");
-        }
-
+        await coreDbContext.Farms.AddAsync(farm, cancellationToken);
+        await coreDbContext.SaveChangesAsync(cancellationToken);
     }
 
+    public async Task UpdateAsync(Farm farm, CancellationToken cancellationToken)
+    {
+        coreDbContext.Farms.Update(farm);
+        await coreDbContext.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task RemoveAsync(Farm farm, CancellationToken cancellationToken)
+    {
+        coreDbContext.Farms.Remove(farm); 
+        await coreDbContext.SaveChangesAsync(cancellationToken);
+    }
 }

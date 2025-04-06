@@ -22,95 +22,6 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Identity.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("Agrivision.Backend.Infrastructure.Persistence.Identity.Entities.ApplicationRole", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("ConcurrencyStamp")
-                        .IsConcurrencyToken()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsDefault")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Name")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.Property<string>("NormalizedName")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("NormalizedName")
-                        .IsUnique()
-                        .HasDatabaseName("RoleNameIndex")
-                        .HasFilter("[NormalizedName] IS NOT NULL");
-
-                    b.ToTable("AspNetRoles", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = "019536ad-2b50-77a9-b789-1eee7096e97b",
-                            ConcurrencyStamp = "019536ad-2b50-77a9-b789-1eefa56814ae",
-                            IsDefault = false,
-                            IsDeleted = false,
-                            Name = "Admin",
-                            NormalizedName = "ADMIN"
-                        },
-                        new
-                        {
-                            Id = "3a86ed08-e412-11ef-a88c-17a7369c35d9",
-                            ConcurrencyStamp = "3a86ed09-e412-11ef-a88c-17a7369c35d9",
-                            IsDefault = true,
-                            IsDeleted = false,
-                            Name = "Member",
-                            NormalizedName = "MEMBER"
-                        },
-                        new
-                        {
-                            Id = "019536ad-2b50-77a9-b789-1ef0e1981f9d",
-                            ConcurrencyStamp = "019536ad-2b50-77a9-b789-1ef1fe0da121",
-                            IsDefault = false,
-                            IsDeleted = false,
-                            Name = "Owner",
-                            NormalizedName = "OWNER"
-                        },
-                        new
-                        {
-                            Id = "019536ad-2b50-77a9-b789-1ef47f0d8f15",
-                            ConcurrencyStamp = "019536ad-2b50-77a9-b789-1ef58ecbe7b6",
-                            IsDefault = false,
-                            IsDeleted = false,
-                            Name = "Worker",
-                            NormalizedName = "WORKER"
-                        },
-                        new
-                        {
-                            Id = "019536ad-2b50-77a9-b789-1ef2c78aa925",
-                            ConcurrencyStamp = "019536ad-2b50-77a9-b789-1ef340ba58f9",
-                            IsDefault = false,
-                            IsDeleted = false,
-                            Name = "Manager",
-                            NormalizedName = "MANAGER"
-                        },
-                        new
-                        {
-                            Id = "019536ad-2b50-77a9-b789-1ef616e31782",
-                            ConcurrencyStamp = "019536ad-2b51-70bc-9937-4b660afc584b",
-                            IsDefault = false,
-                            IsDeleted = false,
-                            Name = "Expert",
-                            NormalizedName = "EXPERT"
-                        });
-                });
-
             modelBuilder.Entity("Agrivision.Backend.Infrastructure.Persistence.Identity.Entities.ApplicationUser", b =>
                 {
                     b.Property<string>("Id")
@@ -196,6 +107,33 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Identity.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("NormalizedName")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NormalizedName")
+                        .IsUnique()
+                        .HasDatabaseName("RoleNameIndex")
+                        .HasFilter("[NormalizedName] IS NOT NULL");
+
+                    b.ToTable("AspNetRoles", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -343,7 +281,7 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Identity.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
-                    b.HasOne("Agrivision.Backend.Infrastructure.Persistence.Identity.Entities.ApplicationRole", null)
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
                         .WithMany()
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -370,7 +308,7 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Identity.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
                 {
-                    b.HasOne("Agrivision.Backend.Infrastructure.Persistence.Identity.Entities.ApplicationRole", null)
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
                         .WithMany()
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)

@@ -4,7 +4,6 @@ using Agrivision.Backend.Application.Errors;
 using Agrivision.Backend.Application.Features.Auth.Commands;
 using Agrivision.Backend.Application.Features.Auth.Contracts;
 using Agrivision.Backend.Application.Repositories.Identity;
-using Agrivision.Backend.Application.Repositories.Core;
 using Agrivision.Backend.Application.Settings;
 using Agrivision.Backend.Domain.Abstractions;
 using Agrivision.Backend.Domain.Entities.Identity;
@@ -13,7 +12,7 @@ using Microsoft.Extensions.Options;
 
 namespace Agrivision.Backend.Application.Features.Auth.Handlers;
 
-public class RefreshTokenCommandHandler(IUserRepository userRepository,IFarmMemberRepository farmMemberRepository, IJwtProvider jwtProvider, IOptions<RefreshTokenSettings> refreshTokenSettings) : IRequestHandler<RefreshTokenCommand, Result<AuthResponse>>
+public class RefreshTokenCommandHandler(IUserRepository userRepository, IJwtProvider jwtProvider, IOptions<RefreshTokenSettings> refreshTokenSettings) : IRequestHandler<RefreshTokenCommand, Result<AuthResponse>>
 {
     public async Task<Result<AuthResponse>> Handle(RefreshTokenCommand request, CancellationToken cancellationToken)
     {
@@ -34,9 +33,7 @@ public class RefreshTokenCommandHandler(IUserRepository userRepository,IFarmMemb
         userRefreshToken.RevokedOn = DateTime.UtcNow;
 
         // generate new jwt token for the user
-        var userFarmRoles = await farmMemberRepository.GetUser_FarmRoles(user.Email);
-        var roles = await userRepository.GetRolesAsync(user);
-        var (newToken, expiresIn) = jwtProvider.GenerateToken(user, roles, userFarmRoles);
+        var (newToken, expiresIn) = jwtProvider.GenerateToken(user);
 
         // generate a new refresh token using the private method here (the one with the random number generator)
         var newRefreshToken = GenerateRefreshToken(); 

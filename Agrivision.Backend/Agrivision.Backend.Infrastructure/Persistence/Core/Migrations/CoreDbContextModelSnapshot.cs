@@ -38,6 +38,15 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
                     b.Property<DateTime>("CreatedOn")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("DeletedById")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("DeletedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Location")
                         .IsRequired()
                         .HasMaxLength(200)
@@ -60,12 +69,13 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("Name", "CreatedById")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasFilter("[IsDeleted] = 0");
 
                     b.ToTable("Farms", (string)null);
                 });
 
-            modelBuilder.Entity("Agrivision.Backend.Domain.Entities.Core.FarmMember", b =>
+            modelBuilder.Entity("Agrivision.Backend.Domain.Entities.Core.FarmRole", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -73,35 +83,181 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Email")
+                    b.Property<string>("Description")
+                        .HasMaxLength(250)
+                        .HasColumnType("nvarchar(250)");
+
+                    b.Property<bool>("IsDefault")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique()
+                        .HasFilter("[IsDeleted] = 0");
+
+                    b.ToTable("FarmRoles", (string)null);
+                });
+
+            modelBuilder.Entity("Agrivision.Backend.Domain.Entities.Core.FarmUserRole", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("AcceptedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("AssignedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedById")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedById")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("DeletedOn")
+                        .HasColumnType("datetime2");
 
                     b.Property<Guid>("FarmId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("Role")
+                    b.Property<int>("FarmRoleId")
                         .HasColumnType("int");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("UpdatedById")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("UpdatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FarmRoleId");
+
+                    b.HasIndex("FarmId", "UserId")
+                        .IsUnique()
+                        .HasFilter("[IsDeleted] = 0");
+
+                    b.ToTable("FarmUserRoles", (string)null);
+                });
+
+            modelBuilder.Entity("Agrivision.Backend.Domain.Entities.Core.Field", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<double>("Area")
+                        .HasColumnType("float");
+
+                    b.Property<string>("CreatedById")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedById")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("DeletedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("FarmId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("UpdatedById")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("UpdatedOn")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
                     b.HasIndex("FarmId");
 
-                    b.ToTable("FarmMembers");
+                    b.HasIndex("Name", "FarmId")
+                        .IsUnique()
+                        .HasFilter("[IsDeleted] = 0");
+
+                    b.ToTable("Fields", (string)null);
                 });
 
-            modelBuilder.Entity("Agrivision.Backend.Domain.Entities.Core.FarmMember", b =>
+            modelBuilder.Entity("Agrivision.Backend.Domain.Entities.Core.FarmUserRole", b =>
                 {
-                    b.HasOne("Agrivision.Backend.Domain.Entities.Core.Farm", null)
-                        .WithMany("FarmMembers")
+                    b.HasOne("Agrivision.Backend.Domain.Entities.Core.Farm", "Farm")
+                        .WithMany("FarmUserRoles")
                         .HasForeignKey("FarmId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("Agrivision.Backend.Domain.Entities.Core.FarmRole", "FarmRole")
+                        .WithMany("FarmUserRoles")
+                        .HasForeignKey("FarmRoleId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Farm");
+
+                    b.Navigation("FarmRole");
+                });
+
+            modelBuilder.Entity("Agrivision.Backend.Domain.Entities.Core.Field", b =>
+                {
+                    b.HasOne("Agrivision.Backend.Domain.Entities.Core.Farm", "Farm")
+                        .WithMany("Fields")
+                        .HasForeignKey("FarmId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Farm");
                 });
 
             modelBuilder.Entity("Agrivision.Backend.Domain.Entities.Core.Farm", b =>
                 {
-                    b.Navigation("FarmMembers");
+                    b.Navigation("FarmUserRoles");
+
+                    b.Navigation("Fields");
+                });
+
+            modelBuilder.Entity("Agrivision.Backend.Domain.Entities.Core.FarmRole", b =>
+                {
+                    b.Navigation("FarmUserRoles");
                 });
 #pragma warning restore 612, 618
         }

@@ -80,7 +80,7 @@ public static class IdentitySeeder
 
         var rolePermissionMap = new Dictionary<string, List<string>>
         {
-            ["Admin"] = GlobalPermissionsRegistry.GetAllPermissions()!.ToList()!,
+            ["Admin"] = GlobalPermissionsRegistry.GetAllPermissions().ToList()!,
             ["Support"] =
             [
                 GlobalPermissions.ReadUsers,

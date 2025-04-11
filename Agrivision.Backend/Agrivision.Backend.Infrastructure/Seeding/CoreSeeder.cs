@@ -1,3 +1,5 @@
+using Agrivision.Backend.Application.Security;
+using Agrivision.Backend.Domain.Abstractions.Consts;
 using Agrivision.Backend.Domain.Entities.Core;
 using Agrivision.Backend.Domain.Enums.Core;
 using Agrivision.Backend.Infrastructure.Persistence.Core;
@@ -141,5 +143,60 @@ public static class CoreSeeder
             logger.LogError(e, "Failed to seed demo farm.");
         }
         
+    }
+
+    public static async Task SeedCoreRolePermissionAsync(IServiceProvider serviceProvider)
+    {
+        var coreDbContext = serviceProvider.GetRequiredService<CoreDbContext>();
+        var logger = serviceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("CoreSeeder");
+
+        var rolePermissionMap = new Dictionary<string, List<string>>
+        {
+            ["Owner"] = CorePermissionsRegistry.GetAllPermissions().ToList()!,
+            ["Manager"] =
+            [
+                CorePermissions.ViewFarm,
+                CorePermissions.ViewFields,
+                CorePermissions.ViewFarmUsers,
+                CorePermissions.AssignFarmRoles
+            ],
+            ["Expert"] =
+            [
+                CorePermissions.ViewFarm,
+                CorePermissions.ViewFields
+            ],
+            ["Worker"] = [CorePermissions.ViewFields]
+        };
+
+        foreach (var (roleName, permissions) in rolePermissionMap)
+        {
+            var role = await coreDbContext.FarmRoles
+                .FirstOrDefaultAsync(r => r.Name == roleName && !r.IsDeleted);
+
+            if (role == null)
+            {
+                logger.LogWarning("Role not found {RoleName}", roleName);
+                continue;
+            }
+
+            var existingClaims = await coreDbContext.FarmRoleClaims
+                .Where(c => c.FarmRoleId == role.Id)
+                .Select(c => c.ClaimValue)
+                .ToListAsync();
+
+            var newClaims = permissions
+                .Where(p => !existingClaims.Contains(p))
+                .Select(p => new FarmRoleClaim
+                {
+                    FarmRoleId = role.Id,
+                    ClaimType = CorePermissions.Type,
+                    ClaimValue = p
+                });
+            
+            coreDbContext.FarmRoleClaims.AddRange(newClaims);
+        }
+
+        await coreDbContext.SaveChangesAsync();
+        logger.LogInformation("Core role permissions seeded successfully.");
     }
 }

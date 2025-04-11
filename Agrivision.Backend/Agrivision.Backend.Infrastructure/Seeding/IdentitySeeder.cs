@@ -1,3 +1,6 @@
+using System.Security.Claims;
+using Agrivision.Backend.Application.Security;
+using Agrivision.Backend.Domain.Abstractions.Consts;
 using Agrivision.Backend.Infrastructure.Persistence.Identity.Entities;
 using Agrivision.Backend.Infrastructure.Settings;
 using Microsoft.AspNetCore.Identity;
@@ -11,11 +14,9 @@ public static class IdentitySeeder
 {
     public static async Task SeedAdminUserAsync(IServiceProvider serviceProvider)
     {
-        using var scope = serviceProvider.CreateScope();
-
-        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
-        var options = scope.ServiceProvider.GetRequiredService<IOptions<AdminSettings>>();
-        var logger = scope.ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("IdentitySeeder");
+        var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+        var options = serviceProvider.GetRequiredService<IOptions<AdminSettings>>();
+        var logger = serviceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("IdentitySeeder");
 
         var adminSettings = options.Value;
 
@@ -56,10 +57,8 @@ public static class IdentitySeeder
 
     public static async Task SeedGlobalRolesAsync(IServiceProvider serviceProvider)
     {
-        using var scope = serviceProvider.CreateScope();
-        
-        var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-        var logger = scope.ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("IdentitySeeder");
+        var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+        var logger = serviceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("IdentitySeeder");
         
         var globalRoles = new List<string> { "Admin", "Support", "Member" };
 
@@ -72,5 +71,42 @@ public static class IdentitySeeder
         }
 
         logger.LogInformation("Global roles were seeded successfully.");
+    }
+
+    public static async Task SeedGlobalRolePermissionAsync(IServiceProvider serviceProvider)
+    {
+        var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+        var logger = serviceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("IdentitySeeder");
+
+        var rolePermissionMap = new Dictionary<string, List<string>>
+        {
+            ["Admin"] = GlobalPermissionsRegistry.GetAllPermissions()!.ToList()!,
+            ["Support"] =
+            [
+                GlobalPermissions.ReadUsers,
+                GlobalPermissions.ReadGlobalRoles,
+                GlobalPermissions.ViewAnyFarm,
+                GlobalPermissions.ImpersonateUser
+            ],
+            ["Member"] = []
+        };
+
+        foreach (var (roleName, permissions) in rolePermissionMap)
+        {
+            var role = await roleManager.FindByNameAsync(roleName);
+            if (role == null)
+            {
+                logger.LogWarning("Role '{RoleName}' not found. Skipping permission seeding.", roleName);
+                continue;
+            }
+
+            var existingClaim = await roleManager.GetClaimsAsync(role);
+
+            foreach (var permission in permissions.Where(permission => !existingClaim.Any(c => c.Type == GlobalPermissions.Type && c.Value == permission)))
+            {
+                await roleManager.AddClaimAsync(role, new Claim(GlobalPermissions.Type, permission));
+            }
+            logger.LogInformation("Seeded permissions for role '{RoleName}'.", roleName);
+        }
     }
 }

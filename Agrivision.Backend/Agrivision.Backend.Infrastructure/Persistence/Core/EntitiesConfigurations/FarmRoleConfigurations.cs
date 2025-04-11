@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Agrivision.Backend.Infrastructure.Persistence.Core.EntitiesConfigurations;
 
-public class RoleConfigurations : IEntityTypeConfiguration<FarmRole>
+public class FarmRoleConfigurations : IEntityTypeConfiguration<FarmRole>
 {
     public void Configure(EntityTypeBuilder<FarmRole> builder)
     {
@@ -26,6 +26,11 @@ public class RoleConfigurations : IEntityTypeConfiguration<FarmRole>
         builder.HasMany(r => r.FarmUserRoles)
             .WithOne(fur => fur.FarmRole)
             .HasForeignKey(fur => fur.FarmRoleId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasMany(r => r.Claims)
+            .WithOne(rc => rc.FarmRole)
+            .HasForeignKey(rc => rc.FarmRoleId)
             .OnDelete(DeleteBehavior.Restrict);
     }
 }

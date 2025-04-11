@@ -15,10 +15,8 @@ public static class CoreSeeder
 {
     public static async Task SeedRolesAsync(IServiceProvider serviceProvider)
     {
-        using var scope = serviceProvider.CreateScope();
-        
-        var coreDbContext = scope.ServiceProvider.GetRequiredService<CoreDbContext>();
-        var logger = scope.ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("CoreSeeder");
+        var coreDbContext = serviceProvider.GetRequiredService<CoreDbContext>();
+        var logger = serviceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("CoreSeeder");
         
         var defaultRoles = new List<FarmRole>
         {
@@ -46,12 +44,10 @@ public static class CoreSeeder
 
     public static async Task SeedDemoFarm(IServiceProvider serviceProvider)
     {
-        using var scope = serviceProvider.CreateScope();
-
-        var coreDbContext = scope.ServiceProvider.GetRequiredService<CoreDbContext>();
-        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
-        var options = scope.ServiceProvider.GetRequiredService<IOptions<AdminSettings>>();
-        var logger = scope.ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("CoreSeeder");
+        var coreDbContext = serviceProvider.GetRequiredService<CoreDbContext>();
+        var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+        var options = serviceProvider.GetRequiredService<IOptions<AdminSettings>>();
+        var logger = serviceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("CoreSeeder");
 
         var adminSettings = options.Value;
         

@@ -6,8 +6,8 @@ public class AuditableEntity
     public DateTime CreatedOn { get; set; } = DateTime.UtcNow;
     public DateTime? UpdatedOn { get; set; }
     public DateTime? DeletedOn { get; set; }
-    
-    public string CreatedById { get; set; }  // Only store user ID and not the navigational property since we have two databases
+
+    public string CreatedById { get; set; } = default!;  // Only store user ID and not the navigational property since we have two databases
     public string? UpdatedById { get; set; }
     public string? DeletedById { get; set; }
 }

@@ -11,6 +11,7 @@ public class CoreDbContext(DbContextOptions<CoreDbContext> options) : DbContext(
     public DbSet<Field> Fields { get; set; }
     public DbSet<FarmRole> FarmRoles { get; set; }
     public DbSet<FarmUserRole> FarmUserRoles { get; set; }
+    public DbSet<FarmRoleClaim> FarmRoleClaims { get; set; }
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

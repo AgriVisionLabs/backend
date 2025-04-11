@@ -14,9 +14,6 @@ builder.Services.AddDependencies(builder.Configuration);
 
 builder.Host.AddSerilog();
 
-builder.Services.AddDbContext<ApplicationUserDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("IdentityDbConnectionString")));
-
 var app = builder.Build();
 
 // seed the database(s)
@@ -27,6 +24,7 @@ using (var scope = app.Services.CreateScope())
     identityDbContext.Database.Migrate();
     await IdentitySeeder.SeedGlobalRolesAsync(scope.ServiceProvider);
     await IdentitySeeder.SeedAdminUserAsync(scope.ServiceProvider);
+    await IdentitySeeder.SeedGlobalRolePermissionAsync(scope.ServiceProvider);
     
     // seed core
     var coreDbContext = scope.ServiceProvider.GetRequiredService<CoreDbContext>();

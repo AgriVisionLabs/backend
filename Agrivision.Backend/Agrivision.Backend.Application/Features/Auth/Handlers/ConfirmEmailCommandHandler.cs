@@ -26,8 +26,19 @@ public class ConfirmEmailCommandHandler(IUserRepository userRepository,IJwtProvi
         if (user.EmailConfirmed)
             return Result.Failure(UserErrors.EmailAlreadyConfirmed);
 
-        var result = await userRepository.ConfirmEmailAsync(user, confirmationCode);
+        var confirmationResult = await userRepository.ConfirmEmailAsync(user, confirmationCode);
+        if (!confirmationResult)
+            return Result.Failure(UserErrors.EmailConfirmationFailed);
+        
+        var isInRole = await userRepository.IsInRoleAsync(user, "Member");
+        if (!isInRole)
+        {
+            var roleAssignmentResult = await userRepository.AddToRoleAsync(user, "Member");
 
-        return result ? Result.Success() : Result.Failure(UserErrors.EmailConfirmationFailed);
+            if (!roleAssignmentResult)
+                return Result.Failure(UserErrors.GlobalRoleAssignmentFailed);
+        }
+
+        return Result.Success();
     }
 }

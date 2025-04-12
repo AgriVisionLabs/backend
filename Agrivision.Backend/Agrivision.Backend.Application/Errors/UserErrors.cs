@@ -16,4 +16,7 @@ public static class UserErrors
 
     public static readonly Error EmailConfirmationFailed =
         new("User.EmailConfirmationFailed", "Email confirmation failed.");
+
+    public static readonly Error GlobalRoleAssignmentFailed =
+        new("User.GlobalRoleAssignmentFailed", "Global role assignment failed.");
 }

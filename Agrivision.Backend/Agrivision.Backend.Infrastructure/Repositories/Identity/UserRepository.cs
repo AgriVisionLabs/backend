@@ -1,4 +1,5 @@
 using Agrivision.Backend.Application.Repositories.Identity;
+using Agrivision.Backend.Domain.Abstractions;
 using Agrivision.Backend.Domain.Interfaces.Identity;
 using Agrivision.Backend.Infrastructure.Persistence.Identity.Entities;
 using Microsoft.AspNetCore.Identity;
@@ -75,6 +76,42 @@ public class UserRepository(UserManager<ApplicationUser> userManager) : IUserRep
             return result.Succeeded;
         }
 
+        throw new Exception("Can't use ConfirmEmailAsync with non ApplicationUser type objects");
+    }
+
+    public async Task<bool> IsInRoleAsync(IApplicationUser user, string roleName)
+    {
+        if (user is ApplicationUser applicationUser)
+        {
+            var result = await userManager.IsInRoleAsync(applicationUser, roleName);
+
+            return result;
+        }
+        
+        throw new Exception("Can't use ConfirmEmailAsync with non ApplicationUser type objects");
+    }
+
+    public async Task<bool> AddToRoleAsync(IApplicationUser user, string roleName)
+    {
+        if (user is ApplicationUser applicationUser)
+        {
+            var result = await userManager.AddToRoleAsync(applicationUser, roleName);
+
+            return result.Succeeded;
+        }
+        
+        throw new Exception("Can't use ConfirmEmailAsync with non ApplicationUser type objects");
+    }
+
+    public async Task<bool> AddToRolesAsync(IApplicationUser user, IReadOnlyList<string> roles)
+    {
+        if (user is ApplicationUser applicationUser)
+        {
+            var result = await userManager.AddToRolesAsync(applicationUser, roles);
+
+            return result.Succeeded;
+        }
+        
         throw new Exception("Can't use ConfirmEmailAsync with non ApplicationUser type objects");
     }
 }

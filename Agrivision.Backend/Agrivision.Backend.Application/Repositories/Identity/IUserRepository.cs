@@ -1,3 +1,4 @@
+using Agrivision.Backend.Domain.Abstractions;
 using Agrivision.Backend.Domain.Interfaces.Identity;
 
 namespace Agrivision.Backend.Application.Repositories.Identity;
@@ -12,4 +13,7 @@ public interface IUserRepository
     Task<bool> CreateUserAsync(IApplicationUser user, string password);
     Task<string> GenerateEmailConfirmationTokenAsync(IApplicationUser user);
     Task<bool> ConfirmEmailAsync(IApplicationUser user, string code);
+    Task<bool> IsInRoleAsync(IApplicationUser user, string roleName);
+    Task<bool> AddToRoleAsync(IApplicationUser user, string roleName);
+    Task<bool> AddToRolesAsync(IApplicationUser user, IReadOnlyList<string> roles);
 }

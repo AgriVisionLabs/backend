@@ -22,6 +22,7 @@ public static class ErrorMapping
         "Field.UnauthorizedAction" => StatusCodes.Status403Forbidden,
         "Field.NotFound" => StatusCodes.Status404NotFound,
         "Field.InvalidArea" => StatusCodes.Status400BadRequest,
+        "User.GlobalRoleAssignmentFailed" => StatusCodes.Status422UnprocessableEntity,
         _ => StatusCodes.Status400BadRequest // Default case
     };
 }

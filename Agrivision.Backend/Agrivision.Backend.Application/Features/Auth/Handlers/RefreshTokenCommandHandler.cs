@@ -12,7 +12,7 @@ using Microsoft.Extensions.Options;
 
 namespace Agrivision.Backend.Application.Features.Auth.Handlers;
 
-public class RefreshTokenCommandHandler(IUserRepository userRepository, IJwtProvider jwtProvider, IOptions<RefreshTokenSettings> refreshTokenSettings) : IRequestHandler<RefreshTokenCommand, Result<AuthResponse>>
+public class RefreshTokenCommandHandler(IUserRepository userRepository, IGlobalRoleRepository globalRoleRepository, IJwtProvider jwtProvider, IOptions<RefreshTokenSettings> refreshTokenSettings) : IRequestHandler<RefreshTokenCommand, Result<AuthResponse>>
 {
     public async Task<Result<AuthResponse>> Handle(RefreshTokenCommand request, CancellationToken cancellationToken)
     {
@@ -32,8 +32,12 @@ public class RefreshTokenCommandHandler(IUserRepository userRepository, IJwtProv
         // revoke now since we will refresh the both the refresh token and jwt token
         userRefreshToken.RevokedOn = DateTime.UtcNow;
 
+        var userRoles = await userRepository.GetRolesAsync(user);
+
+        var userPermissions = await globalRoleRepository.GetPermissionsAsync(userRoles, cancellationToken);
+        
         // generate new jwt token for the user
-        var (newToken, expiresIn) = jwtProvider.GenerateToken(user);
+        var (newToken, expiresIn) = jwtProvider.GenerateToken(user, userRoles, userPermissions);
 
         // generate a new refresh token using the private method here (the one with the random number generator)
         var newRefreshToken = GenerateRefreshToken(); 

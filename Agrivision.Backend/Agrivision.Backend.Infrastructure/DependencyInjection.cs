@@ -54,6 +54,8 @@ public static class DependencyInjection
         services.AddFarmUserRoleRepository();
 
         services.AddFarmRoleClaimRepository();
+
+        services.AddGlobalRoleRepository();
         
         return services;
     }
@@ -243,4 +245,10 @@ public static class DependencyInjection
         return services;
     }
 
+    private static IServiceCollection AddGlobalRoleRepository(this IServiceCollection services)
+    {
+        services.AddScoped<IGlobalRoleRepository, GlobalRoleRepository>();
+
+        return services;
+    }
 }

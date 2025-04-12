@@ -12,7 +12,7 @@ using Microsoft.Extensions.Options;
 
 namespace Agrivision.Backend.Application.Features.Auth.Handlers;
 
-public class AuthQueryHandler(IUserRepository userRepository, IJwtProvider jwtProvider, IOptions<RefreshTokenSettings> refreshTokenSettings) : IRequestHandler<AuthQuery, Result<AuthResponse>>
+public class AuthQueryHandler(IUserRepository userRepository, IGlobalRoleRepository globalRoleRepository, IJwtProvider jwtProvider, IOptions<RefreshTokenSettings> refreshTokenSettings) : IRequestHandler<AuthQuery, Result<AuthResponse>>
 {
     public async Task<Result<AuthResponse>> Handle(AuthQuery request, CancellationToken cancellationToken)
     {
@@ -24,8 +24,12 @@ public class AuthQueryHandler(IUserRepository userRepository, IJwtProvider jwtPr
 
         if (!user.EmailConfirmed)
             return Result.Failure<AuthResponse>(UserErrors.EmailNotConfirmed);
+
+        var userRoles = await userRepository.GetRolesAsync(user);
+
+        var userPermissions = await globalRoleRepository.GetPermissionsAsync(userRoles, cancellationToken);
         
-        var (token, expiresIn) = jwtProvider.GenerateToken(user);
+        var (token, expiresIn) = jwtProvider.GenerateToken(user, userRoles, userPermissions);
         
         var refreshToken = GenerateRefreshToken();
         var refreshTokenExpiration = DateTime.UtcNow.AddDays(refreshTokenSettings.Value.RefreshTokenExpiryDays);

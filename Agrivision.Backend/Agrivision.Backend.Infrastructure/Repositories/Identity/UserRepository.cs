@@ -79,6 +79,14 @@ public class UserRepository(UserManager<ApplicationUser> userManager) : IUserRep
         throw new Exception("Can't use ConfirmEmailAsync with non ApplicationUser type objects");
     }
 
+    public async Task<IList<string>> GetRolesAsync(IApplicationUser user)
+    {
+        if (user is ApplicationUser applicationUser)
+            return await userManager.GetRolesAsync(applicationUser);
+        
+        throw new ArgumentException("Invalid user type passed to GetRolesAsync");
+    }
+
     public async Task<bool> IsInRoleAsync(IApplicationUser user, string roleName)
     {
         if (user is ApplicationUser applicationUser)

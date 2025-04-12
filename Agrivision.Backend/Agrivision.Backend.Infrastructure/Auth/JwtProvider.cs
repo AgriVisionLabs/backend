@@ -1,6 +1,7 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using System.Text.Json;
 using Agrivision.Backend.Application.Auth;
 using Agrivision.Backend.Domain.Interfaces.Identity;
 using Microsoft.Extensions.Options;
@@ -11,7 +12,7 @@ namespace Agrivision.Backend.Infrastructure.Auth;
 
 public class JwtProvider(IOptions<JwtOptions> jwtOptions) : IJwtProvider
 {
-    public (string token, int expiresIn) GenerateToken(IApplicationUser user)
+    public (string token, int expiresIn) GenerateToken(IApplicationUser user, IEnumerable<string> roles, IEnumerable<string> permissions)
     {
         Claim[] claims =
         [
@@ -19,7 +20,9 @@ public class JwtProvider(IOptions<JwtOptions> jwtOptions) : IJwtProvider
             new(JwtRegisteredClaimNames.Email, user.Email!),
             new(JwtRegisteredClaimNames.GivenName, user.FirstName),
             new(JwtRegisteredClaimNames.FamilyName, user.LastName),
-            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            new(nameof(roles), JsonSerializer.Serialize(roles), JsonClaimValueTypes.JsonArray),
+            new(nameof(permissions), JsonSerializer.Serialize(permissions), JsonClaimValueTypes.JsonArray)
         ];
 
         var symmetricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.Value.Key));

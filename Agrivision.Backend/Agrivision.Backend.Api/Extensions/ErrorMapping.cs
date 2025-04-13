@@ -23,6 +23,7 @@ public static class ErrorMapping
         "Field.NotFound" => StatusCodes.Status404NotFound,
         "Field.InvalidArea" => StatusCodes.Status400BadRequest,
         "User.GlobalRoleAssignmentFailed" => StatusCodes.Status422UnprocessableEntity,
+        "FarmUserRole.RoleNotFound" => StatusCodes.Status404NotFound,
         _ => StatusCodes.Status400BadRequest // Default case
     };
 }

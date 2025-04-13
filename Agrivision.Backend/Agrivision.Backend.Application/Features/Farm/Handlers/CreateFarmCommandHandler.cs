@@ -3,12 +3,13 @@ using Agrivision.Backend.Application.Features.Farm.Commands;
 using Agrivision.Backend.Application.Features.Farm.Contracts;
 using Agrivision.Backend.Application.Repositories.Core;
 using Agrivision.Backend.Domain.Abstractions;
+using Agrivision.Backend.Domain.Entities.Core;
 using Mapster;
 using MediatR;
 
 namespace Agrivision.Backend.Application.Features.Farm.Handlers;
 
-public class CreateFarmCommandHandler(IFarmRepository farmRepository) : IRequestHandler<CreateFarmCommand, Result<FarmResponse>>
+public class CreateFarmCommandHandler(IFarmRepository farmRepository, IFarmUserRoleRepository farmUserRoleRepository) : IRequestHandler<CreateFarmCommand, Result<FarmResponse>>
 {
     public async Task<Result<FarmResponse>> Handle(CreateFarmCommand request, CancellationToken cancellationToken)
     {
@@ -33,8 +34,12 @@ public class CreateFarmCommandHandler(IFarmRepository farmRepository) : IRequest
         
         // save to the database
         await farmRepository.AddAsync(farm, cancellationToken);
+
+        var assignmentResult = await farmUserRoleRepository.AssignUserToRoleAsync(farm.Id, request.CreatedById, "Owner",
+            request.CreatedById, true, cancellationToken);
+        
         // convert to response
-        return Result.Success(new FarmResponse(farm.Id, farm.Name, farm.Area,
-            farm.Location, farm.SoilType, farm.CreatedById));
+        return assignmentResult
+            ? Result.Success(new FarmResponse(farm.Id, farm.Name, farm.Area, farm.Location, farm.SoilType, farm.CreatedById)) : Result.Failure<FarmResponse>(FarmUserRoleErrors.RoleNotFound);
     }
 }

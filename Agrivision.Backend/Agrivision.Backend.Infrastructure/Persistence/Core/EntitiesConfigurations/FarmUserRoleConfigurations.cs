@@ -15,9 +15,6 @@ public class FarmUserRoleConfigurations : IEntityTypeConfiguration<FarmUserRole>
         builder.Property(fur => fur.UserId)
             .IsRequired();
 
-        builder.Property(fur => fur.AssignedAt)
-            .IsRequired();
-
         builder.Property(fur => fur.IsActive)
             .IsRequired();
 

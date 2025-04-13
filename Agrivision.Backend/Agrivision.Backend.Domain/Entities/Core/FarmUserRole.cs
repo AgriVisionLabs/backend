@@ -10,7 +10,6 @@ public class FarmUserRole : AuditableEntity
     public string UserId { get; set; }
     public int FarmRoleId { get; set; }
 
-    public DateTime AssignedAt { get; set; } = DateTime.UtcNow;
     public bool IsActive { get; set; } = false; // since it is invitation based so it is false until they accept 
     public DateTime? AcceptedAt { get; set; }
 

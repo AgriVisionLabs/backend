@@ -107,7 +107,6 @@ public class FarmUserRoleRepository(CoreDbContext coreDbContext) : IFarmUserRole
             FarmId = farmId,
             FarmRoleId = role.Id,
             IsActive = isActive,
-            AssignedAt = DateTime.UtcNow,
             AcceptedAt = isActive ? DateTime.UtcNow : null,
             CreatedById = createdById,
             CreatedOn = DateTime.UtcNow // we should remove one of the AssignedAt and CreatedAt but i am too lazy to do it so later k :)

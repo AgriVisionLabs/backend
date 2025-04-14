@@ -14,5 +14,6 @@ public class Farm : AuditableEntity
     // navigational properties
     public ICollection<Field> Fields { get; set; } = new List<Field>();
     public ICollection<FarmUserRole> FarmUserRoles { get; set; } = new List<FarmUserRole>();
+    public ICollection<FarmInvitation> FarmInvitations { get; set; } = new List<FarmInvitation>();
 
 }

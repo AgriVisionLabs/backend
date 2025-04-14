@@ -34,13 +34,18 @@ public class FarmConfigurations : IEntityTypeConfiguration<Farm>
             .HasFilter("[IsDeleted] = 0");
         
         builder.HasMany(farm => farm.Fields) // each farm has many fields
-            .WithOne(farm => farm.Farm) // each field has one farm 
+            .WithOne(field => field.Farm) // each field has one farm 
             .HasForeignKey(field => field.FarmId) // farmId is the foreign key
             .OnDelete(DeleteBehavior.Restrict); // restrict deletion of fields when farms is deleted ig
 
         builder.HasMany(farm => farm.FarmUserRoles)
             .WithOne(fur => fur.Farm)
             .HasForeignKey(fur => fur.FarmId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasMany(farm => farm.FarmInvitations)
+            .WithOne(inv => inv.Farm)
+            .HasForeignKey(inv => inv.FarmId)
             .OnDelete(DeleteBehavior.Restrict);
     }
 }

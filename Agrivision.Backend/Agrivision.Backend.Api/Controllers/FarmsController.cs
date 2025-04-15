@@ -1,3 +1,4 @@
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Agrivision.Backend.Api.Extensions;
 using Agrivision.Backend.Application.Errors;
@@ -28,10 +29,10 @@ namespace Agrivision.Backend.Api.Controllers
             return result.Succeeded ? Ok(result.Value) : result.ToProblem(result.Error.ToStatusCode());
         }
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetById([FromRoute] Guid id, CancellationToken cancellationToken = default)
+        [HttpGet("{farmId}")]
+        public async Task<IActionResult> GetById([FromRoute] Guid farmId, CancellationToken cancellationToken = default)
         {
-            var result = await mediator.Send(new GetFarmByIdQuery(id), cancellationToken);
+            var result = await mediator.Send(new GetFarmByIdQuery(farmId), cancellationToken);
             return result.Succeeded ? Ok(result.Value) : result.ToProblem(result.Error.ToStatusCode());
         }
 
@@ -48,42 +49,59 @@ namespace Agrivision.Backend.Api.Controllers
             return result.Succeeded ? CreatedAtAction(nameof(GetById), new {id = result.Value.Id}, result.Value) : result.ToProblem(result.Error.ToStatusCode()); //change to created at action though CreatedAtAction(nameof(Get), new { id = response.Id }, response.Adapt<PollResponse>());
         }
         
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateAsync([FromRoute] Guid id, [FromBody] UpdateFarmRequest request,
+        [HttpPut("{farmId}")]
+        public async Task<IActionResult> UpdateAsync([FromRoute] Guid farmId, [FromBody] UpdateFarmRequest request,
             CancellationToken cancellationToken = default)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userId))
                 return Result.Failure(TokenErrors.InvalidToken).ToProblem(TokenErrors.InvalidToken.ToStatusCode());
             
-            var command = new UpdateFarmCommand(id, request.Name, request.Area, request.Location, request.SoilType, userId );
+            var command = new UpdateFarmCommand(farmId, request.Name, request.Area, request.Location, request.SoilType, userId );
             var result = await mediator.Send(command, cancellationToken);
             
             return result.Succeeded ? NoContent() : result.ToProblem(result.Error.ToStatusCode());
         }
         
         
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteAsync([FromRoute] Guid id, CancellationToken cancellationToken = default)
+        [HttpDelete("{farmId}")]
+        public async Task<IActionResult> DeleteAsync([FromRoute] Guid farmId, CancellationToken cancellationToken = default)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userId))
                 return Result.Failure(TokenErrors.InvalidToken).ToProblem(TokenErrors.InvalidToken.ToStatusCode());
             
-            var command = new DeleteFarmCommand(id, userId);
+            var command = new DeleteFarmCommand(farmId, userId);
             var result = await mediator.Send(command, cancellationToken);
             
             return result.Succeeded ? NoContent() : result.ToProblem(result.Error.ToStatusCode());
         }
         
         // get fields
-        [HttpGet("{id}/fields")]
-        public async Task<IActionResult> GetAllAsync([FromRoute] Guid id, CancellationToken cancellationToken = default)
+        [HttpGet("{farmId}/fields")]
+        public async Task<IActionResult> GetAllAsync([FromRoute] Guid farmId, CancellationToken cancellationToken = default)
         {
-            var command = new GetAllFieldsByFarmIdQuery(id);
+            var command = new GetAllFieldsByFarmIdQuery(farmId);
             var result = await mediator.Send(command, cancellationToken);
 
             return result.Succeeded ? Ok(result.Value) : result.ToProblem(result.Error.ToStatusCode());
+        }
+
+        [HttpPost("{farmId}/invitations")]
+        public async Task<IActionResult> Invite(Guid farmId, InviteMemberRequest request, CancellationToken cancellationToken = default)
+        {
+            var senderId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(senderId))
+                return Result.Failure(TokenErrors.InvalidToken).ToProblem(TokenErrors.InvalidToken.ToStatusCode());
+            
+            var firstName = User.FindFirstValue(JwtRegisteredClaimNames.GivenName);
+            var lastName = User.FindFirstValue(JwtRegisteredClaimNames.FamilyName);
+            var senderName = $"{firstName} {lastName}".Trim();
+
+            var command = new InviteMemberCommand(senderId, senderName, farmId, request.Recipient, request.RoleId);
+            var result = await mediator.Send(command, cancellationToken);
+
+            return result.Succeeded ? NoContent() : result.ToProblem(result.Error.ToStatusCode());
         }
     }
 }

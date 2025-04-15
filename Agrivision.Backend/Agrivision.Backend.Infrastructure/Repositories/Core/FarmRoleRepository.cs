@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Agrivision.Backend.Infrastructure.Repositories.Core;
 
-public class RoleRepository(CoreDbContext coreDbContext) : IRoleRepository
+public class FarmRoleRepository(CoreDbContext coreDbContext) : IFarmRoleRepository
 {
     public async Task<List<FarmRole>> AdminGetAllAsync(CancellationToken cancellationToken = default)
     {

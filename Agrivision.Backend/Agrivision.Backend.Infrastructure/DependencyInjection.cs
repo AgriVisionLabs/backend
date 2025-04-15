@@ -51,7 +51,7 @@ public static class DependencyInjection
 
         services.MapAdminSettings(config);
 
-        services.AddRoleRepository();
+        services.AddFarmRoleRepository();
 
         services.AddFarmUserRoleRepository();
 
@@ -230,9 +230,9 @@ public static class DependencyInjection
         return services;
     }
     
-    private static IServiceCollection AddRoleRepository(this IServiceCollection services)
+    private static IServiceCollection AddFarmRoleRepository(this IServiceCollection services)
     {
-        services.AddScoped<IRoleRepository, RoleRepository>();
+        services.AddScoped<IFarmRoleRepository, FarmRoleRepository>();
 
         return services;
     }

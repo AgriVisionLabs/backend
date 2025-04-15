@@ -24,6 +24,9 @@ public static class ErrorMapping
         "Field.InvalidArea" => StatusCodes.Status400BadRequest,
         "User.GlobalRoleAssignmentFailed" => StatusCodes.Status422UnprocessableEntity,
         "FarmUserRole.RoleNotFound" => StatusCodes.Status404NotFound,
+        "FarmRole.RoleNotFound" => StatusCodes.Status404NotFound,
+        "Invitation.AlreadyExists" => StatusCodes.Status409Conflict,
+        "Invitation.SelfInvitation" => StatusCodes.Status409Conflict,
         _ => StatusCodes.Status400BadRequest // Default case
     };
 }

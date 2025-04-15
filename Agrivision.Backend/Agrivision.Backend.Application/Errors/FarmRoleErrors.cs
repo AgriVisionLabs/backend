@@ -2,8 +2,8 @@ using Agrivision.Backend.Domain.Abstractions;
 
 namespace Agrivision.Backend.Application.Errors;
 
-public static class FarmUserRoleErrors
+public static class FarmRoleErrors
 {
     public static readonly Error RoleNotFound =
-        new("FarmUserRole.RoleNotFound", "The specified user role does not exist in the system.");
+        new("FarmRole.RoleNotFound", "The specified role does not exist in the system.");
 }

@@ -37,6 +37,8 @@ public class InviteMemberCommandHandler(IUserRepository userRepository, IFarmRep
         var role = await farmRoleRepository.GetByIdAsync(request.RoleId, cancellationToken);
         if (role is null)
             return Result.Failure(FarmRoleErrors.RoleNotFound);
+        if (role.Name == "Owner")
+            return Result.Failure(FarmInvitationErrors.CannotInviteAsOwner);
 
         // check if invitation already exists
         var existing = await farmInvitationRepository.ExistsAsync(request.FarmId, recipient.Email, cancellationToken);

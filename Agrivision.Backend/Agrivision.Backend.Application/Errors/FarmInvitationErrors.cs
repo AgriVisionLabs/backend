@@ -10,4 +10,8 @@ public static class FarmInvitationErrors
 
     public static readonly Error SelfInvitation = new("Invitation.SelfInvitation",
         "You cannot invite a user who already has access to the farm.");
+    
+    public static readonly Error CannotInviteAsOwner = new(
+        "Invitation.CannotInviteAsOwner",
+        "Users cannot be invited with the Owner role.");
 }

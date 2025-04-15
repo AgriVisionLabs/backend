@@ -27,6 +27,7 @@ public static class ErrorMapping
         "FarmRole.RoleNotFound" => StatusCodes.Status404NotFound,
         "Invitation.AlreadyExists" => StatusCodes.Status409Conflict,
         "Invitation.SelfInvitation" => StatusCodes.Status409Conflict,
+        "Invitation.CannotInviteAsOwner" => StatusCodes.Status409Conflict,
         _ => StatusCodes.Status400BadRequest // Default case
     };
 }

@@ -94,9 +94,9 @@ namespace Agrivision.Backend.Api.Controllers
             if (string.IsNullOrEmpty(senderId))
                 return Result.Failure(TokenErrors.InvalidToken).ToProblem(TokenErrors.InvalidToken.ToStatusCode());
             
-            var firstName = User.FindFirstValue(JwtRegisteredClaimNames.GivenName);
-            var lastName = User.FindFirstValue(JwtRegisteredClaimNames.FamilyName);
-            var senderName = $"{firstName} {lastName}".Trim();
+            var senderName = User.FindFirstValue(ClaimTypes.GivenName);
+            if (string.IsNullOrEmpty(senderName))
+                return Result.Failure(TokenErrors.InvalidToken).ToProblem(TokenErrors.InvalidToken.ToStatusCode());
 
             var command = new InviteMemberCommand(senderId, senderName, farmId, request.Recipient, request.RoleId);
             var result = await mediator.Send(command, cancellationToken);

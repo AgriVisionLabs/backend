@@ -3,6 +3,7 @@ using Agrivision.Backend.Application.Auth;
 using Agrivision.Backend.Application.Repositories.Core;
 using Agrivision.Backend.Application.Repositories.Identity;
 using Agrivision.Backend.Application.Services.Email;
+using Agrivision.Backend.Application.Services.InvitationTokenGenerator;
 using Agrivision.Backend.Application.Settings;
 using Agrivision.Backend.Infrastructure.Auth;
 using Agrivision.Backend.Infrastructure.Persistence.Core;
@@ -11,6 +12,7 @@ using Agrivision.Backend.Infrastructure.Persistence.Identity.Entities;
 using Agrivision.Backend.Infrastructure.Repositories.Core;
 using Agrivision.Backend.Infrastructure.Repositories.Identity;
 using Agrivision.Backend.Infrastructure.Services.Email;
+using Agrivision.Backend.Infrastructure.Services.InvitationTokenGenerator;
 using Agrivision.Backend.Infrastructure.Settings;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -56,6 +58,10 @@ public static class DependencyInjection
         services.AddFarmRoleClaimRepository();
 
         services.AddGlobalRoleRepository();
+
+        services.AddInvitationTokenService();
+
+        services.AddFarmInvitationRepository();
         
         return services;
     }
@@ -248,6 +254,20 @@ public static class DependencyInjection
     private static IServiceCollection AddGlobalRoleRepository(this IServiceCollection services)
     {
         services.AddScoped<IGlobalRoleRepository, GlobalRoleRepository>();
+
+        return services;
+    }
+    
+    private static IServiceCollection AddInvitationTokenService(this IServiceCollection services)
+    {
+        services.AddScoped<IInvitationTokenGenerator, InvitationTokenGenerator>();
+
+        return services;
+    }
+    
+    private static IServiceCollection AddFarmInvitationRepository(this IServiceCollection services)
+    {
+        services.AddScoped<IFarmInvitationRepository, FarmInvitationRepository>();
 
         return services;
     }

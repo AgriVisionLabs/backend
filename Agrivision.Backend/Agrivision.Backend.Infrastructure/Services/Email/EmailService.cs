@@ -52,13 +52,13 @@ public class EmailService(IOptions<MailSettings> mailSettings,IOptions<AppSettin
         await SendEmailAsync(email, "Agrivision: Email Confirmation", emailBody);
     }
     
-    public async Task SendInvitationEmail(string farmName, string senderUserName, string recipientEmail, string token)
+    public async Task SendInvitationEmail(string farmName, string senderName, string recipientEmail, string token)
     {
         var emailBody = EmailBodyBuilder.GenerateEmailBody("FarmInvitation", new Dictionary<string, string>
         {
             {"{{link}}", $"{appSettings.Value.BaseUrl}/invite/accept?token={token}"},
             {"{{farmName}}", farmName},
-            {"{{senderUserName}}", senderUserName}
+            {"{{senderName}}", senderName}
         });
 
         await SendEmailAsync(recipientEmail, "Agrivision: Farm Invitation Confirmation", emailBody);

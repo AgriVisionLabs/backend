@@ -41,9 +41,11 @@ public class FarmUserRoleRepository(CoreDbContext coreDbContext) : IFarmUserRole
     
     public async Task<FarmUserRole?> GetByUserAndFarmAsync(Guid farmId, string userId, CancellationToken cancellationToken = default)
     {
-        return await coreDbContext.FarmUserRoles
+        var test = await coreDbContext.FarmUserRoles
             .Include(fur => fur.FarmRole)
             .FirstOrDefaultAsync(fur => fur.FarmId == farmId && fur.UserId == userId && !fur.IsDeleted, cancellationToken);
+        var role = test.FarmRole.Name;
+        return test;
     }
 
     public async Task AddAsync(FarmUserRole assignment, CancellationToken cancellationToken = default)

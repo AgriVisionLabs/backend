@@ -28,6 +28,7 @@ public static class ErrorMapping
         "Invitation.AlreadyExists" => StatusCodes.Status409Conflict,
         "Invitation.SelfInvitation" => StatusCodes.Status409Conflict,
         "Invitation.CannotInviteAsOwner" => StatusCodes.Status409Conflict,
+        "FarmUserRole.InsufficientPermission" => StatusCodes.Status403Forbidden,
         _ => StatusCodes.Status400BadRequest // Default case
     };
 }

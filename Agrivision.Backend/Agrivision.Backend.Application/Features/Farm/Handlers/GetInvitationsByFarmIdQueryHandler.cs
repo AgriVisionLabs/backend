@@ -8,7 +8,7 @@ using MediatR;
 
 namespace Agrivision.Backend.Application.Features.Farm.Handlers;
 
-public class GetInvitationsByFarmIdQueryHandler(IFarmRepository farmRepository, IFarmInvitationRepository invitationRepository, IFarmRoleRepository farmRoleRepository, IUserRepository userRepository) : IRequestHandler<GetInvitationsByFarmIdQuery, Result<IReadOnlyList<InvitationResponse>>>
+public class GetInvitationsByFarmIdQueryHandler(IFarmRepository farmRepository, IFarmInvitationRepository invitationRepository, IFarmRoleRepository farmRoleRepository, IUserRepository userRepository, IFarmUserRoleRepository farmUserRoleRepository) : IRequestHandler<GetInvitationsByFarmIdQuery, Result<IReadOnlyList<InvitationResponse>>>
 {
     public async Task<Result<IReadOnlyList<InvitationResponse>>> Handle(GetInvitationsByFarmIdQuery request, CancellationToken cancellationToken)
     {
@@ -17,9 +17,12 @@ public class GetInvitationsByFarmIdQueryHandler(IFarmRepository farmRepository, 
         if (farm is null)
             return Result.Failure<IReadOnlyList<InvitationResponse>>(FarmErrors.FarmNotFound);
 
-        // check if user can see invitations (later)
-
-
+        // check if user can see invitations (later) (only owner and manager should be able to check them)
+        var userRole =
+            await farmUserRoleRepository.GetByUserAndFarmAsync(request.FarmId, request.RequesterId, cancellationToken);
+        if (userRole is null || (userRole.FarmRole.Name != "Owner" && userRole.FarmRole.Name != "Manager"))
+            return Result.Failure<IReadOnlyList<InvitationResponse>>(FarmUserRoleErrors.InsufficientPermission);
+        
         // get invitations
         var invitations = await invitationRepository.GetActiveByFarmIdAsync(farm.Id, cancellationToken);
 

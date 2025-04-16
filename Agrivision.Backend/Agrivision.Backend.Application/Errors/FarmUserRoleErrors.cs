@@ -6,4 +6,7 @@ public static class FarmUserRoleErrors
 {
     public static readonly Error RoleNotFound =
         new("FarmUserRole.RoleNotFound", "The specified user role does not exist in the system.");
+    public static readonly Error InsufficientPermission = new(
+        "FarmUserRole.InsufficientPermission",
+        "You do not have the required role to perform this action on this farm.");
 }

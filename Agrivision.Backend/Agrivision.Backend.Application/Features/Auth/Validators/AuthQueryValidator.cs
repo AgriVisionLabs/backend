@@ -8,11 +8,11 @@ public class AuthQueryValidator : AbstractValidator<AuthQuery>
 {
     public AuthQueryValidator()
     {
-        RuleFor(query => query.Email)
+        RuleFor(req => req.Email)
             .NotEmpty()
             .EmailAddress();
 
-        RuleFor(query => query.Password)
+        RuleFor(req => req.Password)
             .NotEmpty();
     }
 }

@@ -14,4 +14,8 @@ public static class FarmInvitationErrors
     public static readonly Error CannotInviteAsOwner = new(
         "Invitation.CannotInviteAsOwner",
         "Users cannot be invited with the Owner role.");
+    
+    public static readonly Error InvalidToken = new(
+        "FarmInvitation.InvalidToken",
+        "The invitation token is invalid or has expired.");
 }

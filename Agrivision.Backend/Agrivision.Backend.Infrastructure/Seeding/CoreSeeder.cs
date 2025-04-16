@@ -128,8 +128,6 @@ public static class CoreSeeder
                 FarmId = demoFarm.Id,
                 UserId = adminUser.Id,
                 FarmRoleId = ownerRole.Id,
-                IsActive = true,
-                AcceptedAt = DateTime.Now,
                 CreatedById = adminUser.Id
             };
 

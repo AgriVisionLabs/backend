@@ -23,14 +23,6 @@ public class FarmUserRoleRepository(CoreDbContext coreDbContext) : IFarmUserRole
             .Where(fur => fur.FarmId == farmId && !fur.IsDeleted)
             .ToListAsync(cancellationToken);
     }
-
-    public async Task<List<FarmUserRole>> GetActiveByFarmIdAsync(Guid farmId, CancellationToken cancellationToken = default)
-    {
-        return await coreDbContext.FarmUserRoles
-            .Include(fur => fur.FarmRole)
-            .Where(fur => fur.FarmId == farmId && !fur.IsDeleted && fur.IsActive)
-            .ToListAsync(cancellationToken);
-    }
     
     public async Task<FarmUserRole?> AdminGetByUserAndFarmAsync(Guid farmId, string userId, CancellationToken cancellationToken = default)
     {
@@ -87,7 +79,6 @@ public class FarmUserRoleRepository(CoreDbContext coreDbContext) : IFarmUserRole
                 where fur.UserId == userId
                       && fur.FarmId == farmId
                       && !fur.IsDeleted
-                      && fur.IsActive
                       && claim.ClaimType == CorePermissions.Type
                 select claim.ClaimValue
             ).Distinct().ToListAsync(cancellationToken);
@@ -108,8 +99,6 @@ public class FarmUserRoleRepository(CoreDbContext coreDbContext) : IFarmUserRole
             UserId = userId,
             FarmId = farmId,
             FarmRoleId = role.Id,
-            IsActive = isActive,
-            AcceptedAt = isActive ? DateTime.UtcNow : null,
             CreatedById = createdById,
             CreatedOn = DateTime.UtcNow // we should remove one of the AssignedAt and CreatedAt but i am too lazy to do it so later k :)
         };

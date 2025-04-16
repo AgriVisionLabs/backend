@@ -14,12 +14,7 @@ public class FarmUserRoleConfigurations : IEntityTypeConfiguration<FarmUserRole>
 
         builder.Property(fur => fur.UserId)
             .IsRequired();
-
-        builder.Property(fur => fur.IsActive)
-            .IsRequired();
-
-        builder.Property(fur => fur.AcceptedAt)
-            .IsRequired(false); // nullable until they accept 
+        
 
         builder.HasOne(fur => fur.Farm)
             .WithMany(f => f.FarmUserRoles)

@@ -37,7 +37,7 @@ namespace Agrivision.Backend.Api.Controllers
             var command = new CreateFieldCommand(request.Name, request.Area, request.FarmId, userId);
             var result = await mediator.Send(command, cancellationToken);
 
-            return result.Succeeded ? CreatedAtAction(nameof(GetById), new {id = result.Value.Id}, result.Value) : result.ToProblem(result.Error.ToStatusCode());
+            return result.Succeeded ? CreatedAtAction(nameof(GetById), new {fieldId = result.Value.Id}, result.Value) : result.ToProblem(result.Error.ToStatusCode());
         }
 
         [HttpPut("{fieldId}")]

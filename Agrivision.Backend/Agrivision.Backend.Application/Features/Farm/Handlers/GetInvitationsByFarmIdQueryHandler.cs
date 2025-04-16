@@ -8,7 +8,7 @@ using MediatR;
 
 namespace Agrivision.Backend.Application.Features.Farm.Handlers;
 
-public class GetInvitationsByFarmIdQueryHandler(IFarmRepository farmRepository, IFarmInvitationRepository invitationRepository, IFarmRoleRepository farmRoleRepository, IUserRepository userRepository, IFarmUserRoleRepository farmUserRoleRepository) : IRequestHandler<GetInvitationsByFarmIdQuery, Result<IReadOnlyList<InvitationResponse>>>
+public class GetInvitationsByFarmIdQueryHandler(IFarmRepository farmRepository, IFarmInvitationRepository farmInvitationRepository, IFarmRoleRepository farmRoleRepository, IUserRepository userRepository, IFarmUserRoleRepository farmUserRoleRepository) : IRequestHandler<GetInvitationsByFarmIdQuery, Result<IReadOnlyList<InvitationResponse>>>
 {
     public async Task<Result<IReadOnlyList<InvitationResponse>>> Handle(GetInvitationsByFarmIdQuery request, CancellationToken cancellationToken)
     {
@@ -24,7 +24,7 @@ public class GetInvitationsByFarmIdQueryHandler(IFarmRepository farmRepository, 
             return Result.Failure<IReadOnlyList<InvitationResponse>>(FarmUserRoleErrors.InsufficientPermission);
         
         // get invitations
-        var invitations = await invitationRepository.GetActiveByFarmIdAsync(farm.Id, cancellationToken);
+        var invitations = await farmInvitationRepository.GetActiveByFarmIdAsync(farm.Id, cancellationToken);
 
         // get roles for invitations
         var roleIds = invitations.Select(inv => inv.FarmRoleId).Distinct().ToList();

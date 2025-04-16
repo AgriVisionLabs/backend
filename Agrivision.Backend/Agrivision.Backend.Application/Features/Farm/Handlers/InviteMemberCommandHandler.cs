@@ -11,7 +11,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Agrivision.Backend.Application.Features.Farm.Handlers;
 
-public class InviteMemberCommandHandler(IUserRepository userRepository, IFarmRepository farmRepository, IFarmRoleRepository farmRoleRepository, IFarmInvitationRepository farmInvitationRepository, IInvitationTokenGenerator invitationTokenGenerator, IEmailService emailService, ILogger<InviteMemberCommandHandler> logger) : IRequestHandler<InviteMemberCommand, Result>
+public class InviteMemberCommandHandler(IUserRepository userRepository, IFarmRepository farmRepository, IFarmRoleRepository farmRoleRepository, IFarmInvitationRepository farmInvitationRepository, IInvitationTokenGenerator invitationTokenGenerator, IEmailService emailService, ILogger<InviteMemberCommandHandler> logger, IFarmUserRoleRepository farmUserRoleRepository) : IRequestHandler<InviteMemberCommand, Result>
 {
     public async Task<Result> Handle(InviteMemberCommand request, CancellationToken cancellationToken)
     {
@@ -37,6 +37,13 @@ public class InviteMemberCommandHandler(IUserRepository userRepository, IFarmRep
         var farm = await farmRepository.FindByIdAsync(request.FarmId, cancellationToken);
         if (farm is null)
             return Result.Failure(FarmErrors.FarmNotFound);
+        
+        // check if user already have access to the farm 
+        if (recipient is not null)
+        {
+            if (await farmUserRoleRepository.ExistsAsync(farm.Id, recipient.Id, cancellationToken))
+                return Result.Failure(FarmUserRoleErrors.UserAlreadyHasAccess);
+        }
 
         // verify the role exists
         var role = await farmRoleRepository.GetByIdAsync(request.RoleId, cancellationToken);

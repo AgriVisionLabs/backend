@@ -32,6 +32,13 @@ public class FarmRoleRepository(CoreDbContext coreDbContext) : IFarmRoleReposito
         return await coreDbContext.FarmRoles
             .FirstOrDefaultAsync(r => r.Id == id && !r.IsDeleted, cancellationToken);
     }
+    
+    public async Task<IReadOnlyList<FarmRole>> GetByIdsAsync(IReadOnlyList<int> ids, CancellationToken cancellationToken = default)
+    {
+        return await coreDbContext.FarmRoles
+            .Where(r => ids.Contains(r.Id) && !r.IsDeleted)
+            .ToListAsync(cancellationToken);
+    }
 
     public async Task<List<FarmRole>> AdminGetByNameAsync(string name, CancellationToken cancellationToken = default)
     {

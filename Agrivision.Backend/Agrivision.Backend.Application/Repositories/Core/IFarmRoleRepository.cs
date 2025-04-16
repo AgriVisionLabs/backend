@@ -8,6 +8,7 @@ public interface IFarmRoleRepository
     Task<List<FarmRole>> GetAllAsync(CancellationToken cancellationToken = default);
     Task<FarmRole?> AdminGetByIdAsync(int id, CancellationToken cancellationToken = default);
     Task<FarmRole?> GetByIdAsync(int id, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<FarmRole>> GetByIdsAsync(IReadOnlyList<int> ids, CancellationToken cancellationToken = default);
     Task<List<FarmRole>> AdminGetByNameAsync(string name, CancellationToken cancellationToken = default);
     Task<FarmRole?> GetByNameAsync(string name, CancellationToken cancellationToken = default);
     Task AddAsync(FarmRole farmRole, CancellationToken cancellationToken = default);

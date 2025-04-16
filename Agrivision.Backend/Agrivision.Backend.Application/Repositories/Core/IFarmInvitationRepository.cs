@@ -24,6 +24,8 @@ public interface IFarmInvitationRepository
     Task<IReadOnlyList<FarmInvitation>> AdminGetByFarmIdAsync(Guid id, CancellationToken cancellationToken = default);
     // get by farm 
     Task<IReadOnlyList<FarmInvitation>> GetByFarmIdAsync(Guid id, CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<FarmInvitation>> GetActiveByFarmIdAsync(Guid id, CancellationToken cancellationToken = default);
     // admin get by token 
     Task<FarmInvitation?> AdminGetByTokenAsync(string token, CancellationToken cancellationToken = default);
     // get by token

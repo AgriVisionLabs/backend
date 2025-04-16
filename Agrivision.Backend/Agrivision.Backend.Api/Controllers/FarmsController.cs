@@ -88,20 +88,38 @@ namespace Agrivision.Backend.Api.Controllers
         }
 
         [HttpPost("{farmId}/invitations")]
-        public async Task<IActionResult> Invite(Guid farmId, InviteMemberRequest request, CancellationToken cancellationToken = default)
+        public async Task<IActionResult> InviteAsync([FromRoute] Guid farmId, InviteMemberRequest request, CancellationToken cancellationToken = default)
         {
             var senderId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(senderId))
+                return Result.Failure(TokenErrors.InvalidToken).ToProblem(TokenErrors.InvalidToken.ToStatusCode());
+            
+            var senderEmail = User.FindFirstValue(ClaimTypes.Email);
+            if (string.IsNullOrEmpty(senderEmail))
                 return Result.Failure(TokenErrors.InvalidToken).ToProblem(TokenErrors.InvalidToken.ToStatusCode());
             
             var senderName = User.FindFirstValue(ClaimTypes.GivenName);
             if (string.IsNullOrEmpty(senderName))
                 return Result.Failure(TokenErrors.InvalidToken).ToProblem(TokenErrors.InvalidToken.ToStatusCode());
 
-            var command = new InviteMemberCommand(senderId, senderName, farmId, request.Recipient, request.RoleId);
+            var command = new InviteMemberCommand(senderId, senderEmail, senderName, farmId, request.Recipient, request.RoleId);
             var result = await mediator.Send(command, cancellationToken);
 
             return result.Succeeded ? NoContent() : result.ToProblem(result.Error.ToStatusCode());
         }
+
+        [HttpGet("{farmId}/invitations")]
+        public async Task<IActionResult> GetInvitationsAsync([FromRoute] Guid farmId, CancellationToken cancellationToken = default)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+                return Result.Failure(TokenErrors.InvalidToken).ToProblem(TokenErrors.InvalidToken.ToStatusCode());
+
+            var query = new GetInvitationsByFarmIdQuery(farmId, userId);
+            var result = await mediator.Send(query, cancellationToken);
+            
+            return result.Succeeded ? Ok(result.Value) : result.ToProblem(result.Error.ToStatusCode());
+        }
+        
     }
 }

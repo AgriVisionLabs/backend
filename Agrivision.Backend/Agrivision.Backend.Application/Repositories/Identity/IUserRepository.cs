@@ -17,4 +17,10 @@ public interface IUserRepository
     Task<bool> IsInRoleAsync(IApplicationUser user, string roleName);
     Task<bool> AddToRoleAsync(IApplicationUser user, string roleName);
     Task<bool> AddToRolesAsync(IApplicationUser user, IReadOnlyList<string> roles);
+
+    Task<IReadOnlyList<IApplicationUser>> GetUsersByIdsAsync(IReadOnlyList<string> userIds,
+        CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<IApplicationUser>> GetUsersByEmailsAsync(IReadOnlyList<string> emails,
+        CancellationToken cancellationToken = default);
 }

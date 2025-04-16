@@ -17,11 +17,11 @@ namespace Agrivision.Backend.Api.Controllers
     [Authorize]
     public class FieldsController(IMediator mediator) : ControllerBase
     {
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetById([FromRoute] Guid id,
+        [HttpGet("{fieldId}")]
+        public async Task<IActionResult> GetById([FromRoute] Guid fieldId,
             CancellationToken cancellationToken = default)
         {
-            var command = new GetFieldByIdQuery(id);
+            var command = new GetFieldByIdQuery(fieldId);
             var result = await mediator.Send(command, cancellationToken);
 
             return result.Succeeded ? Ok(result.Value) : result.ToProblem(result.Error.ToStatusCode());
@@ -40,28 +40,28 @@ namespace Agrivision.Backend.Api.Controllers
             return result.Succeeded ? CreatedAtAction(nameof(GetById), new {id = result.Value.Id}, result.Value) : result.ToProblem(result.Error.ToStatusCode());
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateAsync([FromRoute] Guid id, [FromBody] UpdateFieldRequest request,
+        [HttpPut("{fieldId}")]
+        public async Task<IActionResult> UpdateAsync([FromRoute] Guid fieldId, [FromBody] UpdateFieldRequest request,
             CancellationToken cancellationToken = default)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userId))
                 return Result.Failure(TokenErrors.InvalidToken).ToProblem(TokenErrors.InvalidToken.ToStatusCode());
 
-            var command = new UpdateFieldCommand(id, request.Name, request.Area, userId);
+            var command = new UpdateFieldCommand(fieldId, request.Name, request.Area, userId);
             var result = await mediator.Send(command, cancellationToken);
 
             return result.Succeeded ? NoContent() : result.ToProblem(result.Error.ToStatusCode());
         }
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteAsync([FromRoute] Guid id, CancellationToken cancellationToken = default)
+        [HttpDelete("{fieldId}")]
+        public async Task<IActionResult> DeleteAsync([FromRoute] Guid fieldId, CancellationToken cancellationToken = default)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userId))
                 return Result.Failure(TokenErrors.InvalidToken).ToProblem(TokenErrors.InvalidToken.ToStatusCode());
 
-            var command = new DeleteFieldCommand(id, userId);
+            var command = new DeleteFieldCommand(fieldId, userId);
             var result = await mediator.Send(command, cancellationToken);
 
             return result.Succeeded ? NoContent() : result.ToProblem(result.Error.ToStatusCode());

@@ -7,6 +7,7 @@ namespace Agrivision.Backend.Application.Features.Farm.Commands;
 public record InviteMemberCommand
 (
     string SenderId,
+    string SenderEmail,
     string SenderName,
     Guid FarmId,
     string Recipient, // username or email

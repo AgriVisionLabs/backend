@@ -3,6 +3,7 @@ using Agrivision.Backend.Domain.Abstractions;
 using Agrivision.Backend.Domain.Interfaces.Identity;
 using Agrivision.Backend.Infrastructure.Persistence.Identity.Entities;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace Agrivision.Backend.Infrastructure.Repositories.Identity;
 
@@ -121,5 +122,21 @@ public class UserRepository(UserManager<ApplicationUser> userManager) : IUserRep
         }
         
         throw new Exception("Can't use ConfirmEmailAsync with non ApplicationUser type objects");
+    }
+    
+    public async Task<IReadOnlyList<IApplicationUser>> GetUsersByIdsAsync(IReadOnlyList<string> userIds, CancellationToken cancellationToken = default)
+    {
+        return await userManager.Users
+            .Where(u => userIds.Contains(u.Id))
+            .Cast<IApplicationUser>()
+            .ToListAsync(cancellationToken);
+    }
+    
+    public async Task<IReadOnlyList<IApplicationUser>> GetUsersByEmailsAsync(IReadOnlyList<string> emails, CancellationToken cancellationToken = default)
+    {
+        return await userManager.Users
+            .Where(u => emails.Contains(u.Email!))
+            .Cast<IApplicationUser>()
+            .ToListAsync(cancellationToken);
     }
 }

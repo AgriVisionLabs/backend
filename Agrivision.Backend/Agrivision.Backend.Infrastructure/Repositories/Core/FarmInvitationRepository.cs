@@ -66,6 +66,13 @@ public class FarmInvitationRepository(CoreDbContext coreDbContext, IInvitationTo
             .Where(inv => inv.FarmId == id && !inv.IsDeleted)
             .ToListAsync(cancellationToken);
     }
+    
+    public async Task<IReadOnlyList<FarmInvitation>> GetActiveByFarmIdAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        return await coreDbContext.FarmInvitations
+            .Where(inv => inv.FarmId == id && !inv.IsDeleted && !inv.IsAccepted && inv.ExpiresAt > DateTime.UtcNow)
+            .ToListAsync(cancellationToken);
+    }
 
     public async Task<FarmInvitation?> AdminGetByTokenAsync(string token, CancellationToken cancellationToken = default)
     {

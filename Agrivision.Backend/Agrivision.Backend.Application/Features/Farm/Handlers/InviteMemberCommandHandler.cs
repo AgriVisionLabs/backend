@@ -17,17 +17,22 @@ public class InviteMemberCommandHandler(IUserRepository userRepository, IFarmRep
     {
         // check whether email or username
         var isEmail = request.Recipient.Contains('@');
-        // verify that the user exists
+        
+        // verify that user isn't inviting himself
+        if (isEmail && request.Recipient == request.SenderEmail)
+            return Result.Failure(FarmInvitationErrors.SelfInvitation);
+        
+        // check if the user exists
         var recipient = isEmail
             ? await userRepository.FindByEmailAsync(request.Recipient)
             : await userRepository.FindByUserNameAsync(request.Recipient);
-        // if user is null return user not registered error 
-        if (recipient is null)
+        
+        // if with username and null then return error
+        if (!isEmail && recipient is null)
             return Result.Failure(UserErrors.UserNotFound);
-
-        if (recipient.Id == request.SenderId)
-            return Result.Failure(FarmInvitationErrors.SelfInvitation);
-
+        
+        var invitedEmail = recipient is null && isEmail ? request.Recipient : recipient.Email;
+        
         // verify the farm exists
         var farm = await farmRepository.FindByIdAsync(request.FarmId, cancellationToken);
         if (farm is null)
@@ -41,7 +46,7 @@ public class InviteMemberCommandHandler(IUserRepository userRepository, IFarmRep
             return Result.Failure(FarmInvitationErrors.CannotInviteAsOwner);
 
         // check if invitation already exists
-        var existing = await farmInvitationRepository.ExistsAsync(request.FarmId, recipient.Email, cancellationToken);
+        var existing = await farmInvitationRepository.ExistsAsync(request.FarmId, invitedEmail, cancellationToken);
         if (existing)
             return Result.Failure(FarmInvitationErrors.InvitationAlreadyExists);
 
@@ -52,7 +57,7 @@ public class InviteMemberCommandHandler(IUserRepository userRepository, IFarmRep
             FarmId = farm.Id,
             FarmRoleId = role.Id,
             Token = invitationTokenGenerator.GenerateToken(),
-            InvitedEmail = recipient.Email,
+            InvitedEmail = invitedEmail,
             IsAccepted = false,
             ExpiresAt = DateTime.UtcNow.AddDays(7),
             CreatedOn = DateTime.UtcNow,
@@ -63,7 +68,7 @@ public class InviteMemberCommandHandler(IUserRepository userRepository, IFarmRep
         await farmInvitationRepository.AddAsync(invitation, cancellationToken);
 
         // send the email
-        await emailService.SendInvitationEmail(farm.Name, request.SenderName, recipient.Email, invitation.Token);
+        await emailService.SendInvitationEmail(farm.Name, request.SenderName, invitedEmail, invitation.Token);
         
         logger.LogInformation("Invitation Token: {token}", invitation.Token);
         

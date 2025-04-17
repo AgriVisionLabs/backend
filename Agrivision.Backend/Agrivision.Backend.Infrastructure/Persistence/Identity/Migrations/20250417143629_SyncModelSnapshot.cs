@@ -6,12 +6,11 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Agrivision.Backend.Infrastructure.Persistence.Identity.Migrations
 {
     /// <inheritdoc />
-    public partial class OtpVerficationTable : Migration
+    public partial class SyncModelSnapshot : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-
             migrationBuilder.CreateTable(
                 name: "OtpVerifications",
                 columns: table => new

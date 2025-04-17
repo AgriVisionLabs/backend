@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Agrivision.Backend.Infrastructure.Persistence.Identity.Migrations
 {
     [DbContext(typeof(ApplicationUserDbContext))]
-    [Migration("20250417052026_OtpVerficationTable")]
-    partial class OtpVerficationTable
+    [Migration("20250417143629_SyncModelSnapshot")]
+    partial class SyncModelSnapshot
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

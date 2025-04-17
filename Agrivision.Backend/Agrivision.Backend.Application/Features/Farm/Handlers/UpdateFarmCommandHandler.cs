@@ -38,7 +38,7 @@ public class UpdateFarmCommandHandler(IFarmRepository farmRepository) : IRequest
         await farmRepository.UpdateAsync(farm, cancellationToken);
         
         // create a response 
-        var response = new FarmResponse(farm.Id, farm.Name, farm.Area, farm.Location, farm.SoilType, farm.CreatedById);
+        var response = new FarmResponse(farm.Id, farm.Name, farm.Area, farm.Location, farm.SoilType, "Owner", farm.CreatedById);
 
         return Result.Success();
     }

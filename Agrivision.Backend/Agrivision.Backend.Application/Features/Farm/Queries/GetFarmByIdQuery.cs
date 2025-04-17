@@ -6,5 +6,6 @@ namespace Agrivision.Backend.Application.Features.Farm.Queries;
 
 public record GetFarmByIdQuery
 (   
-    Guid Id
+    Guid FarmId,
+    string RequesterId
 ): IRequest<Result<FarmResponse>>;

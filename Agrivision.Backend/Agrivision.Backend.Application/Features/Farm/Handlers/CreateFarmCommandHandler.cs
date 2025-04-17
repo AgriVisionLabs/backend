@@ -35,11 +35,13 @@ public class CreateFarmCommandHandler(IFarmRepository farmRepository, IFarmUserR
         // save to the database
         await farmRepository.AddAsync(farm, cancellationToken);
 
-        var assignmentResult = await farmUserRoleRepository.AssignUserToRoleAsync(farm.Id, request.CreatedById, "Owner",
+        var roleName = "Owner";
+
+        var assignmentResult = await farmUserRoleRepository.AssignUserToRoleAsync(farm.Id, request.CreatedById, roleName,
             request.CreatedById, true, cancellationToken);
         
         // convert to response
         return assignmentResult
-            ? Result.Success(new FarmResponse(farm.Id, farm.Name, farm.Area, farm.Location, farm.SoilType, farm.CreatedById)) : Result.Failure<FarmResponse>(FarmUserRoleErrors.RoleNotFound);
+            ? Result.Success(new FarmResponse(farm.Id, farm.Name, farm.Area, farm.Location, farm.SoilType, roleName, farm.CreatedById)) : Result.Failure<FarmResponse>(FarmUserRoleErrors.RoleNotFound);
     }
 }

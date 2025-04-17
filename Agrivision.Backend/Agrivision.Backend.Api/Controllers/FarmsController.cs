@@ -32,7 +32,10 @@ namespace Agrivision.Backend.Api.Controllers
         [HttpGet("{farmId}")]
         public async Task<IActionResult> GetById([FromRoute] Guid farmId, CancellationToken cancellationToken = default)
         {
-            var result = await mediator.Send(new GetFarmByIdQuery(farmId), cancellationToken);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+                return Result.Failure(TokenErrors.InvalidToken).ToProblem(TokenErrors.InvalidToken.ToStatusCode());
+            var result = await mediator.Send(new GetFarmByIdQuery(farmId, userId), cancellationToken);
             return result.Succeeded ? Ok(result.Value) : result.ToProblem(result.Error.ToStatusCode());
         }
         

@@ -18,19 +18,6 @@ namespace Agrivision.Backend.Api.Controllers
     [Authorize]
     public class InvitationsController(IMediator mediator) : ControllerBase
     {
-        [HttpGet("")]
-        public async Task<IActionResult> GetInvitationsAsync([FromBody] GetInvitationsRequest request, CancellationToken cancellationToken = default)
-        {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrEmpty(userId))
-                return Result.Failure(TokenErrors.InvalidToken).ToProblem(TokenErrors.InvalidToken.ToStatusCode());
-
-            var query = new GetInvitationsByFarmIdQuery(request.FarmId, userId);
-            var result = await mediator.Send(query, cancellationToken);
-            
-            return result.Succeeded ? Ok(result.Value) : result.ToProblem(result.Error.ToStatusCode());
-        }
-        
         [HttpPost("")]
         public async Task<IActionResult> InviteAsync([FromBody] InviteMemberRequest request, CancellationToken cancellationToken = default)
         {

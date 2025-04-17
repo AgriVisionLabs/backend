@@ -65,7 +65,7 @@ public class UserRepository(UserManager<ApplicationUser> userManager) : IUserRep
             return result;
         }
 
-        throw new Exception("Can't use ConfirmEmailAsync with non ApplicationUser type objects");
+        throw new Exception("Can't use GenerateEmailConfirmationTokenAsync with non ApplicationUser type objects");
     }
 
     public async Task<bool> ConfirmEmailAsync(IApplicationUser user, string code)
@@ -97,7 +97,7 @@ public class UserRepository(UserManager<ApplicationUser> userManager) : IUserRep
             return result;
         }
         
-        throw new Exception("Can't use ConfirmEmailAsync with non ApplicationUser type objects");
+        throw new Exception("Can't use IsInRoleAsync with non ApplicationUser type objects");
     }
 
     public async Task<bool> AddToRoleAsync(IApplicationUser user, string roleName)
@@ -109,7 +109,7 @@ public class UserRepository(UserManager<ApplicationUser> userManager) : IUserRep
             return result.Succeeded;
         }
         
-        throw new Exception("Can't use ConfirmEmailAsync with non ApplicationUser type objects");
+        throw new Exception("Can't use AddToRoleAsync with non ApplicationUser type objects");
     }
 
     public async Task<bool> AddToRolesAsync(IApplicationUser user, IReadOnlyList<string> roles)
@@ -121,7 +121,7 @@ public class UserRepository(UserManager<ApplicationUser> userManager) : IUserRep
             return result.Succeeded;
         }
         
-        throw new Exception("Can't use ConfirmEmailAsync with non ApplicationUser type objects");
+        throw new Exception("Can't use AddToRolesAsync with non ApplicationUser type objects");
     }
     
     public async Task<IReadOnlyList<IApplicationUser>> GetUsersByIdsAsync(IReadOnlyList<string> userIds, CancellationToken cancellationToken = default)
@@ -139,4 +139,48 @@ public class UserRepository(UserManager<ApplicationUser> userManager) : IUserRep
             .Cast<IApplicationUser>()
             .ToListAsync(cancellationToken);
     }
+    public async Task<bool> ChangePasswordAsync(IApplicationUser user, string currentPassword, string newPassword)
+    {
+        if (user is ApplicationUser applicationUser)
+        {
+            var result = await userManager.ChangePasswordAsync(applicationUser, currentPassword, newPassword);
+
+            applicationUser.UpdatedAt = DateTime.UtcNow;
+            await userManager.UpdateAsync(applicationUser);
+
+            return result.Succeeded;
+        }
+
+        throw new Exception("Can't use ChangePasswordAsync with non ApplicationUser type objects");
+
+    }
+    public async Task<string> GeneratePasswordResetTokenAsync(IApplicationUser user)
+    {
+        if (user is ApplicationUser applicationUser)
+        {
+            var result = await userManager.GeneratePasswordResetTokenAsync(applicationUser);
+
+            return result;
+        }
+
+        throw new Exception("Can't use GeneratePasswordResetTokenAsync with non ApplicationUser type objects");
+
+    }
+    public async Task<bool> ResetPasswordAsync(IApplicationUser user, string token, string newPassword)
+    {
+        if (user is ApplicationUser applicationUser)
+        {
+            var result = await userManager.ChangePasswordAsync(applicationUser, token, newPassword);
+
+
+            applicationUser.UpdatedAt = DateTime.UtcNow;
+            await userManager.UpdateAsync(applicationUser);
+
+            return result.Succeeded;
+        }
+
+        throw new Exception("Can't use ResetPasswordAsync with non ApplicationUser type objects");
+
+    }
+
 }

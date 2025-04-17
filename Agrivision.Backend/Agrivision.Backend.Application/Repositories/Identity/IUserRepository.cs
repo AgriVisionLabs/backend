@@ -13,6 +13,9 @@ public interface IUserRepository
     Task<bool> CreateUserAsync(IApplicationUser user, string password);
     Task<string> GenerateEmailConfirmationTokenAsync(IApplicationUser user);
     Task<bool> ConfirmEmailAsync(IApplicationUser user, string code);
+    Task<string> GeneratePasswordResetTokenAsync(IApplicationUser user);
+    Task<bool> ResetPasswordAsync(IApplicationUser user, string token, string newPassword);
+    Task<bool> ChangePasswordAsync(IApplicationUser user, string currentPassword, string newPassword);
     Task<IList<string>> GetRolesAsync(IApplicationUser user);
     Task<bool> IsInRoleAsync(IApplicationUser user, string roleName);
     Task<bool> AddToRoleAsync(IApplicationUser user, string roleName);

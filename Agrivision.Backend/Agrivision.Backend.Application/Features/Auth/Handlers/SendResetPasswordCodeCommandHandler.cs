@@ -23,7 +23,7 @@ public class SendResetPasswordCodeCommandHandler(IUserRepository userRepository
         var otp =  otpProvider.GenerateOtp() ;
         await otpProvider.StoreOtpAsync(request.Email, otp, cancellationToken);
 
-        await emailService.SendPasswordResetEmailAsync(applicationUser.Email, otp,cancellationToken);
+        await emailService.SendPasswordResetEmailAsync(applicationUser.Email, otp);
 
         logger.LogInformation("OTP : {otp}", otp);
 

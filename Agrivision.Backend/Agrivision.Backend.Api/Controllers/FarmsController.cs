@@ -35,6 +35,15 @@ namespace Agrivision.Backend.Api.Controllers
             var result = await mediator.Send(new GetFarmByIdQuery(farmId), cancellationToken);
             return result.Succeeded ? Ok(result.Value) : result.ToProblem(result.Error.ToStatusCode());
         }
+        
+        [HttpGet("{farmId}/fields")]
+        public async Task<IActionResult> GetAllAsync([FromRoute] Guid farmId, CancellationToken cancellationToken = default)
+        {
+            var command = new GetAllFieldsByFarmIdQuery(farmId);
+            var result = await mediator.Send(command, cancellationToken);
+
+            return result.Succeeded ? Ok(result.Value) : result.ToProblem(result.Error.ToStatusCode());
+        }
 
         [HttpPost("")]
         public async Task<IActionResult> AddAsync([FromBody] CreateFarmRequest request, CancellationToken cancellationToken = default)
@@ -75,16 +84,6 @@ namespace Agrivision.Backend.Api.Controllers
             var result = await mediator.Send(command, cancellationToken);
             
             return result.Succeeded ? NoContent() : result.ToProblem(result.Error.ToStatusCode());
-        }
-        
-        // get fields
-        [HttpGet("{farmId}/fields")]
-        public async Task<IActionResult> GetAllAsync([FromRoute] Guid farmId, CancellationToken cancellationToken = default)
-        {
-            var command = new GetAllFieldsByFarmIdQuery(farmId);
-            var result = await mediator.Send(command, cancellationToken);
-
-            return result.Succeeded ? Ok(result.Value) : result.ToProblem(result.Error.ToStatusCode());
         }
     }
 }

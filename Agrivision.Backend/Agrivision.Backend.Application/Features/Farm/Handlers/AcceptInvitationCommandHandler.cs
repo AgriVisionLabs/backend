@@ -14,7 +14,7 @@ public class AcceptInvitationCommandHandler(IFarmInvitationRepository farmInvita
     {
         // get invitation by token 
         var invitation = await farmInvitationRepository.GetByTokenAsync(request.Token, cancellationToken);
-        if (invitation is null || invitation.IsAccepted || invitation.ExpiresAt < DateTime.UtcNow )
+        if (invitation is null || invitation.IsAccepted || invitation.ExpiresAt < DateTime.UtcNow || invitation.IsDeleted)
             return Result.Failure(FarmInvitationErrors.InvalidToken);
         
         // get the invited user email

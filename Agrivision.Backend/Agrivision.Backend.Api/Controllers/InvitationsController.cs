@@ -18,6 +18,18 @@ namespace Agrivision.Backend.Api.Controllers
     [Authorize]
     public class InvitationsController(IMediator mediator) : ControllerBase
     {
+        [HttpGet("")]
+        public async Task<IActionResult> GetInvitationsAsync([FromBody] GetInvitationsRequest request, CancellationToken cancellationToken = default)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+                return Result.Failure(TokenErrors.InvalidToken).ToProblem(TokenErrors.InvalidToken.ToStatusCode());
+
+            var query = new GetInvitationsByFarmIdQuery(request.FarmId, userId);
+            var result = await mediator.Send(query, cancellationToken);
+            
+            return result.Succeeded ? Ok(result.Value) : result.ToProblem(result.Error.ToStatusCode());
+        }
         
         [HttpPost("")]
         public async Task<IActionResult> InviteAsync([FromBody] InviteMemberRequest request, CancellationToken cancellationToken = default)
@@ -39,28 +51,28 @@ namespace Agrivision.Backend.Api.Controllers
 
             return result.Succeeded ? NoContent() : result.ToProblem(result.Error.ToStatusCode());
         }
-
-        [HttpGet("")]
-        public async Task<IActionResult> GetInvitationsAsync([FromBody] GetInvitationsRequest request, CancellationToken cancellationToken = default)
-        {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrEmpty(userId))
-                return Result.Failure(TokenErrors.InvalidToken).ToProblem(TokenErrors.InvalidToken.ToStatusCode());
-
-            var query = new GetInvitationsByFarmIdQuery(request.FarmId, userId);
-            var result = await mediator.Send(query, cancellationToken);
-            
-            return result.Succeeded ? Ok(result.Value) : result.ToProblem(result.Error.ToStatusCode());
-        }
         
         [HttpPost("accept")]
-        public async Task<IActionResult> AcceptInvitationAsync(AcceptInvitationRequest request, CancellationToken cancellationToken = default)
+        public async Task<IActionResult> AcceptInvitationAsync([FromBody] AcceptInvitationRequest request, CancellationToken cancellationToken = default)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userId))
                 return Result.Failure(TokenErrors.InvalidToken).ToProblem(TokenErrors.InvalidToken.ToStatusCode());
 
             var command = new AcceptInvitationCommand(userId, request.Token);
+            var result = await mediator.Send(command, cancellationToken);
+
+            return result.Succeeded ? NoContent() : result.ToProblem(result.Error.ToStatusCode());
+        }
+
+        [HttpDelete("{invitationId}")]
+        public async Task<IActionResult> CancelInvitationAsync([FromRoute] Guid invitationId, CancellationToken cancellationToken = default)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+                return Result.Failure(TokenErrors.InvalidToken).ToProblem(TokenErrors.InvalidToken.ToStatusCode());
+
+            var command = new CancelInvitationCommand(invitationId, userId);
             var result = await mediator.Send(command, cancellationToken);
 
             return result.Succeeded ? NoContent() : result.ToProblem(result.Error.ToStatusCode());

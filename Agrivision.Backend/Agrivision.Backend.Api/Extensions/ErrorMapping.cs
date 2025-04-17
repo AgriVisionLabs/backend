@@ -25,12 +25,15 @@ public static class ErrorMapping
         "User.GlobalRoleAssignmentFailed" => StatusCodes.Status422UnprocessableEntity,
         "FarmUserRole.RoleNotFound" => StatusCodes.Status404NotFound,
         "FarmRole.RoleNotFound" => StatusCodes.Status404NotFound,
-        "Invitation.AlreadyExists" => StatusCodes.Status409Conflict,
-        "Invitation.SelfInvitation" => StatusCodes.Status409Conflict,
-        "Invitation.CannotInviteAsOwner" => StatusCodes.Status409Conflict,
+        "FarmInvitation.AlreadyExists" => StatusCodes.Status409Conflict,
+        "FarmInvitation.SelfInvitation" => StatusCodes.Status409Conflict,
+        "FarmInvitation.CannotInviteAsOwner" => StatusCodes.Status409Conflict,
         "FarmUserRole.InsufficientPermission" => StatusCodes.Status403Forbidden,
         "FarmInvitation.InvalidToken" => StatusCodes.Status403Forbidden,
         "FarmUserRole.UserAlreadyHasAccess" => StatusCodes.Status409Conflict,
+        "FarmInvitation.InvitationNotFound" => StatusCodes.Status404NotFound,
+        "FarmInvitation.UnauthorizedAction" => StatusCodes.Status401Unauthorized,
+        "FarmInvitation.AlreadyAccepted" => StatusCodes.Status409Conflict,
         _ => StatusCodes.Status400BadRequest // Default case
     };
 }

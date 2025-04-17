@@ -9,6 +9,8 @@ public class FarmUserRole : AuditableEntity
     public Guid FarmId { get; set; }
     public string UserId { get; set; }
     public int FarmRoleId { get; set; }
+    public bool IsActive { get; set; } = true;
+    public DateTime? ActivatedAt { get; set; }
 
     public Farm Farm { get; set; } = default!;
     public FarmRole FarmRole { get; set; } = default!;

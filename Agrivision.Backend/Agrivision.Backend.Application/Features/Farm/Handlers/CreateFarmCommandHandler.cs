@@ -42,6 +42,6 @@ public class CreateFarmCommandHandler(IFarmRepository farmRepository, IFarmUserR
         
         // convert to response
         return assignmentResult
-            ? Result.Success(new FarmResponse(farm.Id, farm.Name, farm.Area, farm.Location, farm.SoilType, roleName, farm.CreatedById)) : Result.Failure<FarmResponse>(FarmUserRoleErrors.RoleNotFound);
+            ? Result.Success(new FarmResponse(farm.Id, farm.Name, farm.Area, farm.Location, farm.SoilType, roleName, farm.CreatedById, true)) : Result.Failure<FarmResponse>(FarmUserRoleErrors.RoleNotFound);
     }
 }

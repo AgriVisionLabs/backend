@@ -8,6 +8,26 @@ namespace Agrivision.Backend.Infrastructure.Repositories.Core;
 
 public class FarmUserRoleRepository(CoreDbContext coreDbContext) : IFarmUserRoleRepository
 {
+    public async Task<IReadOnlyList<FarmUserRole>> AdminGetAllAccessible(string userId, CancellationToken cancellationToken = default)
+    {
+        return await coreDbContext.FarmUserRoles
+            .Include(fur => fur.Farm)
+            .Include(fur => fur.FarmRole)
+            .Where(fur => fur.UserId == userId)
+            .OrderByDescending(fur => fur.CreatedOn)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<FarmUserRole>> GetAllAccessible(string userId, CancellationToken cancellationToken = default)
+    {
+        return await coreDbContext.FarmUserRoles
+            .Include(fur => fur.Farm)
+            .Include(fur => fur.FarmRole)
+            .Where(fur => fur.UserId == userId && !fur.IsDeleted && fur.IsActive)
+            .OrderByDescending(fur => fur.CreatedOn)
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task<List<FarmUserRole>> AdminGetByFarmIdAsync(Guid farmId, CancellationToken cancellationToken = default)
     {
         return await coreDbContext.FarmUserRoles
@@ -33,11 +53,11 @@ public class FarmUserRoleRepository(CoreDbContext coreDbContext) : IFarmUserRole
     
     public async Task<FarmUserRole?> GetByUserAndFarmAsync(Guid farmId, string userId, CancellationToken cancellationToken = default)
     {
-        var test = await coreDbContext.FarmUserRoles
+        return await coreDbContext.FarmUserRoles
+            .Include(fur => fur.Farm)
             .Include(fur => fur.FarmRole)
-            .FirstOrDefaultAsync(fur => fur.FarmId == farmId && fur.UserId == userId && !fur.IsDeleted, cancellationToken);
-        var role = test.FarmRole.Name;
-        return test;
+            .FirstOrDefaultAsync(fur => fur.FarmId == farmId && fur.UserId == userId && !fur.IsDeleted && fur.IsActive, cancellationToken);
+        
     }
 
     public async Task AddAsync(FarmUserRole assignment, CancellationToken cancellationToken = default)

@@ -15,6 +15,6 @@ public class FarmMappingConfigurations : IRegister
             .Map(dest => dest.OwnerId, src => src.CreatedById);
 
         config.NewConfig<Domain.Entities.Core.Farm, FarmResponse>()
-            .Ignore(dest => dest.Id);
+            .Ignore(dest => dest.FarmId);
     }
 }

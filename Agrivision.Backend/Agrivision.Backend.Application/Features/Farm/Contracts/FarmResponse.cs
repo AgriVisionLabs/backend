@@ -4,11 +4,12 @@ namespace Agrivision.Backend.Application.Features.Farm.Contracts;
 
 public record FarmResponse
 (
-    Guid Id,
+    Guid FarmId,
     string Name,
     double Area,
     string Location,
     SoilTypes SoilType,
     string RoleName,
-    string OwnerId
+    string OwnerId,
+    bool IsOwner
 );

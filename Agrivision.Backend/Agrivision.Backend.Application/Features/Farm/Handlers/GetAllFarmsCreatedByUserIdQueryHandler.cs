@@ -15,7 +15,7 @@ public class GetAllFarmsCreatedByUserIdQueryHandler(IFarmRepository farmReposito
     
         var responses = farms
             .Select(farm => new FarmResponse(farm.Id, farm.Name, farm.Area, farm.Location,
-                farm.SoilType, "Owner", farm.CreatedById)).ToList();
+                farm.SoilType, "Owner", farm.CreatedById, true)).ToList();
         
         return Result.Success(responses);
     }

@@ -18,6 +18,17 @@ namespace Agrivision.Backend.Api.Controllers
     [Authorize]
     public class FarmsController(IMediator mediator) : ControllerBase
     {
+        [HttpGet("")]
+        public async Task<IActionResult> GetAllAccessibleAsync(CancellationToken cancellationToken = default)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+                return Result.Failure(TokenErrors.InvalidToken).ToProblem(TokenErrors.InvalidToken.ToStatusCode());
+            
+            var result = await mediator.Send(new GetAllAccessibleFarmsQuery(userId), cancellationToken);
+            return result.Succeeded ? Ok(result.Value) : result.ToProblem(result.Error.ToStatusCode());
+        }
+        
         [HttpGet("created")]
         public async Task<IActionResult> GetAllCreatedByUserAsync(CancellationToken cancellationToken = default)
         {
@@ -58,7 +69,7 @@ namespace Agrivision.Backend.Api.Controllers
             var command = new CreateFarmCommand(request.Name, request.Area, request.Location, request.SoilType, userId);
             var result = await mediator.Send(command, cancellationToken);
 
-            return result.Succeeded ? CreatedAtAction(nameof(GetById), new { farmId = result.Value.Id }, result.Value) : result.ToProblem(result.Error.ToStatusCode()); //change to created at action though CreatedAtAction(nameof(Get), new { id = response.Id }, response.Adapt<PollResponse>());
+            return result.Succeeded ? CreatedAtAction(nameof(GetById), new { farmId = result.Value.FarmId }, result.Value) : result.ToProblem(result.Error.ToStatusCode()); //change to created at action though CreatedAtAction(nameof(Get), new { id = response.Id }, response.Adapt<PollResponse>());
         }
         
         [HttpPut("{farmId}")]

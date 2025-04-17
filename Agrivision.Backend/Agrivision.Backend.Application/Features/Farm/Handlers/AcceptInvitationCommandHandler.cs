@@ -39,6 +39,8 @@ public class AcceptInvitationCommandHandler(IFarmInvitationRepository farmInvita
             FarmRoleId = invitation.FarmRoleId,
             CreatedById = invitation.CreatedById,
             CreatedOn = DateTime.UtcNow,
+            IsActive = true,
+            ActivatedAt = DateTime.UtcNow
         };
 
         await farmUserRoleRepository.AddAsync(assignment, cancellationToken);

@@ -62,6 +62,10 @@ public static class DependencyInjection
         services.AddInvitationTokenService();
 
         services.AddFarmInvitationRepository();
+
+        services.AddOtpProvider();
+
+        services.AddOtpVerificationRepository();
         
         return services;
     }
@@ -268,6 +272,20 @@ public static class DependencyInjection
     private static IServiceCollection AddFarmInvitationRepository(this IServiceCollection services)
     {
         services.AddScoped<IFarmInvitationRepository, FarmInvitationRepository>();
+
+        return services;
+    }
+    
+    private static IServiceCollection AddOtpProvider(this IServiceCollection services)
+    {
+        services.AddScoped<IOtpProvider, OtpProvider>();
+
+        return services;
+    }
+    
+    private static IServiceCollection AddOtpVerificationRepository(this IServiceCollection services)
+    {
+        services.AddScoped<IOtpVerificationRepository, OtpVerificationRepository>();
 
         return services;
     }

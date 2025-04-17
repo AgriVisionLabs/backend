@@ -1,11 +1,12 @@
 using Agrivision.Backend.Application.Features.Auth.Commands;
+using Agrivision.Backend.Application.Features.Auth.Contracts;
 using FluentValidation;
 
 namespace Agrivision.Backend.Application.Features.Auth.Validators;
 
-public class RefreshTokenCommandValidator : AbstractValidator<RefreshTokenCommand>
+public class RefreshTokenRequestValidator : AbstractValidator<RefreshTokenRequest>
 {
-    public RefreshTokenCommandValidator()
+    public RefreshTokenRequestValidator()
     {
         RuleFor(req => req.Token)
             .NotEmpty();

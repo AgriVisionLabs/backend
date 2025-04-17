@@ -1,12 +1,13 @@
 using Agrivision.Backend.Application.Features.Auth.Commands;
+using Agrivision.Backend.Application.Features.Auth.Contracts;
 using Agrivision.Backend.Domain.Abstractions.Consts;
 using FluentValidation;
 
 namespace Agrivision.Backend.Application.Features.Auth.Validators;
 
-public class RegisterCommandValidator : AbstractValidator<RegisterCommand>
+public class RegisterRequestValidator : AbstractValidator<RegisterRequest>
 {
-    public RegisterCommandValidator()
+    public RegisterRequestValidator()
     {
         RuleFor(req => req.UserName)
             .NotEmpty()

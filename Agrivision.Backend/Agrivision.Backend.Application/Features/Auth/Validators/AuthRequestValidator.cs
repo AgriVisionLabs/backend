@@ -4,9 +4,9 @@ using FluentValidation;
 
 namespace Agrivision.Backend.Application.Features.Auth.Validators;
 
-public class AuthQueryValidator : AbstractValidator<AuthQuery>
+public class AuthRequestValidator : AbstractValidator<AuthRequest>
 {
-    public AuthQueryValidator()
+    public AuthRequestValidator()
     {
         RuleFor(req => req.Email)
             .NotEmpty()

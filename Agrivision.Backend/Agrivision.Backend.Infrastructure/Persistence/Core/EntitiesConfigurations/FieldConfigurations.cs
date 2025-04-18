@@ -34,5 +34,10 @@ public class FieldConfigurations : IEntityTypeConfiguration<Field>
             .WithMany(farm => farm.Fields)
             .HasForeignKey(field => field.FarmId)
             .OnDelete(DeleteBehavior.Restrict);
+        
+        builder.HasMany(field => field.IrrigationUnits)
+            .WithOne(iu => iu.Field)
+            .HasForeignKey(iu => iu.FieldId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

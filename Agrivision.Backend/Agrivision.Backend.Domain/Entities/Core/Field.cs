@@ -13,4 +13,5 @@ public class Field : AuditableEntity
     // navigational property
     public Guid FarmId { get; set; }
     public Farm Farm { get; set; } = default!;
+    public ICollection<IrrigationUnit> IrrigationUnits { get; set; } = new List<IrrigationUnit>();
 }

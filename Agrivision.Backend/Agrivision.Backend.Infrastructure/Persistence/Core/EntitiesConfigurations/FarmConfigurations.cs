@@ -47,5 +47,10 @@ public class FarmConfigurations : IEntityTypeConfiguration<Farm>
             .WithOne(inv => inv.Farm)
             .HasForeignKey(inv => inv.FarmId)
             .OnDelete(DeleteBehavior.Restrict);
+        
+        builder.HasMany(farm => farm.IrrigationUnits)
+            .WithOne(iu => iu.Farm)
+            .HasForeignKey(iu => iu.FarmId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

@@ -5,6 +5,7 @@ namespace Agrivision.Backend.Application.Features.Field.Commands;
 
 public record DeleteFieldCommand
 (
-    Guid Id,
+    Guid FarmId,
+    Guid FieldId,
     string DeletedById
 ) : IRequest<Result>;

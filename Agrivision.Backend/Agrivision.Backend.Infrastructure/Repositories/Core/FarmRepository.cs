@@ -61,6 +61,15 @@ public class FarmRepository(CoreDbContext coreDbContext) : IFarmRepository
             .FirstOrDefaultAsync(farm => farm.Id == farmId && !farm.IsDeleted, cancellationToken);
     }
     
+    public async Task<Farm?> FindByIdWithFieldsAndRolesAsync(Guid farmId, CancellationToken cancellationToken)
+    {
+        return await coreDbContext.Farms
+            .AsNoTracking()
+            .Include(farm => farm.Fields)
+            .Include(farm => farm.FarmUserRoles)
+            .FirstOrDefaultAsync(farm => farm.Id == farmId && !farm.IsDeleted, cancellationToken);
+    }
+    
     // admin method
     public async Task<List<Farm>> AdminFindByNameAndUserAsync(string name, string userId, CancellationToken cancellationToken)
     {

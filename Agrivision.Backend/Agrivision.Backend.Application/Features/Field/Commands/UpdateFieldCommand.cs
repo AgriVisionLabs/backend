@@ -5,7 +5,8 @@ namespace Agrivision.Backend.Application.Features.Field.Commands;
 
 public record UpdateFieldCommand
 (
-    Guid Id,
+    Guid FarmId,
+    Guid FieldId,
     string Name,
     double Area,
     string UpdatedById

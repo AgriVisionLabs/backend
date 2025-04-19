@@ -12,6 +12,7 @@ public interface IFarmRepository
     Task<Farm?> FindByIdAsync(Guid farmId, CancellationToken cancellationToken = default);
     Task<Farm?> AdminFindByIdWithFieldsAsync(Guid farmId, CancellationToken cancellationToken);
     Task<Farm?> FindByIdWithFieldsAsync(Guid farmId, CancellationToken cancellationToken);
+    Task<Farm?> FindByIdWithFieldsAndRolesAsync(Guid farmId, CancellationToken cancellationToken);
     Task<List<Farm>> AdminFindByNameAndUserAsync(string name, string userId, CancellationToken cancellationToken = default);
     Task<Farm?> FindByNameAndUserAsync(string name, string userId, CancellationToken cancellationToken = default);
     Task AddAsync(Farm farm, CancellationToken cancellationToken = default);

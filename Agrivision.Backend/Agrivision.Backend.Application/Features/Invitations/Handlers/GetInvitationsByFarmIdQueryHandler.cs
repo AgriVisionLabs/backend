@@ -1,12 +1,12 @@
 using Agrivision.Backend.Application.Errors;
-using Agrivision.Backend.Application.Features.Farm.Contracts;
-using Agrivision.Backend.Application.Features.Farm.Queries;
+using Agrivision.Backend.Application.Features.Invitations.Contracts;
+using Agrivision.Backend.Application.Features.Invitations.Queries;
 using Agrivision.Backend.Application.Repositories.Core;
 using Agrivision.Backend.Application.Repositories.Identity;
 using Agrivision.Backend.Domain.Abstractions;
 using MediatR;
 
-namespace Agrivision.Backend.Application.Features.Farm.Handlers;
+namespace Agrivision.Backend.Application.Features.Invitations.Handlers;
 
 public class GetInvitationsByFarmIdQueryHandler(IFarmRepository farmRepository, IFarmInvitationRepository farmInvitationRepository, IFarmRoleRepository farmRoleRepository, IUserRepository userRepository, IFarmUserRoleRepository farmUserRoleRepository) : IRequestHandler<GetInvitationsByFarmIdQuery, Result<IReadOnlyList<InvitationResponse>>>
 {
@@ -45,6 +45,7 @@ public class GetInvitationsByFarmIdQueryHandler(IFarmRepository farmRepository, 
         var response = invitations
             .Select(inv => new InvitationResponse(
                 Id: inv.Id,
+                FarmId: inv.FarmId,
                 SenderId: inv.CreatedById,
                 SenderUserName: senderMap.GetValueOrDefault(inv.CreatedById, "Unknown"),
                 ReceiverEmail: inv.InvitedEmail,

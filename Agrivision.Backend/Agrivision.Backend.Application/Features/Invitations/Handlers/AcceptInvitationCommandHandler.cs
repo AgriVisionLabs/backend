@@ -1,12 +1,12 @@
 using Agrivision.Backend.Application.Errors;
-using Agrivision.Backend.Application.Features.Farm.Commands;
+using Agrivision.Backend.Application.Features.Invitations.Commands;
 using Agrivision.Backend.Application.Repositories.Core;
 using Agrivision.Backend.Application.Repositories.Identity;
 using Agrivision.Backend.Domain.Abstractions;
 using Agrivision.Backend.Domain.Entities.Core;
 using MediatR;
 
-namespace Agrivision.Backend.Application.Features.Farm.Handlers;
+namespace Agrivision.Backend.Application.Features.Invitations.Handlers;
 
 public class AcceptInvitationCommandHandler(IFarmInvitationRepository farmInvitationRepository, IUserRepository userRepository, IFarmUserRoleRepository farmUserRoleRepository) : IRequestHandler<AcceptInvitationCommand, Result>
 {

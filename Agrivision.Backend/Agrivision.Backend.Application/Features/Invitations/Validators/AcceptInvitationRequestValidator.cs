@@ -1,7 +1,7 @@
 using Agrivision.Backend.Application.Features.Farm.Contracts;
 using FluentValidation;
 
-namespace Agrivision.Backend.Application.Features.Farm.Validators;
+namespace Agrivision.Backend.Application.Features.Invitations.Validators;
 
 public class AcceptInvitationRequestValidator : AbstractValidator<AcceptInvitationRequest>
 {

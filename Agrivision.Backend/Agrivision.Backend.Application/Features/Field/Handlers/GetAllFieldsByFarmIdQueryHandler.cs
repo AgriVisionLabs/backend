@@ -7,7 +7,7 @@ using MediatR;
 
 namespace Agrivision.Backend.Application.Features.Field.Handlers;
 
-public class GetAllFieldsByFarmIdQueryHandler(IFieldRepository fieldRepository, IFarmRepository farmRepository) : IRequestHandler<GetAllFieldsByFarmIdQuery, Result<List<FieldResponse>>>
+public class GetAllFieldsByFarmIdQueryHandler(IFieldRepository fieldRepository, IFarmRepository farmRepository, IFarmUserRoleRepository farmUserRoleRepository) : IRequestHandler<GetAllFieldsByFarmIdQuery, Result<List<FieldResponse>>>
 {
     public async Task<Result<List<FieldResponse>>> Handle(GetAllFieldsByFarmIdQuery request, CancellationToken cancellationToken)
     {
@@ -15,6 +15,11 @@ public class GetAllFieldsByFarmIdQueryHandler(IFieldRepository fieldRepository, 
         var farm = await farmRepository.FindByIdAsync(request.FarmId, cancellationToken);
         if (farm is null)
             return Result.Failure<List<FieldResponse>>(FarmErrors.FarmNotFound);
+     
+        // check if user has access to the farm
+        var hasAccess = await farmUserRoleRepository.ExistsAsync(request.FarmId, request.RequesterId, cancellationToken);
+        if (!hasAccess)
+            return Result.Failure<List<FieldResponse>>(FarmErrors.UnauthorizedAction);
         
         // get all fields
         var fields = await fieldRepository.GetAllByFarmIdAsync(farm!.Id, cancellationToken);

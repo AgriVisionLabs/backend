@@ -1,5 +1,5 @@
 using Agrivision.Backend.Application.Errors;
-using Agrivision.Backend.Application.Features.Farm.Commands;
+using Agrivision.Backend.Application.Features.Invitations.Commands;
 using Agrivision.Backend.Application.Repositories.Core;
 using Agrivision.Backend.Application.Repositories.Identity;
 using Agrivision.Backend.Application.Services.Email;
@@ -9,12 +9,17 @@ using Agrivision.Backend.Domain.Entities.Core;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
-namespace Agrivision.Backend.Application.Features.Farm.Handlers;
+namespace Agrivision.Backend.Application.Features.Invitations.Handlers;
 
 public class InviteMemberCommandHandler(IUserRepository userRepository, IFarmRepository farmRepository, IFarmRoleRepository farmRoleRepository, IFarmInvitationRepository farmInvitationRepository, IInvitationTokenGenerator invitationTokenGenerator, IEmailService emailService, ILogger<InviteMemberCommandHandler> logger, IFarmUserRoleRepository farmUserRoleRepository) : IRequestHandler<InviteMemberCommand, Result>
 {
     public async Task<Result> Handle(InviteMemberCommand request, CancellationToken cancellationToken)
     {
+        // check if user can invite
+        var userRole = await farmUserRoleRepository.GetByUserAndFarmAsync(request.FarmId, request.SenderId, cancellationToken);
+        if (userRole is null || (userRole.FarmRole.Name != "Owner" && userRole.FarmRole.Name != "Manager"))
+            return Result.Failure(FarmUserRoleErrors.InsufficientPermission);
+        
         // check whether email or username
         var isEmail = request.Recipient.Contains('@');
         

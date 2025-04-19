@@ -6,5 +6,6 @@ namespace Agrivision.Backend.Application.Features.Field.Queries;
 
 public record GetAllFieldsByFarmIdQuery
 (
-    Guid FarmId
+    Guid FarmId,
+    string RequesterId
 ) : IRequest<Result<List<FieldResponse>>>;

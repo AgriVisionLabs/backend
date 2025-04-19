@@ -49,28 +49,6 @@ namespace Agrivision.Backend.Api.Controllers
             var result = await mediator.Send(new GetFarmByIdQuery(farmId, userId), cancellationToken);
             return result.Succeeded ? Ok(result.Value) : result.ToProblem(result.Error.ToStatusCode());
         }
-        
-        [HttpGet("{farmId}/fields")]
-        public async Task<IActionResult> GetAllAsync([FromRoute] Guid farmId, CancellationToken cancellationToken = default)
-        {
-            var command = new GetAllFieldsByFarmIdQuery(farmId);
-            var result = await mediator.Send(command, cancellationToken);
-
-            return result.Succeeded ? Ok(result.Value) : result.ToProblem(result.Error.ToStatusCode());
-        }
-        
-        [HttpGet("{farmId}/invitations")]
-        public async Task<IActionResult> GetInvitationsAsync([FromRoute] Guid farmId, CancellationToken cancellationToken = default)
-        {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrEmpty(userId))
-                return Result.Failure(TokenErrors.InvalidToken).ToProblem(TokenErrors.InvalidToken.ToStatusCode());
-
-            var query = new GetInvitationsByFarmIdQuery(farmId, userId);
-            var result = await mediator.Send(query, cancellationToken);
-            
-            return result.Succeeded ? Ok(result.Value) : result.ToProblem(result.Error.ToStatusCode());
-        }
 
         [HttpPost("")]
         public async Task<IActionResult> AddAsync([FromBody] CreateFarmRequest request, CancellationToken cancellationToken = default)

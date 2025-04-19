@@ -1,7 +1,8 @@
-namespace Agrivision.Backend.Application.Features.Farm.Contracts;
+namespace Agrivision.Backend.Application.Features.Invitations.Contracts;
 
 public record InvitationResponse(
     Guid Id,
+    Guid FarmId,
     string SenderId,
     string SenderUserName,
     string ReceiverEmail,

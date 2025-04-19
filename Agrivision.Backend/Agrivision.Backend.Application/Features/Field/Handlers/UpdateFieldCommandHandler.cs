@@ -11,16 +11,20 @@ public class UpdateFieldCommandHandler(IFieldRepository fieldRepository, IFarmRe
     public async Task<Result> Handle(UpdateFieldCommand request, CancellationToken cancellationToken)
     {
         // check if field exist
-        var field = await fieldRepository.FindByIdAsync(request.Id, cancellationToken);
+        var field = await fieldRepository.FindByIdAsync(request.FieldId, cancellationToken);
         if (field is null)
             return Result.Failure(FieldErrors.FieldNotFound);
+        
+        // confirm field belongs to provided farm
+        if (field.FarmId != request.FarmId)
+            return Result.Failure(FarmErrors.UnauthorizedAction);
         
         // fetch the farm
         var farm = await farmRepository.FindByIdWithFieldsAsync(field.FarmId, cancellationToken);
         if (farm is null)
             return Result.Failure(FarmErrors.FarmNotFound);
         
-        // check if field name is not used 
+        // check for duplicate field name in the same farm
         var existingField =
             await fieldRepository.FindByNameAndFarmIdAsync(request.Name, farm.Id, cancellationToken);
         if (existingField is not null && existingField.Id != field.Id && !existingField.IsDeleted)

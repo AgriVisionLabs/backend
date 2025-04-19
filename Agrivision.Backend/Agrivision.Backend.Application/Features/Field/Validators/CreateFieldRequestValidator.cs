@@ -15,8 +15,5 @@ public class CreateFieldRequestValidator : AbstractValidator<CreateFieldRequest>
             .NotEmpty()
             .GreaterThanOrEqualTo(0.25)
             .WithMessage("The farm area must be at least 0.25 acres.");
-
-        RuleFor(request => request.FarmId)
-            .NotEmpty();
     }
 }

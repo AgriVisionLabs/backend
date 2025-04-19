@@ -5,7 +5,7 @@ using Agrivision.Backend.Application.Repositories.Core;
 using Agrivision.Backend.Domain.Abstractions;
 using MediatR;
 
-namespace Agrivision.Backend.Application.Features.Field.Hanlders;
+namespace Agrivision.Backend.Application.Features.Field.Handlers;
 
 public class CreateFieldCommandHandler (IFieldRepository fieldRepository, IFarmRepository farmRepository) : IRequestHandler<CreateFieldCommand, Result<FieldResponse>>
 {

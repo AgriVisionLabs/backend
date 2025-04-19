@@ -10,10 +10,14 @@ public class DeleteFieldCommandHandler(IFieldRepository fieldRepository) : IRequ
 {
     public async Task<Result> Handle(DeleteFieldCommand request, CancellationToken cancellationToken)
     {
-        // check if the field exist
-        var field = await fieldRepository.FindByIdWithFarmAsync(request.Id, cancellationToken);
+        // check if the field exists
+        var field = await fieldRepository.FindByIdWithFarmAsync(request.FieldId, cancellationToken);
         if (field is null)
             return Result.Failure(FieldErrors.FieldNotFound);
+        
+        // check if field belongs to provided farm
+        if (field.FarmId != request.FarmId)
+            return Result.Failure(FarmErrors.UnauthorizedAction);
 
         // check if user can delete
         if (request.DeletedById != field.Farm.CreatedById)

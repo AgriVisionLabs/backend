@@ -2,7 +2,7 @@ using Agrivision.Backend.Domain.Abstractions;
 using Agrivision.Backend.Domain.Entities.Core;
 using MediatR;
 
-namespace Agrivision.Backend.Application.Features.Farm.Commands;
+namespace Agrivision.Backend.Application.Features.Invitations.Commands;
 
 public record InviteMemberCommand
 (

@@ -18,7 +18,7 @@ namespace Agrivision.Backend.Api.Controllers
     [Authorize]
     public class InvitationsController(IMediator mediator) : ControllerBase
     {
-        [HttpGet("")]
+        [HttpGet("pending")]
         public async Task<IActionResult> GetInvitationsAsync([FromRoute] Guid farmId, CancellationToken cancellationToken = default)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);

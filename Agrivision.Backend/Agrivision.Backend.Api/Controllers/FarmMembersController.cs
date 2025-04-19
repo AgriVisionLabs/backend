@@ -1,8 +1,9 @@
 using System.Security.Claims;
 using Agrivision.Backend.Api.Extensions;
 using Agrivision.Backend.Application.Errors;
-using Agrivision.Backend.Application.Features.Farm.Commands;
-using Agrivision.Backend.Application.Features.Farm.Queries;
+using Agrivision.Backend.Application.Features.Members.Commands;
+using Agrivision.Backend.Application.Features.Members.Contracts;
+using Agrivision.Backend.Application.Features.Members.Queries;
 using Agrivision.Backend.Domain.Abstractions;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -26,6 +27,19 @@ namespace Agrivision.Backend.Api.Controllers
             var result = await mediator.Send(query, cancellationToken);
             
             return result.Succeeded ? Ok(result.Value) : result.ToProblem(result.Error.ToStatusCode());
+        }
+        
+        [HttpPut("{userId}")]
+        public async Task<IActionResult> UpdateMemberRoleAsync([FromRoute] Guid farmId, [FromRoute] string userId, [FromBody] UpdateMemberRoleRequest request,CancellationToken cancellationToken = default)
+        {
+            var requesterId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(requesterId))
+                return Result.Failure(TokenErrors.InvalidToken).ToProblem(TokenErrors.InvalidToken.ToStatusCode());
+            
+            var command = new UpdateMemberRoleCommand(requesterId, farmId, userId, request.RoleId);
+            var result = await mediator.Send(command, cancellationToken);
+            
+            return result.Succeeded ? NoContent() : result.ToProblem(result.Error.ToStatusCode());
         }
         
         [HttpDelete("{userId}")]

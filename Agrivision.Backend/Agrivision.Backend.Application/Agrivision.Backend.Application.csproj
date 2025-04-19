@@ -19,6 +19,7 @@
 
     <ItemGroup>
       <Folder Include="Features\Invitations\Mappings\" />
+      <Folder Include="Features\Members\Mappings\" />
     </ItemGroup>
 
 </Project>

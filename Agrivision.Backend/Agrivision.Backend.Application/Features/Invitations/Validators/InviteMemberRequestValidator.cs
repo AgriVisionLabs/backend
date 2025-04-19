@@ -22,7 +22,6 @@ public class InviteMemberRequestValidator : AbstractValidator<InviteMemberReques
 
         RuleFor(req => req.RoleId)
             .NotEmpty()
-            .GreaterThan(0)
-            .WithMessage("Role ID must be a valid, non-zero value.");
+            .GreaterThan(1);
     }
 }

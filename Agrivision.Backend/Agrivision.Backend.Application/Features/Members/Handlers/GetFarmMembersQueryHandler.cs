@@ -1,12 +1,12 @@
 using Agrivision.Backend.Application.Errors;
-using Agrivision.Backend.Application.Features.Farm.Contracts;
-using Agrivision.Backend.Application.Features.Farm.Queries;
+using Agrivision.Backend.Application.Features.Members.Contracts;
+using Agrivision.Backend.Application.Features.Members.Queries;
 using Agrivision.Backend.Application.Repositories.Core;
 using Agrivision.Backend.Application.Repositories.Identity;
 using Agrivision.Backend.Domain.Abstractions;
 using MediatR;
 
-namespace Agrivision.Backend.Application.Features.Farm.Handlers;
+namespace Agrivision.Backend.Application.Features.Members.Handlers;
 
 public class GetFarmMembersQueryHandler(IFarmRepository farmRepository, IFarmUserRoleRepository farmUserRoleRepository, IUserRepository userRepository) : IRequestHandler<GetFarmMembersQuery, Result<IReadOnlyList<FarmMemberResponse>>>
 {
@@ -50,6 +50,7 @@ public class GetFarmMembersQueryHandler(IFarmRepository farmRepository, IFarmUse
                     Email: member.Email!,
                     FirstName: member.FirstName,
                     LastName: member.LastName,
+                    RoleId: fur.FarmRoleId,
                     RoleName: fur.FarmRole.Name,
                     JoinedAt: fur.CreatedOn,
                     InvitedByUserName: invitedByUserName,

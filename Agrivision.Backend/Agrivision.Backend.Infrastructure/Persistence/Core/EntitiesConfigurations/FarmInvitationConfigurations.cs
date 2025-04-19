@@ -44,7 +44,7 @@ public class FarmInvitationConfigurations : IEntityTypeConfiguration<FarmInvitat
 
         builder.HasIndex(inv => new { inv.FarmId, inv.InvitedEmail })
             .IsUnique()
-            .HasFilter("[IsDeleted] = 0");
+            .HasFilter("[IsDeleted] = 0 AND [IsAccepted] = 0");
 
         builder.HasOne(inv => inv.Farm)
             .WithMany(f => f.FarmInvitations)

@@ -1,4 +1,4 @@
-namespace Agrivision.Backend.Application.Features.Farm.Contracts;
+namespace Agrivision.Backend.Application.Features.Members.Contracts;
 
 public record FarmMemberResponse
 (
@@ -8,6 +8,7 @@ public record FarmMemberResponse
     string Email,
     string FirstName,
     string LastName,
+    int RoleId,
     string RoleName,
     DateTime JoinedAt,
     string InvitedByUserName,

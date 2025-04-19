@@ -35,6 +35,10 @@ public static class ErrorMapping
         "FarmInvitation.UnauthorizedAction" => StatusCodes.Status401Unauthorized,
         "FarmInvitation.AlreadyAccepted" => StatusCodes.Status409Conflict,
         "FarmUserRole.SelfRevokeNotAllowed" => StatusCodes.Status403Forbidden,
+        "FarmUserRole.CannotModifyElevatedRoles" => StatusCodes.Status403Forbidden,
+        "FarmUserRole.SelfModificationNotAllowed" => StatusCodes.Status400BadRequest,
+        "FarmUserRole.CannotAssignElevatedRoles" => StatusCodes.Status403Forbidden,
+        "FarmUserRole.CannotAssignOwnerRole" => StatusCodes.Status403Forbidden,
         _ => StatusCodes.Status400BadRequest // Default case
     };
 }

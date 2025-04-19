@@ -89,7 +89,7 @@ public class FarmInvitationRepository(CoreDbContext coreDbContext, IInvitationTo
     public async Task<bool> ExistsAsync(Guid farmId, string invitedEmail, CancellationToken cancellationToken = default)
     {
         var invitation = await coreDbContext.FarmInvitations
-            .FirstOrDefaultAsync(inv => inv.FarmId == farmId && inv.InvitedEmail == invitedEmail && !inv.IsDeleted,
+            .FirstOrDefaultAsync(inv => inv.FarmId == farmId && inv.InvitedEmail == invitedEmail && !inv.IsDeleted && !inv.IsAccepted,
                 cancellationToken);
 
         return invitation is not null;

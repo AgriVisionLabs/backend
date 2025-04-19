@@ -1,11 +1,11 @@
 using Agrivision.Backend.Application.Errors;
-using Agrivision.Backend.Application.Features.Farm.Commands;
+using Agrivision.Backend.Application.Features.Members.Commands;
 using Agrivision.Backend.Application.Repositories.Core;
 using Agrivision.Backend.Domain.Abstractions;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
-namespace Agrivision.Backend.Application.Features.Farm.Handlers;
+namespace Agrivision.Backend.Application.Features.Members.Handlers;
 
 public class RevokeAccessCommandHandler(IFarmUserRoleRepository farmUserRoleRepository, ILogger<RevokeAccessCommandHandler> logger) : IRequestHandler<RevokeAccessCommand, Result>
 {

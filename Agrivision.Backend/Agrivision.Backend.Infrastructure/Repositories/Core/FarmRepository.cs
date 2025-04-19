@@ -101,4 +101,10 @@ public class FarmRepository(CoreDbContext coreDbContext) : IFarmRepository
         coreDbContext.Farms.Remove(farm); 
         await coreDbContext.SaveChangesAsync(cancellationToken);
     }
+
+    public async Task<bool> ExistsAsync(Guid farmId, CancellationToken cancellationToken)
+    {
+        return await coreDbContext.Farms
+            .AnyAsync(f => f.Id == farmId && !f.IsDeleted, cancellationToken);
+    }
 }

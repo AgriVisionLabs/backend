@@ -18,4 +18,5 @@ public interface IFarmRepository
     Task AddAsync(Farm farm, CancellationToken cancellationToken = default);
     Task UpdateAsync(Farm farm, CancellationToken cancellationToken = default);
     Task RemoveAsync(Farm farm, CancellationToken cancellationToken = default);
+    Task<bool> ExistsAsync(Guid farmId, CancellationToken cancellationToken);
 }

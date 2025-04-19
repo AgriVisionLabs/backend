@@ -8,10 +8,14 @@ using MediatR;
 
 namespace Agrivision.Backend.Application.Features.Farm.Handlers;
 
-public class GetFarmByIdQueryHandler(IFarmUserRoleRepository farmUserRoleRepository) : IRequestHandler<GetFarmByIdQuery, Result<FarmResponse>>
+public class GetFarmByIdQueryHandler(IFarmUserRoleRepository farmUserRoleRepository, IFarmRepository farmRepository) : IRequestHandler<GetFarmByIdQuery, Result<FarmResponse>>
 {
     public async Task<Result<FarmResponse>> Handle(GetFarmByIdQuery request, CancellationToken cancellationToken)
     {
+        var farm = await farmRepository.FindByIdAsync(request.FarmId, cancellationToken);
+        if (farm is null)
+            return Result.Failure<FarmResponse>(FarmErrors.FarmNotFound);
+        
         // check if user has access to the farm
         var access =
             await farmUserRoleRepository.GetByUserAndFarmAsync(request.FarmId, request.RequesterId, cancellationToken);

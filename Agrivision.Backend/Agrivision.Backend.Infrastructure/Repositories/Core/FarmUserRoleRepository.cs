@@ -23,7 +23,7 @@ public class FarmUserRoleRepository(CoreDbContext coreDbContext) : IFarmUserRole
         return await coreDbContext.FarmUserRoles
             .Include(fur => fur.Farm)
             .Include(fur => fur.FarmRole)
-            .Where(fur => fur.UserId == userId && !fur.IsDeleted && fur.IsActive)
+            .Where(fur => fur.UserId == userId && !fur.IsDeleted && fur.IsActive && !fur.Farm.IsDeleted)
             .OrderByDescending(fur => fur.CreatedOn)
             .ToListAsync(cancellationToken);
     }
@@ -40,7 +40,7 @@ public class FarmUserRoleRepository(CoreDbContext coreDbContext) : IFarmUserRole
     {
         return await coreDbContext.FarmUserRoles
             .Include(fur => fur.FarmRole)
-            .Where(fur => fur.FarmId == farmId && !fur.IsDeleted)
+            .Where(fur => fur.FarmId == farmId && !fur.IsDeleted && fur.IsActive && !fur.Farm.IsDeleted)
             .ToListAsync(cancellationToken);
     }
     
@@ -56,7 +56,7 @@ public class FarmUserRoleRepository(CoreDbContext coreDbContext) : IFarmUserRole
         return await coreDbContext.FarmUserRoles
             .Include(fur => fur.Farm)
             .Include(fur => fur.FarmRole)
-            .FirstOrDefaultAsync(fur => fur.FarmId == farmId && fur.UserId == userId && !fur.IsDeleted && fur.IsActive, cancellationToken);
+            .FirstOrDefaultAsync(fur => fur.FarmId == farmId && fur.UserId == userId && !fur.IsDeleted && fur.IsActive && !fur.Farm.IsDeleted, cancellationToken);
         
     }
 
@@ -81,7 +81,7 @@ public class FarmUserRoleRepository(CoreDbContext coreDbContext) : IFarmUserRole
     public async Task<bool> ExistsAsync(Guid farmId, string userId, CancellationToken cancellationToken = default)
     {
         return await coreDbContext.FarmUserRoles
-            .AnyAsync(fur => fur.FarmId == farmId && fur.UserId == userId && !fur.IsDeleted, cancellationToken);
+            .AnyAsync(fur => fur.FarmId == farmId && fur.UserId == userId && !fur.IsDeleted && !fur.Farm.IsDeleted, cancellationToken);
     }
 
     public async Task RemoveAsync(FarmUserRole assignment, CancellationToken cancellationToken = default)
@@ -99,6 +99,7 @@ public class FarmUserRoleRepository(CoreDbContext coreDbContext) : IFarmUserRole
                 where fur.UserId == userId
                       && fur.FarmId == farmId
                       && !fur.IsDeleted
+                      && !fur.Farm.IsDeleted
                       && claim.ClaimType == CorePermissions.Type
                 select claim.ClaimValue
             ).Distinct().ToListAsync(cancellationToken);

@@ -39,8 +39,10 @@ public class FarmRepository(CoreDbContext coreDbContext) : IFarmRepository
 
     public async Task<Farm?> FindByIdAsync(Guid farmId, CancellationToken cancellationToken)
     {
-        return await coreDbContext.Farms
+        var test = await coreDbContext.Farms
             .FirstOrDefaultAsync(farm => farm.Id == farmId && !farm.IsDeleted, cancellationToken);
+
+        return test;
     }
     
     public async Task<Farm?> AdminFindByIdWithFieldsAsync(Guid farmId, CancellationToken cancellationToken)

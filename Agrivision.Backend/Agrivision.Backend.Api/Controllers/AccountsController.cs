@@ -26,6 +26,16 @@ public class AccountsController(IMediator mediator, ILogger<AccountsController> 
         return result.Succeeded ? Ok(result.Value) : result.ToProblem(result.Error.ToStatusCode());
 
     }
+    [HttpPut("")]
+    public async Task<IActionResult> Info(UpdateUserProfileRequest request, CancellationToken cancellationToken)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var result = await mediator.Send(new UpdateUserProfileCommand
+                                             (userId!,request.FirstName, request.LastName, request.UserName, request.PhoneNumber), cancellationToken);
+
+        return result.Succeeded ? Ok(result) : result.ToProblem(result.Error.ToStatusCode());
+
+    }
 
     [HttpPut("change-password")]
     public async Task<IActionResult>  ChangePassword(ChangePasswordRequest request, CancellationToken cancellationToken)
@@ -39,4 +49,5 @@ public class AccountsController(IMediator mediator, ILogger<AccountsController> 
         return result.Succeeded ? Ok(result) : result.ToProblem(result.Error.ToStatusCode());
 
     }
+
 }

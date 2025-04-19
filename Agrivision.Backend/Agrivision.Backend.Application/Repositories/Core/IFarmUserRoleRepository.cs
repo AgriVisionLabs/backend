@@ -14,6 +14,7 @@ public interface IFarmUserRoleRepository
     Task AddRangeAsync(IEnumerable<FarmUserRole> assignments, CancellationToken cancellationToken = default);
     Task<bool> AdminExistsAsync(Guid farmId, string userId, CancellationToken cancellationToken = default);
     Task<bool> ExistsAsync(Guid farmId, string userId, CancellationToken cancellationToken = default);
+    Task UpdateAsync(FarmUserRole assignment, CancellationToken cancellationToken = default);
     Task RemoveAsync(FarmUserRole assignment, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<string>> GetPermissionsForUserInFarmAsync(Guid farmId, string userId, CancellationToken cancellationToken = default);
     Task<bool> AssignUserToRoleAsync(Guid farmId, string userId, string roleName , string createdById, bool isActive = false, CancellationToken cancellationToken = default);

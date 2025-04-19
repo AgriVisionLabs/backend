@@ -12,4 +12,7 @@ public static class FarmUserRoleErrors
     public static readonly Error UserAlreadyHasAccess = new(
         "FarmUserRole.UserAlreadyHasAccess",
         "The specified user already has access to this farm.");
+    public static readonly Error SelfRevokeNotAllowed = new(
+        "FarmUserRole.SelfRevokeNotAllowed",
+        "You cannot revoke your own access to the farm.");
 }

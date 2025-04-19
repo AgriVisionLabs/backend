@@ -34,6 +34,7 @@ public static class ErrorMapping
         "FarmInvitation.InvitationNotFound" => StatusCodes.Status404NotFound,
         "FarmInvitation.UnauthorizedAction" => StatusCodes.Status401Unauthorized,
         "FarmInvitation.AlreadyAccepted" => StatusCodes.Status409Conflict,
+        "FarmUserRole.SelfRevokeNotAllowed" => StatusCodes.Status403Forbidden,
         _ => StatusCodes.Status400BadRequest // Default case
     };
 }

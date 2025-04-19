@@ -89,7 +89,20 @@ namespace Agrivision.Backend.Api.Controllers
             
             return result.Succeeded ? NoContent() : result.ToProblem(result.Error.ToStatusCode());
         }
-        
+
+        [HttpDelete("{farmId}/members/{userId}")]
+        public async Task<IActionResult> RevokeAccessAsync([FromRoute] Guid farmId,
+            [FromRoute] string userId, CancellationToken cancellationToken = default)
+        {
+            var requesterId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(requesterId))
+                return Result.Failure(TokenErrors.InvalidToken).ToProblem(TokenErrors.InvalidToken.ToStatusCode());
+
+            var command = new RevokeAccessCommand(requesterId, farmId, userId);
+            var result = await mediator.Send(command, cancellationToken);
+
+            return result.Succeeded ? NoContent() : result.ToProblem(result.Error.ToStatusCode());
+        }
         
         [HttpDelete("{farmId}")]
         public async Task<IActionResult> DeleteAsync([FromRoute] Guid farmId, CancellationToken cancellationToken = default)

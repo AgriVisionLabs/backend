@@ -84,6 +84,12 @@ public class FarmUserRoleRepository(CoreDbContext coreDbContext) : IFarmUserRole
             .AnyAsync(fur => fur.FarmId == farmId && fur.UserId == userId && !fur.IsDeleted && !fur.Farm.IsDeleted, cancellationToken);
     }
 
+    public async Task UpdateAsync(FarmUserRole assignment, CancellationToken cancellationToken = default)
+    {
+        coreDbContext.FarmUserRoles.Update(assignment);
+        await coreDbContext.SaveChangesAsync(cancellationToken);
+    }
+
     public async Task RemoveAsync(FarmUserRole assignment, CancellationToken cancellationToken = default)
     {
         coreDbContext.FarmUserRoles.Remove(assignment);

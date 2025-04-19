@@ -2,7 +2,7 @@ using System.Security.Claims;
 using Agrivision.Backend.Api.Extensions;
 using Agrivision.Backend.Application.Errors;
 using Agrivision.Backend.Application.Features.Invitations.Commands;
-using Agrivision.Backend.Application.Features.Farm.Contracts;
+using Agrivision.Backend.Application.Features.Invitations.Contracts;
 using Agrivision.Backend.Domain.Abstractions;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;

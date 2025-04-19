@@ -50,19 +50,6 @@ namespace Agrivision.Backend.Api.Controllers
             return result.Succeeded ? Ok(result.Value) : result.ToProblem(result.Error.ToStatusCode());
         }
 
-        [HttpGet("{farmId}/members")]
-        public async Task<IActionResult> GetMembersAsync([FromRoute] Guid farmId, CancellationToken cancellationToken = default)
-        {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrEmpty(userId))
-                return Result.Failure(TokenErrors.InvalidToken).ToProblem(TokenErrors.InvalidToken.ToStatusCode());
-            
-            var query = new GetFarmMembersQuery(userId, farmId);
-            var result = await mediator.Send(query, cancellationToken);
-            
-            return result.Succeeded ? Ok(result.Value) : result.ToProblem(result.Error.ToStatusCode());
-        }
-
         [HttpPost("")]
         public async Task<IActionResult> AddAsync([FromBody] CreateFarmRequest request, CancellationToken cancellationToken = default)
         {
@@ -87,20 +74,6 @@ namespace Agrivision.Backend.Api.Controllers
             var command = new UpdateFarmCommand(farmId, request.Name, request.Area, request.Location, request.SoilType, userId );
             var result = await mediator.Send(command, cancellationToken);
             
-            return result.Succeeded ? NoContent() : result.ToProblem(result.Error.ToStatusCode());
-        }
-
-        [HttpDelete("{farmId}/members/{userId}")]
-        public async Task<IActionResult> RevokeAccessAsync([FromRoute] Guid farmId,
-            [FromRoute] string userId, CancellationToken cancellationToken = default)
-        {
-            var requesterId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrEmpty(requesterId))
-                return Result.Failure(TokenErrors.InvalidToken).ToProblem(TokenErrors.InvalidToken.ToStatusCode());
-
-            var command = new RevokeAccessCommand(requesterId, farmId, userId);
-            var result = await mediator.Send(command, cancellationToken);
-
             return result.Succeeded ? NoContent() : result.ToProblem(result.Error.ToStatusCode());
         }
         

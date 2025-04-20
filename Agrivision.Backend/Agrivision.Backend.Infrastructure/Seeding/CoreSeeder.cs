@@ -153,18 +153,19 @@ public static class CoreSeeder
             ["Owner"] = CorePermissionsRegistry.GetAllPermissions().ToList()!,
             ["Manager"] =
             [
-                CorePermissions.ViewFarm,
+                CorePermissions.ViewFarms,
                 CorePermissions.ViewFields,
                 CorePermissions.ViewFarmMembers,
                 CorePermissions.AssignFarmRoles
             ],
             ["Expert"] =
             [
-                CorePermissions.ViewFarm,
+                CorePermissions.ViewFarms,
                 CorePermissions.ViewFields
             ],
             ["Worker"] = 
             [
+                CorePermissions.ViewFarms,
                 CorePermissions.ViewFields,
                 CorePermissions.ViewFarmMembers
             ]

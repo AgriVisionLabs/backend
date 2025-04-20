@@ -5,7 +5,7 @@ public static class CorePermissions
     public static string Type { get; } = "core-permissions";
     
     // farm management
-    public const string ViewFarm = "core:farms:view";
+    public const string ViewFarms = "core:farms:view";
     public const string UpdateFarm = "core:farms:update";
     public const string DeleteFarm = "core:farms:delete";
     

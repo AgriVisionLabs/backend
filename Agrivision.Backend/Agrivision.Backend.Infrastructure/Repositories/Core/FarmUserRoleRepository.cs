@@ -96,21 +96,6 @@ public class FarmUserRoleRepository(CoreDbContext coreDbContext) : IFarmUserRole
         await coreDbContext.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task<IReadOnlyList<string>> GetPermissionsForUserInFarmAsync(Guid farmId, string userId, CancellationToken cancellationToken = default)
-    {
-        return await (
-                from fur in coreDbContext.FarmUserRoles
-                join role in coreDbContext.FarmRoles on fur.FarmRoleId equals role.Id
-                join claim in coreDbContext.FarmRoleClaims on role.Id equals claim.FarmRoleId
-                where fur.UserId == userId
-                      && fur.FarmId == farmId
-                      && !fur.IsDeleted
-                      && !fur.Farm.IsDeleted
-                      && claim.ClaimType == CorePermissions.Type
-                select claim.ClaimValue
-            ).Distinct().ToListAsync(cancellationToken);
-    }
-
     public async Task<bool> AssignUserToRoleAsync(Guid farmId, string userId, string roleName , string createdById, bool isActive = false,
         CancellationToken cancellationToken = default)
     {

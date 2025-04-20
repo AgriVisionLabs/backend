@@ -19,10 +19,7 @@
 
     <ItemGroup>
       <Folder Include="Features\FarmRoles\Commands\" />
-      <Folder Include="Features\FarmRoles\Contracts\" />
-      <Folder Include="Features\FarmRoles\Handlers\" />
       <Folder Include="Features\FarmRoles\Mappings\" />
-      <Folder Include="Features\FarmRoles\Queries\" />
       <Folder Include="Features\FarmRoles\Validators\" />
       <Folder Include="Features\Invitations\Mappings\" />
       <Folder Include="Features\Members\Mappings\" />

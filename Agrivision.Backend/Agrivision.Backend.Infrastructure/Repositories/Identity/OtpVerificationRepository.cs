@@ -19,6 +19,13 @@ public class OtpVerificationRepository(ApplicationUserDbContext applicationUserD
         return await applicationUserDbContext.OtpVerifications
             .FirstOrDefaultAsync(o => o.Email == email && o.OtpCode == otp, cancellationToken);
     }
+    public async Task<IQueryable<OtpVerification>> GetRecentOtpsAsync(string email, TimeSpan timeWindow, CancellationToken cancellationToken)
+    {
+        var cutoffTime = DateTime.UtcNow - timeWindow;
+        return await Task.FromResult(applicationUserDbContext.OtpVerifications
+            .Where(o => o.Email == email && o.CreatedOn >= cutoffTime)
+            .AsQueryable());
+    }
 
     public async Task UpdateAsync(OtpVerification otp, CancellationToken cancellationToken)
     {

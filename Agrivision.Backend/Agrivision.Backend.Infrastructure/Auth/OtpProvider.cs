@@ -1,10 +1,16 @@
 ﻿using Agrivision.Backend.Application.Auth;
 using Agrivision.Backend.Application.Repositories.Identity;
-using Agrivision.Backend.Domain.Abstractions;
 using Agrivision.Backend.Domain.Entities.Identity;
+using Microsoft.Extensions.Options;
+using Agrivision.Backend.Application.Settings;
+using System.Threading;
+using Agrivision.Backend.Domain.Abstractions;
+using Agrivision.Backend.Infrastructure.Services.Email;
+using Microsoft.Extensions.Logging;
+
 
 namespace Agrivision.Backend.Infrastructure.Auth;
-public class OtpProvider(IOtpVerificationRepository otpRepository) : IOtpProvider
+public class OtpProvider(IOtpVerificationRepository otpRepository, IOptions<OtpRateSetting> otpRateSettings , ILogger<OtpProvider> logger) : IOtpProvider
 {
     public string GenerateOtp()
     {
@@ -36,6 +42,24 @@ public class OtpProvider(IOtpVerificationRepository otpRepository) : IOtpProvide
 
         
         return true;
+    }
+
+    public async Task<bool> ExceededLimit(string email, CancellationToken cancellationToken)
+    {
+        var RateLimitWindow = TimeSpan.FromHours(otpRateSettings.Value.RateLimitWindowByHours);
+        var recentOtps = await otpRepository.GetRecentOtpsAsync(email, RateLimitWindow,cancellationToken);
+
+        var MaxAttempts = otpRateSettings.Value.MaxAttempts;
+
+
+        if (recentOtps.Count() >= MaxAttempts)
+        {
+            logger.LogWarning("Rate limit exceeded for email: {Email}. Max attempts: {MaxAttempts} within {Window}",
+                email, MaxAttempts, RateLimitWindow);
+            return true;
+        }
+
+        return false;
     }
     public async Task EndVarification(string email, string otp, CancellationToken cancellationToken)
     {

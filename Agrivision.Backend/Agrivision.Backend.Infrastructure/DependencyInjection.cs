@@ -41,6 +41,8 @@ public static class DependencyInjection
         
         services.MapEmailSettings(config);
 
+        services.MapOtpRateSettings(config);
+
         services.AddEmailSender();
         
         services.MapAppSettings(config);
@@ -195,6 +197,12 @@ public static class DependencyInjection
     private static IServiceCollection MapEmailSettings(this IServiceCollection services, IConfiguration configuration)
     {
         services.Configure<MailSettings>(configuration.GetSection(nameof(MailSettings)));
+
+        return services;
+    }
+    private static IServiceCollection MapOtpRateSettings(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.Configure<OtpRateSetting>(configuration.GetSection(nameof(OtpRateSetting)));
 
         return services;
     }

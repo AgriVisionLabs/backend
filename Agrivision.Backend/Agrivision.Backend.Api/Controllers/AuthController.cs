@@ -54,6 +54,7 @@ namespace Agrivision.Backend.Api.Controllers
             return result.Succeeded ? Ok() : result.ToProblem(result.Error.ToStatusCode());
         }
 
+
         [HttpPost("verify-otp")]
         public async Task<IActionResult> VerifyOtp([FromBody] VerifyOtpRequest request)
         {

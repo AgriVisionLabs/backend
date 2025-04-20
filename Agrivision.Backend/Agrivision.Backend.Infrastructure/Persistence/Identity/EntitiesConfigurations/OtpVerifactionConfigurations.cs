@@ -31,8 +31,12 @@ public class OtpVerifactionConfigurations : IEntityTypeConfiguration<OtpVerifica
                   .HasDefaultValue(false);
 
             // Index for faster lookups
-            builder.HasIndex(o => new { o.Email, o.OtpCode });
-                // .IsUnique(false);
+            builder.HasIndex(o => new { o.Email, o.OtpCode })
+                .IsUnique(false);
+
+            builder.HasIndex(o => new { o.Email, o.CreatedOn });
+
+            
 
         }
     }

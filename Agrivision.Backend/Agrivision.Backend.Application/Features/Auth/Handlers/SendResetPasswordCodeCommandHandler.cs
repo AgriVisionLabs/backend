@@ -17,8 +17,21 @@ public class SendResetPasswordCodeCommandHandler(IUserRepository userRepository
 {
     public async Task<Result> Handle(SendResetPasswordCodeCommand request, CancellationToken cancellationToken)
     {
+        // Check if user exists
         if (await userRepository.FindByEmailAsync(request.Email) is not { } applicationUser)
+        {
+            logger.LogWarning("No user found with email: {Email}", request.Email);
             return Result.Success();
+        }
+
+        // Check rate limit
+        var userExceededLimit = await otpProvider.ExceededLimit(request.Email, cancellationToken);
+        if (userExceededLimit)
+            return Result.Failure(OtpErrors.ExceedLimit);
+
+
+
+        // Generate and store new OTP
 
         var otp =  otpProvider.GenerateOtp() ;
         await otpProvider.StoreOtpAsync(request.Email, otp, cancellationToken);

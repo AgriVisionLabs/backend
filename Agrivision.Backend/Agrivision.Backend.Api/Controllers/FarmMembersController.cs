@@ -36,7 +36,7 @@ namespace Agrivision.Backend.Api.Controllers
             if (string.IsNullOrEmpty(requesterId))
                 return Result.Failure(TokenErrors.InvalidToken).ToProblem(TokenErrors.InvalidToken.ToStatusCode());
             
-            var command = new UpdateMemberRoleCommand(requesterId, farmId, userId, request.RoleId);
+            var command = new UpdateMemberRoleCommand(requesterId, farmId, userId, request.RoleName);
             var result = await mediator.Send(command, cancellationToken);
             
             return result.Succeeded ? NoContent() : result.ToProblem(result.Error.ToStatusCode());

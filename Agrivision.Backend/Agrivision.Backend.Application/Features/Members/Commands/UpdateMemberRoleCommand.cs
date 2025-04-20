@@ -8,5 +8,5 @@ public record UpdateMemberRoleCommand
     string RequesterId,
     Guid FarmId,
     string UserId,
-    int RoleId
+    string RoleName
 ) : IRequest<Result>;

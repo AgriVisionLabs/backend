@@ -155,7 +155,7 @@ public static class CoreSeeder
             [
                 CorePermissions.ViewFarm,
                 CorePermissions.ViewFields,
-                CorePermissions.ViewFarmUsers,
+                CorePermissions.ViewFarmMembers,
                 CorePermissions.AssignFarmRoles
             ],
             ["Expert"] =
@@ -163,7 +163,11 @@ public static class CoreSeeder
                 CorePermissions.ViewFarm,
                 CorePermissions.ViewFields
             ],
-            ["Worker"] = [CorePermissions.ViewFields]
+            ["Worker"] = 
+            [
+                CorePermissions.ViewFields,
+                CorePermissions.ViewFarmMembers
+            ]
         };
 
         foreach (var (roleName, permissions) in rolePermissionMap)

@@ -7,8 +7,7 @@ public class UpdateMemberRoleRequestValidator : AbstractValidator<UpdateMemberRo
 {
     public UpdateMemberRoleRequestValidator()
     {
-        RuleFor(req => req.RoleId)
-            .NotEmpty()
-            .GreaterThan(1);
+        RuleFor(req => req.RoleName)
+            .NotEmpty();
     }
 }

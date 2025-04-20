@@ -11,5 +11,5 @@ public record InviteMemberCommand
     string SenderName,
     Guid FarmId,
     string Recipient, // username or email
-    int RoleId
+    string RoleName
 ) : IRequest<Result>;

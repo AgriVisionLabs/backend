@@ -20,8 +20,7 @@ public class InviteMemberRequestValidator : AbstractValidator<InviteMemberReques
                 .WithMessage("Invalid email format.");
         });
 
-        RuleFor(req => req.RoleId)
-            .NotEmpty()
-            .GreaterThan(1);
+        RuleFor(req => req.RoleName)
+            .NotEmpty();
     }
 }

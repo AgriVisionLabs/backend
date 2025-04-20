@@ -15,6 +15,9 @@ public class InviteMemberCommandHandler(IUserRepository userRepository, IFarmRep
 {
     public async Task<Result> Handle(InviteMemberCommand request, CancellationToken cancellationToken)
     {
+        // clean up expired invites
+        await farmInvitationRepository.CleanupExpiredInvitationsAsync(cancellationToken);
+        
         // check if user can invite
         var userRole = await farmUserRoleRepository.GetByUserAndFarmAsync(request.FarmId, request.SenderId, cancellationToken);
         if (userRole is null || (userRole.FarmRole.Name != "Owner" && userRole.FarmRole.Name != "Manager"))
@@ -51,7 +54,7 @@ public class InviteMemberCommandHandler(IUserRepository userRepository, IFarmRep
         }
 
         // verify the role exists
-        var role = await farmRoleRepository.GetByIdAsync(request.RoleId, cancellationToken);
+        var role = await farmRoleRepository.GetByNameAsync(request.RoleName, cancellationToken);
         if (role is null)
             return Result.Failure(FarmRoleErrors.RoleNotFound);
         if (role.Name == "Owner")

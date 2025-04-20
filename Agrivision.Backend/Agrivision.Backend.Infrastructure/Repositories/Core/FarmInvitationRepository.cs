@@ -83,39 +83,17 @@ public class FarmInvitationRepository(CoreDbContext coreDbContext, IInvitationTo
     public async Task<FarmInvitation?> GetByTokenAsync(string token, CancellationToken cancellationToken = default)
     {
         return await coreDbContext.FarmInvitations
-            .FirstOrDefaultAsync(inv => inv.Token == token && !inv.IsDeleted, cancellationToken);
+            .FirstOrDefaultAsync(inv => inv.Token == token && !inv.IsDeleted && !inv.IsAccepted && inv.ExpiresAt > DateTime.UtcNow, cancellationToken);
     }
 
     public async Task<bool> ExistsAsync(Guid farmId, string invitedEmail, CancellationToken cancellationToken = default)
     {
-        var invitation = await coreDbContext.FarmInvitations
-            .FirstOrDefaultAsync(inv => inv.FarmId == farmId && inv.InvitedEmail == invitedEmail && !inv.IsDeleted && !inv.IsAccepted,
-                cancellationToken);
-
-        return invitation is not null;
-    }
-
-    public async Task<bool> ResendInvitationAsync(Guid farmId, string invitedEmail, CancellationToken cancellationToken = default)
-    {
-        var invitation = await coreDbContext.FarmInvitations
-            .FirstOrDefaultAsync(inv => 
-                    inv.FarmId == farmId &&
-                    inv.InvitedEmail == invitedEmail &&
-                    !inv.IsDeleted &&
-                    !inv.IsAccepted,
-                cancellationToken);
-
-        if (invitation is null)
-            return false;
-        
-        invitation.Token = invitationTokenGenerator.GenerateToken();
-        invitation.ExpiresAt = DateTime.UtcNow.AddDays(7);
-        invitation.UpdatedOn = DateTime.UtcNow;
-
-        coreDbContext.FarmInvitations.Update(invitation);
-        await coreDbContext.SaveChangesAsync(cancellationToken);
-
-        return true;
+        return await coreDbContext.FarmInvitations
+            .AnyAsync(inv => inv.FarmId == farmId 
+                             && inv.InvitedEmail == invitedEmail 
+                             && !inv.IsDeleted 
+                             && !inv.IsAccepted 
+                             && inv.ExpiresAt > DateTime.UtcNow, cancellationToken);
     }
 
     public async Task AddAsync(FarmInvitation invitation, CancellationToken cancellationToken = default)

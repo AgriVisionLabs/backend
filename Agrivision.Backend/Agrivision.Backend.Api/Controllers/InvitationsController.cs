@@ -46,7 +46,7 @@ namespace Agrivision.Backend.Api.Controllers
             if (string.IsNullOrEmpty(senderName))
                 return Result.Failure(TokenErrors.InvalidToken).ToProblem(TokenErrors.InvalidToken.ToStatusCode());
 
-            var command = new InviteMemberCommand(senderId, senderEmail, senderName, farmId, request.Recipient, request.RoleId);
+            var command = new InviteMemberCommand(senderId, senderEmail, senderName, farmId, request.Recipient, request.RoleName);
             var result = await mediator.Send(command, cancellationToken);
 
             return result.Succeeded ? NoContent() : result.ToProblem(result.Error.ToStatusCode());

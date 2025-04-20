@@ -32,8 +32,6 @@ public interface IFarmInvitationRepository
     Task<FarmInvitation?> GetByTokenAsync(string token, CancellationToken cancellationToken = default);
     // exists
     Task<bool> ExistsAsync(Guid farmId, string invitedEmail, CancellationToken cancellationToken = default);
-    // Resend 
-    Task<bool> ResendInvitationAsync(Guid farmId, string invitedEmail, CancellationToken cancellationToken = default);
     // add 
     Task AddAsync(FarmInvitation invitation, CancellationToken cancellationToken = default);
     // update

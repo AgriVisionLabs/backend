@@ -15,6 +15,6 @@ public static class CorePermissions
     public const string ViewFields = "core:fields:view";
 
     // role and user assignment
-    public const string ViewFarmUsers = "core:users:view";
-    public const string AssignFarmRoles = "core:users:assign-role";
+    public const string ViewFarmMembers = "core:members:view";
+    public const string AssignFarmRoles = "core:members:assign-role";
 }

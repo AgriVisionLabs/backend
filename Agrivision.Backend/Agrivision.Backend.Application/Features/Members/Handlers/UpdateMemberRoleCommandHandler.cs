@@ -32,7 +32,7 @@ public class UpdateMemberRoleCommandHandler(IFarmUserRoleRepository farmUserRole
             return Result.Failure(FarmUserRoleErrors.SelfModificationNotAllowed);
         
         // validate new role exists
-        var newRole = await farmRoleRepository.GetByIdAsync(request.RoleId, cancellationToken);
+        var newRole = await farmRoleRepository.GetByNameAsync(request.RoleName, cancellationToken);
         if (newRole is null)
             return Result.Failure(FarmRoleErrors.RoleNotFound);
 
@@ -43,11 +43,11 @@ public class UpdateMemberRoleCommandHandler(IFarmUserRoleRepository farmUserRole
             return Result.Failure(FarmUserRoleErrors.CannotAssignElevatedRoles);
         
         // pass if already in the role
-        if (targetRoleAssignment.FarmRoleId == request.RoleId)
+        if (targetRoleAssignment.FarmRole.Name == request.RoleName)
             return Result.Success();
         
         // update
-        targetRoleAssignment.FarmRoleId = request.RoleId;
+        targetRoleAssignment.FarmRoleId = newRole.Id;
         targetRoleAssignment.UpdatedOn = DateTime.UtcNow;
         targetRoleAssignment.UpdatedById = request.RequesterId;
         

@@ -30,5 +30,14 @@ namespace Agrivision.Backend.Api.Controllers
             
             return result.Succeeded ? Ok(result.Value) : result.ToProblem(result.Error.ToStatusCode()); 
         }
+
+        [HttpGet("permissions")]
+        public async Task<IActionResult> GetRolesPermissionAsync(CancellationToken cancellationToken)
+        {
+            var query = new GetFarmRolesPermissionsQuery();
+            var result = await mediator.Send(query, cancellationToken);
+
+            return result.Succeeded ? Ok(result.Value) : result.ToProblem(result.Error.ToStatusCode());
+        }
     }
 }

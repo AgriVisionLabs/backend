@@ -1,11 +1,9 @@
-using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Agrivision.Backend.Api.Extensions;
 using Agrivision.Backend.Application.Errors;
-using Agrivision.Backend.Application.Features.Farm.Commands;
-using Agrivision.Backend.Application.Features.Farm.Contracts;
-using Agrivision.Backend.Application.Features.Farm.Queries;
-using Agrivision.Backend.Application.Features.Field.Queries;
+using Agrivision.Backend.Application.Features.Farms.Commands;
+using Agrivision.Backend.Application.Features.Farms.Contracts;
+using Agrivision.Backend.Application.Features.Farms.Queries;
 using Agrivision.Backend.Domain.Abstractions;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;

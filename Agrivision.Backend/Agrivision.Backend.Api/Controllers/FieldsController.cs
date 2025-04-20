@@ -1,9 +1,9 @@
 using System.Security.Claims;
 using Agrivision.Backend.Api.Extensions;
 using Agrivision.Backend.Application.Errors;
-using Agrivision.Backend.Application.Features.Field.Commands;
-using Agrivision.Backend.Application.Features.Field.Contracts;
-using Agrivision.Backend.Application.Features.Field.Queries;
+using Agrivision.Backend.Application.Features.Fields.Commands;
+using Agrivision.Backend.Application.Features.Fields.Contracts;
+using Agrivision.Backend.Application.Features.Fields.Queries;
 using Agrivision.Backend.Domain.Abstractions;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;

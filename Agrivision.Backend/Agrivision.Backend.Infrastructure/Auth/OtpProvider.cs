@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging;
 
 
 namespace Agrivision.Backend.Infrastructure.Auth;
-public class OtpProvider(IOtpVerificationRepository otpRepository, IOptions<OtpRateSetting> otpRateSettings , ILogger<OtpProvider> logger) : IOtpProvider
+public class OtpProvider(IOtpVerificationRepository otpRepository, IOptions<OtpRateSettings> otpRateSettings , ILogger<OtpProvider> logger) : IOtpProvider
 {
     public string GenerateOtp()
     {

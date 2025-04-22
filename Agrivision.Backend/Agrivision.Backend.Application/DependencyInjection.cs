@@ -56,6 +56,11 @@ public static class DependencyInjection
             .BindConfiguration(RefreshTokenSettings.SectionName)
             .ValidateDataAnnotations()
             .ValidateOnStart();
+
+        services.AddOptions<OtpRateSettings>()
+            .BindConfiguration(OtpRateSettings.SectionName)
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
         
         return services;
     }

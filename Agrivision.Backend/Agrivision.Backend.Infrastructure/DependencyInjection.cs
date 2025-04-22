@@ -68,6 +68,8 @@ public static class DependencyInjection
         services.AddOtpProvider();
 
         services.AddOtpVerificationRepository();
+
+        services.AddInfrastructureLayerSettings();
         
         return services;
     }
@@ -202,7 +204,7 @@ public static class DependencyInjection
     }
     private static IServiceCollection MapOtpRateSettings(this IServiceCollection services, IConfiguration configuration)
     {
-        services.Configure<OtpRateSetting>(configuration.GetSection(nameof(OtpRateSetting)));
+        services.Configure<OtpRateSettings>(configuration.GetSection(nameof(OtpRateSettings)));
 
         return services;
     }
@@ -295,6 +297,21 @@ public static class DependencyInjection
     {
         services.AddScoped<IOtpVerificationRepository, OtpVerificationRepository>();
 
+        return services;
+    }
+    
+    private static IServiceCollection AddInfrastructureLayerSettings(this IServiceCollection services)
+    {
+        services.AddOptions<AdminSettings>()
+            .BindConfiguration(AdminSettings.SectionName)
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+
+        services.AddOptions<MailSettings>()
+            .BindConfiguration(MailSettings.SectionName)
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+        
         return services;
     }
 }

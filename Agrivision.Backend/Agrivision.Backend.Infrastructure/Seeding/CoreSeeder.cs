@@ -44,7 +44,7 @@ public static class CoreSeeder
         logger.LogInformation("Farm roles were seeded successfully.");
     }
 
-    public static async Task SeedDemoFarm(IServiceProvider serviceProvider)
+    public static async Task SeedDemoFarmAsync(IServiceProvider serviceProvider)
     {
         var coreDbContext = serviceProvider.GetRequiredService<CoreDbContext>();
         var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
@@ -201,5 +201,47 @@ public static class CoreSeeder
 
         await coreDbContext.SaveChangesAsync();
         logger.LogInformation("Core role permissions seeded successfully.");
+    }
+
+    public static async Task SeedDevicesAsync(IServiceProvider serviceProvider)
+    {
+        var coreDbContext = serviceProvider.GetRequiredService<CoreDbContext>();
+        var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+        var options = serviceProvider.GetRequiredService<IOptions<AdminSettings>>();
+        var logger = serviceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("CoreSeeder");
+
+        var adminSettings = options.Value;
+
+        var adminUser = await userManager.FindByEmailAsync(adminSettings.Email);
+        if (adminUser is null)
+            throw new Exception("Admin user not found. Who is in charge here?!");
+        
+        var existingIrrigationDevice = await coreDbContext.IrrigationUnitDevices
+            .AnyAsync(d => d.SerialNumber == "IRRIGATE-ESP32-01");
+        
+        if (!existingIrrigationDevice)
+        {
+            var irrigationDevice = new IrrigationUnitDevice
+            {
+                Id = Guid.NewGuid(),
+                SerialNumber = "IRRIGATE-ESP32-01",
+                MacAddress = "08:A6:F7:A8:56:A4",
+                FirmwareVersion = "1.0.0-irrigate",
+                ProvisioningKey = "irrigation-key-top-secret",
+                ManufacturedOn = DateTime.UtcNow,
+                IsAssigned = false,
+                CreatedById = adminUser.Id,
+                CreatedOn = DateTime.UtcNow
+            };
+
+            await coreDbContext.IrrigationUnitDevices.AddAsync(irrigationDevice);
+            await coreDbContext.SaveChangesAsync();
+
+            logger.LogInformation("Manufactured irrigation device IRRIGATE-ESP32-01 was seeded.");
+        }
+        else
+        {
+            logger.LogInformation("Manufactured irrigation device already exists. Skipping seed.");
+        }
     }
 }

@@ -30,8 +30,9 @@ using (var scope = app.Services.CreateScope())
     var coreDbContext = scope.ServiceProvider.GetRequiredService<CoreDbContext>();
     coreDbContext.Database.Migrate();
     await CoreSeeder.SeedRolesAsync(scope.ServiceProvider);
-    await CoreSeeder.SeedDemoFarm(scope.ServiceProvider);
+    await CoreSeeder.SeedDemoFarmAsync(scope.ServiceProvider);
     await CoreSeeder.SeedCoreRolePermissionAsync(scope.ServiceProvider);
+    await CoreSeeder.SeedDevicesAsync(scope.ServiceProvider);
 }
 
 // Configure the HTTP request pipeline.

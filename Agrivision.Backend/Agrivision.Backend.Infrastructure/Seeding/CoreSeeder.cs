@@ -227,7 +227,7 @@ public static class CoreSeeder
                 SerialNumber = "IRRIGATE-ESP32-01",
                 MacAddress = "08:A6:F7:A8:56:A4",
                 FirmwareVersion = "1.0.0-irrigate",
-                ProvisioningKey = "irrigation-key-top-secret",
+                ProvisioningKey = "IRRIGATE-X7Q4-PUMP-KEY9-Z1B3L",
                 ManufacturedOn = DateTime.UtcNow,
                 IsAssigned = false,
                 CreatedById = adminUser.Id,

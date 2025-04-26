@@ -9,6 +9,8 @@ public class IrrigationUnitDevice : AuditableEntity
     public string SerialNumber { get; set; } = default!;
     public string MacAddress { get; set; } = default!;
     public string FirmwareVersion { get; set; } = default!;
+    public bool IsOnline { get; set; }
+    public DateTime? LastSeen { get; set; }
 
     public DateTime ManufacturedOn { get; set; } = DateTime.UtcNow;
 

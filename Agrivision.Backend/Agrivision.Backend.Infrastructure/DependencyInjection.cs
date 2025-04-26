@@ -4,6 +4,7 @@ using Agrivision.Backend.Application.Repositories.Core;
 using Agrivision.Backend.Application.Repositories.Identity;
 using Agrivision.Backend.Application.Services.Email;
 using Agrivision.Backend.Application.Services.InvitationTokenGenerator;
+using Agrivision.Backend.Application.Services.IoT;
 using Agrivision.Backend.Application.Settings;
 using Agrivision.Backend.Infrastructure.Auth;
 using Agrivision.Backend.Infrastructure.Persistence.Core;
@@ -13,7 +14,9 @@ using Agrivision.Backend.Infrastructure.Repositories.Core;
 using Agrivision.Backend.Infrastructure.Repositories.Identity;
 using Agrivision.Backend.Infrastructure.Services.Email;
 using Agrivision.Backend.Infrastructure.Services.InvitationTokenGenerator;
+using Agrivision.Backend.Infrastructure.Services.IoT;
 using Agrivision.Backend.Infrastructure.Settings;
+using Agrivision.Backend.Infrastructure.WebSockets;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -70,6 +73,12 @@ public static class DependencyInjection
         services.AddOtpVerificationRepository();
 
         services.AddInfrastructureLayerSettings();
+
+        services.AddWebSocketConnectionHandler();
+
+        services.AddWebSocketDeviceCommunicator();
+
+        services.AddIrrigationDeviceWebSocketHandler();
         
         return services;
     }
@@ -312,6 +321,27 @@ public static class DependencyInjection
             .ValidateDataAnnotations()
             .ValidateOnStart();
         
+        return services;
+    }
+
+    private static IServiceCollection AddWebSocketConnectionHandler(this IServiceCollection services)
+    {
+        services.AddSingleton<IWebSocketConnectionManager, WebSocketConnectionManager>();
+
+        return services;
+    }
+    
+    private static IServiceCollection AddWebSocketDeviceCommunicator(this IServiceCollection services)
+    {
+        services.AddScoped<IWebSocketDeviceCommunicator, WebSocketDeviceCommunicator>();
+
+        return services;
+    }
+
+    private static IServiceCollection AddIrrigationDeviceWebSocketHandler(this IServiceCollection services)
+    {
+        services.AddScoped<IrrigationDeviceWebSocketHandler>();
+
         return services;
     }
 }

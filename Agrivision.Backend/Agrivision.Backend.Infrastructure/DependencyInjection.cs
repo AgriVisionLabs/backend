@@ -4,7 +4,6 @@ using Agrivision.Backend.Application.Repositories.Core;
 using Agrivision.Backend.Application.Repositories.Identity;
 using Agrivision.Backend.Application.Services.Email;
 using Agrivision.Backend.Application.Services.InvitationTokenGenerator;
-using Agrivision.Backend.Application.Services.IoT;
 using Agrivision.Backend.Application.Settings;
 using Agrivision.Backend.Infrastructure.Auth;
 using Agrivision.Backend.Infrastructure.Persistence.Core;
@@ -14,7 +13,6 @@ using Agrivision.Backend.Infrastructure.Repositories.Core;
 using Agrivision.Backend.Infrastructure.Repositories.Identity;
 using Agrivision.Backend.Infrastructure.Services.Email;
 using Agrivision.Backend.Infrastructure.Services.InvitationTokenGenerator;
-using Agrivision.Backend.Infrastructure.Services.IoT;
 using Agrivision.Backend.Infrastructure.Settings;
 using Agrivision.Backend.Infrastructure.WebSockets;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -56,7 +54,13 @@ public static class DependencyInjection
 
         services.MapAdminSettings(config);
 
+        services.MapStripeSettings(config);
+
         services.AddFarmRoleRepository();
+
+        services.AddSubscriptionPlanRepository();
+
+        services.AddUserSubscriptionRepository();
 
         services.AddFarmUserRoleRepository();
 
@@ -65,6 +69,8 @@ public static class DependencyInjection
         services.AddGlobalRoleRepository();
 
         services.AddInvitationTokenService();
+
+        services.AddStripeService();
 
         services.AddFarmInvitationRepository();
 
@@ -211,6 +217,12 @@ public static class DependencyInjection
 
         return services;
     }
+    private static IServiceCollection MapStripeSettings(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.Configure<StripeSettings>(configuration.GetSection(nameof(StripeSettings)));
+
+        return services;
+    }
     private static IServiceCollection MapOtpRateSettings(this IServiceCollection services, IConfiguration configuration)
     {
         services.Configure<OtpRateSettings>(configuration.GetSection(nameof(OtpRateSettings)));
@@ -246,6 +258,24 @@ public static class DependencyInjection
         return services;
     }
     
+    private static IServiceCollection AddSubscriptionPlanRepository(this IServiceCollection services)
+    {
+        services.AddScoped<ISubscriptionPlanRepository, SubscriptionPlanRepository>();
+
+        return services;
+    }
+    private static IServiceCollection AddUserSubscriptionRepository(this IServiceCollection services)
+    {
+        services.AddScoped<IUserSubscriptionRepository, UserSubscriptionRepository>();
+
+        return services;
+    }
+    private static IServiceCollection AddStripeService(this IServiceCollection services)
+    {
+        services.AddScoped<IStripeService, StripeService>();
+
+        return services;
+    }
     private static IServiceCollection MapAdminSettings(this IServiceCollection services, IConfiguration configuration)
     {
         services.Configure<AdminSettings>(configuration.GetSection(nameof(AdminSettings)));
@@ -305,42 +335,6 @@ public static class DependencyInjection
     private static IServiceCollection AddOtpVerificationRepository(this IServiceCollection services)
     {
         services.AddScoped<IOtpVerificationRepository, OtpVerificationRepository>();
-
-        return services;
-    }
-    
-    private static IServiceCollection AddInfrastructureLayerSettings(this IServiceCollection services)
-    {
-        services.AddOptions<AdminSettings>()
-            .BindConfiguration(AdminSettings.SectionName)
-            .ValidateDataAnnotations()
-            .ValidateOnStart();
-
-        services.AddOptions<MailSettings>()
-            .BindConfiguration(MailSettings.SectionName)
-            .ValidateDataAnnotations()
-            .ValidateOnStart();
-        
-        return services;
-    }
-
-    private static IServiceCollection AddWebSocketConnectionHandler(this IServiceCollection services)
-    {
-        services.AddSingleton<IWebSocketConnectionManager, WebSocketConnectionManager>();
-
-        return services;
-    }
-    
-    private static IServiceCollection AddWebSocketDeviceCommunicator(this IServiceCollection services)
-    {
-        services.AddScoped<IWebSocketDeviceCommunicator, WebSocketDeviceCommunicator>();
-
-        return services;
-    }
-
-    private static IServiceCollection AddIrrigationDeviceWebSocketHandler(this IServiceCollection services)
-    {
-        services.AddScoped<IrrigationDeviceWebSocketHandler>();
 
         return services;
     }

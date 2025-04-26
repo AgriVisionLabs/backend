@@ -59,5 +59,9 @@ public class IrrigationUnitConfigurations : IEntityTypeConfiguration<IrrigationU
         builder.HasIndex(iu => iu.DeviceId)
             .IsUnique()
             .HasFilter("[IsDeleted] = 0");
+        
+        builder.HasIndex(iu => iu.FieldId)
+            .IsUnique()
+            .HasFilter("[IsDeleted] = 0");
     }
 }

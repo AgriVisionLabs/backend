@@ -414,7 +414,9 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
                         .IsUnique()
                         .HasFilter("[IsDeleted] = 0");
 
-                    b.HasIndex("FieldId");
+                    b.HasIndex("FieldId")
+                        .IsUnique()
+                        .HasFilter("[IsDeleted] = 0");
 
                     b.HasIndex("FarmId", "Name")
                         .IsUnique()
@@ -544,6 +546,7 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal>("Price")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<bool>("UnlimitedAiFeatureUsage")

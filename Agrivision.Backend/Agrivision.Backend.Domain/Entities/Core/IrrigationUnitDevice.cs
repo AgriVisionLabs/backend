@@ -11,7 +11,6 @@ public class IrrigationUnitDevice : AuditableEntity
     public string FirmwareVersion { get; set; } = default!;
     public bool IsOnline { get; set; }
     public DateTime? LastSeen { get; set; }
-
     public DateTime ManufacturedOn { get; set; } = DateTime.UtcNow;
 
     public bool IsAssigned { get; set; } = false;

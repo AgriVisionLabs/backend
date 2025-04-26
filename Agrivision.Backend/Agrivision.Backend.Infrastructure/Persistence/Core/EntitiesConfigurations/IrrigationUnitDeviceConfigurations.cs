@@ -49,6 +49,5 @@ public class IrrigationUnitDeviceConfigurations : IEntityTypeConfiguration<Irrig
         builder.HasIndex(device => device.ProvisioningKey)
             .IsUnique()
             .HasFilter("[IsDeleted] = 0");
-        
     }
 }

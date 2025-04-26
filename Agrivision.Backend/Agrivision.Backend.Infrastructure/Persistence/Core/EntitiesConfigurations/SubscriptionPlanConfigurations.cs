@@ -19,7 +19,8 @@ public class SubscriptionPlanConfigurations : IEntityTypeConfiguration<Subscript
             .IsRequired();
 
         builder.Property(sp => sp.Price)
-           .IsRequired();
+            .HasPrecision(18, 2)
+            .IsRequired();
         
         builder.Property(sp => sp.Currency)
             .IsRequired();

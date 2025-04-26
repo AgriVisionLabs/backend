@@ -13,6 +13,11 @@ public class CoreDbContext(DbContextOptions<CoreDbContext> options) : DbContext(
     public DbSet<FarmUserRole> FarmUserRoles { get; set; }
     public DbSet<FarmRoleClaim> FarmRoleClaims { get; set; }
     public DbSet<FarmInvitation> FarmInvitations { get; set; }
+    public DbSet<IrrigationUnit> IrrigationUnits { get; set; }
+    public DbSet<IrrigationUnitDevice> IrrigationUnitDevices { get; set; }
+    public DbSet<SubscriptionPlan> SubscriptionPlans { get; set; }
+    public DbSet<UserSubscription> UserSubscriptions { get; set; }
+    
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

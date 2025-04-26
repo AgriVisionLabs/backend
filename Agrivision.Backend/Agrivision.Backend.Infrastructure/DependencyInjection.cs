@@ -5,6 +5,7 @@ using Agrivision.Backend.Application.Repositories.Identity;
 using Agrivision.Backend.Application.Services.Email;
 using Agrivision.Backend.Application.Services.InvitationTokenGenerator;
 using Agrivision.Backend.Application.Services.IoT;
+using Agrivision.Backend.Application.Services.Payment;
 using Agrivision.Backend.Application.Settings;
 using Agrivision.Backend.Infrastructure.Auth;
 using Agrivision.Backend.Infrastructure.Persistence.Core;
@@ -15,6 +16,7 @@ using Agrivision.Backend.Infrastructure.Repositories.Identity;
 using Agrivision.Backend.Infrastructure.Services.Email;
 using Agrivision.Backend.Infrastructure.Services.InvitationTokenGenerator;
 using Agrivision.Backend.Infrastructure.Services.IoT;
+using Agrivision.Backend.Infrastructure.Services.Payment;
 using Agrivision.Backend.Infrastructure.Settings;
 using Agrivision.Backend.Infrastructure.WebSockets;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -79,6 +81,12 @@ public static class DependencyInjection
         services.AddWebSocketDeviceCommunicator();
 
         services.AddIrrigationDeviceWebSocketHandler();
+
+        services.AddSubscriptionPlanRepository();
+
+        services.AddUserSubscriptionRepository();
+        
+        services.AddStripeService();
         
         return services;
     }
@@ -340,8 +348,26 @@ public static class DependencyInjection
 
     private static IServiceCollection AddIrrigationDeviceWebSocketHandler(this IServiceCollection services)
     {
-        services.AddScoped<IrrigationDeviceWebSocketHandler>();
+        services.AddScoped<IrrigationUnitDeviceWebSocketHandler>();
 
+        return services;
+    }
+    
+    private static IServiceCollection AddSubscriptionPlanRepository(this IServiceCollection services)
+    {
+        services.AddScoped<ISubscriptionPlanRepository, SubscriptionPlanRepository>();
+        return services;
+    }
+    
+    private static IServiceCollection AddUserSubscriptionRepository(this IServiceCollection services)
+    {
+        services.AddScoped<IUserSubscriptionRepository, UserSubscriptionRepository>();
+        return services;
+    }
+    
+    private static IServiceCollection AddStripeService(this IServiceCollection services)
+    {
+        services.AddScoped<IStripeService, StripeService>();
         return services;
     }
 }

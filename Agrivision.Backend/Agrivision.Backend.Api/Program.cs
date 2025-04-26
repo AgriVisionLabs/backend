@@ -52,7 +52,7 @@ app.UseWebSockets();
 
 app.Map("/IrrigationDeviceWS", async context =>
 {
-    var handler = context.RequestServices.GetRequiredService<IrrigationDeviceWebSocketHandler>();
+    var handler = context.RequestServices.GetRequiredService<IrrigationUnitDeviceWebSocketHandler>();
     await handler.HandleAsync(context);
 });
 

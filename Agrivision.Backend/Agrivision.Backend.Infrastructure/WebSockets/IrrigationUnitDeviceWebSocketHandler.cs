@@ -11,7 +11,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Agrivision.Backend.Infrastructure.WebSockets;
 
-public class IrrigationDeviceWebSocketHandler(IWebSocketConnectionManager connectionManager, IServiceScopeFactory scopeFactory, ILogger<IrrigationDeviceWebSocketHandler> logger)
+public class IrrigationUnitDeviceWebSocketHandler(IWebSocketConnectionManager connectionManager, IServiceScopeFactory scopeFactory, ILogger<IrrigationUnitDeviceWebSocketHandler> logger)
 {
     public async Task HandleAsync(HttpContext context)
     {

@@ -25,7 +25,7 @@ public class IrrigationUnit : AuditableEntity
     public DateTime? NextMaintenance { get; set; }
     public string? ConfigJson { get; set; }
     public bool IsOnline { get; set; } = false;
-    public DateTime LastSeen { get; set; } = DateTime.UtcNow;
+    public DateTime? LastSeen { get; set; }
 
     public string? IpAddress { get; set; }
     public string? Notes { get; set; }

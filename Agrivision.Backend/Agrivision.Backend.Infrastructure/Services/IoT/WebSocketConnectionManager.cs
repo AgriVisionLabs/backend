@@ -1,11 +1,14 @@
 using System.Net.WebSockets;
 using System.Collections.Concurrent;
+using System.Text;
+using System.Text.Json;
 
 namespace Agrivision.Backend.Infrastructure.Services.IoT;
 
 public class WebSocketConnectionManager : IWebSocketConnectionManager
 {
     private readonly ConcurrentDictionary<Guid, WebSocket> _connections = new();
+    private readonly ConcurrentDictionary<Guid, DateTime> _lastPong = new();
     
     public void AddConnection(Guid deviceId, WebSocket socket)
     {
@@ -25,6 +28,47 @@ public class WebSocketConnectionManager : IWebSocketConnectionManager
     public bool IsConnected(Guid deviceId)
     {
         return _connections.ContainsKey(deviceId);
+    }
+    
+    public async Task<bool> SendPingAsync(Guid deviceId)
+    {
+        var socket = GetConnection(deviceId);
+
+        if (socket is null || socket.State != WebSocketState.Open)
+            return false;
+
+        var pingMessage = JsonSerializer.Serialize(new { type = "ping" });
+        var buffer = Encoding.UTF8.GetBytes(pingMessage);
+
+        try
+        {
+            await socket.SendAsync(
+                new ArraySegment<byte>(buffer),
+                WebSocketMessageType.Text,
+                true,
+                CancellationToken.None);
+
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+    
+    public void UpdatePong(Guid deviceId)
+    {
+        _lastPong[deviceId] = DateTime.UtcNow;
+    }
+    
+    public DateTime? GetLastPong(Guid deviceId)
+    {
+        if (_lastPong.TryGetValue(deviceId, out var lastPong))
+        {
+            return lastPong;
+        }
+
+        return null;
     }
     
 }

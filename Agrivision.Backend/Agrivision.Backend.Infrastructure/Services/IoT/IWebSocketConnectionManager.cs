@@ -8,4 +8,7 @@ public interface IWebSocketConnectionManager
     void RemoveConnection(Guid deviceId);
     WebSocket? GetConnection(Guid deviceId);
     bool IsConnected(Guid deviceId);
+    Task<bool> SendPingAsync(Guid deviceId);
+    void UpdatePong(Guid deviceId);
+    DateTime? GetLastPong(Guid deviceId);
 }

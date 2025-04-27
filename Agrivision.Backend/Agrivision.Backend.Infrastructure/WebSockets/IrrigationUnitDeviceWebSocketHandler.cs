@@ -95,10 +95,44 @@ public class IrrigationUnitDeviceWebSocketHandler(IWebSocketConnectionManager co
         {
             var result = await socket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
 
-            if (result.MessageType == WebSocketMessageType.Close)
+            if (result.MessageType == WebSocketMessageType.Close && (socket.State == WebSocketState.Open || socket.State == WebSocketState.CloseReceived))
             {
+                // if the socket closed naturally without sending disconnect JSON
+                logger.LogInformation("Socket closed for deviceId: {DeviceId}", deviceId);
                 connectionManager.RemoveConnection(deviceId);
                 await socket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closed", CancellationToken.None);
+                break;
+            }
+
+            if (result.MessageType == WebSocketMessageType.Text)
+            {
+                var json = Encoding.UTF8.GetString(buffer, 0, result.Count);
+
+                try
+                {
+                    var payload = JsonSerializer.Deserialize<DeviceMessage>(json);
+
+                    if (payload is not null)
+                    {
+                        if (payload.Type == "pong")
+                        {
+                            connectionManager.UpdatePong(deviceId);
+                            logger.LogInformation("Pong message received.");
+                        }
+                        else if (payload.Type == "disconnect" && (socket.State == WebSocketState.Open || socket.State == WebSocketState.CloseReceived))
+                        {
+                            logger.LogInformation("DeviceId: {DeviceId} sent a disconnect message", deviceId);
+                            connectionManager.RemoveConnection(deviceId);
+                            await socket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closed", CancellationToken.None);
+                            break;
+                        }
+
+                    }
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError("Failed to parse device message: {Message}", ex.Message);
+                }
             }
         }
     }

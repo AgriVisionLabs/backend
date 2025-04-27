@@ -80,7 +80,7 @@ public static class DependencyInjection
 
         services.AddWebSocketDeviceCommunicator();
 
-        services.AddIrrigationDeviceWebSocketHandler();
+        services.AddIrrigationUnitDeviceWebSocketHandler();
 
         services.AddSubscriptionPlanRepository();
 
@@ -91,6 +91,8 @@ public static class DependencyInjection
         services.AddIrrigationUnitRepository();
 
         services.AddIrrigationUnitDeviceRepository();
+
+        services.AddIrrigationUnitDeviceHeartbeatService();
         
         return services;
     }
@@ -350,7 +352,7 @@ public static class DependencyInjection
         return services;
     }
 
-    private static IServiceCollection AddIrrigationDeviceWebSocketHandler(this IServiceCollection services)
+    private static IServiceCollection AddIrrigationUnitDeviceWebSocketHandler(this IServiceCollection services)
     {
         services.AddScoped<IrrigationUnitDeviceWebSocketHandler>();
 
@@ -385,6 +387,14 @@ public static class DependencyInjection
     private static IServiceCollection AddIrrigationUnitDeviceRepository(this IServiceCollection services)
     {
         services.AddScoped<IIrrigationUnitDeviceRepository, IrrigationUnitDeviceRepository>();
+
+        return services;
+    }
+    
+    private static IServiceCollection AddIrrigationUnitDeviceHeartbeatService(this IServiceCollection services)
+    {
+        services.AddSingleton<IrrigationUnitDeviceHeartbeatService>();
+        services.AddHostedService(provider => provider.GetRequiredService<IrrigationUnitDeviceHeartbeatService>());
 
         return services;
     }

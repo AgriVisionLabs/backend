@@ -34,7 +34,7 @@ public class ToggleIrrigationUnitCommandHandler(IFieldRepository fieldRepository
             return Result.Failure(FieldErrors.UnauthorizedAction);
         
         // check if device is online
-        if (!communicator.IsDeviceConnected(unit.DeviceId))
+        if (!communicator.IsDeviceConnected(unit.DeviceId) || !unit.IsOnline)
             return Result.Failure(IrrigationUnitErrors.DeviceOffline);
         
         // send toggle command

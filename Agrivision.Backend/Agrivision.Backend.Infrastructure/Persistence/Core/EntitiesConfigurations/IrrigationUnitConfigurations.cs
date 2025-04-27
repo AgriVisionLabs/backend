@@ -28,9 +28,6 @@ public class IrrigationUnitConfigurations : IEntityTypeConfiguration<IrrigationU
 
         builder.Property(iu => iu.Status)
             .IsRequired();
-        
-        builder.Property(iu => iu.LastSeen)
-            .IsRequired();
 
         builder.Property(iu => iu.IpAddress)
             .HasMaxLength(100);

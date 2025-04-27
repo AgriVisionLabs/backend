@@ -32,11 +32,14 @@ public class IrrigationUnitConfigurations : IEntityTypeConfiguration<IrrigationU
         builder.Property(iu => iu.LastSeen)
             .IsRequired();
 
-        builder.Property(iu => iu.IPAddress)
+        builder.Property(iu => iu.IpAddress)
             .HasMaxLength(100);
 
         builder.Property(iu => iu.Notes)
             .HasMaxLength(500);
+
+        builder.Property(iu => iu.DeviceId)
+            .IsRequired();
         
         builder.Property(iu => iu.ConfigJson)
             .HasColumnType("nvarchar(max)");

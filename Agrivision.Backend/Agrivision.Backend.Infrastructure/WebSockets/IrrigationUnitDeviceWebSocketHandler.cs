@@ -51,6 +51,10 @@ public class IrrigationUnitDeviceWebSocketHandler(IWebSocketConnectionManager co
         
         logger.LogInformation("Device connected with MacAddress: {MacAddress}, Ip: {Ip}, and ProvisioningKey: {ProvisioningKey}", payload.MacAddress, payload.Ip, payload.ProvisioningKey);
 
+        device.IsOnline = true;
+        coreDbContext.IrrigationUnitDevices.Update(device);
+        await coreDbContext.SaveChangesAsync(CancellationToken.None);
+        
         var confirmationMessage = new
         {
             type = "connected",
@@ -66,6 +70,19 @@ public class IrrigationUnitDeviceWebSocketHandler(IWebSocketConnectionManager co
             true,
             CancellationToken.None);
 
+        
+        
+        var unit = await coreDbContext.IrrigationUnits
+            .FirstOrDefaultAsync(u => u.DeviceId == device.Id && !u.IsDeleted, CancellationToken.None);
+        if (unit is not null)
+        {
+            unit.IsOnline = true;
+            unit.IpAddress = payload.Ip;
+            unit.LastSeen = DateTime.UtcNow;
+            
+            coreDbContext.IrrigationUnits.Update(unit);
+            await coreDbContext.SaveChangesAsync(CancellationToken.None);
+        }
         
         await Listen(socket, device.Id);
     }

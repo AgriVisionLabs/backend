@@ -87,6 +87,10 @@ public static class DependencyInjection
         services.AddUserSubscriptionRepository();
         
         services.AddStripeService();
+
+        services.AddIrrigationUnitRepository();
+
+        services.AddIrrigationUnitDeviceRepository();
         
         return services;
     }
@@ -368,6 +372,20 @@ public static class DependencyInjection
     private static IServiceCollection AddStripeService(this IServiceCollection services)
     {
         services.AddScoped<IStripeService, StripeService>();
+        return services;
+    }
+
+    private static IServiceCollection AddIrrigationUnitRepository(this IServiceCollection services)
+    {
+        services.AddScoped<IIrrigationUnitRepository, IrrigationUnitRepository>();
+
+        return services;
+    }
+    
+    private static IServiceCollection AddIrrigationUnitDeviceRepository(this IServiceCollection services)
+    {
+        services.AddScoped<IIrrigationUnitDeviceRepository, IrrigationUnitDeviceRepository>();
+
         return services;
     }
 }

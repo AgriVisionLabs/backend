@@ -22,10 +22,8 @@
       <Folder Include="Features\FarmRoles\Mappings\" />
       <Folder Include="Features\FarmRoles\Validators\" />
       <Folder Include="Features\Invitations\Mappings\" />
-      <Folder Include="Features\IrrigationUnits\Contracts\" />
       <Folder Include="Features\IrrigationUnits\Mappings\" />
       <Folder Include="Features\IrrigationUnits\Queries\" />
-      <Folder Include="Features\IrrigationUnits\Validators\" />
       <Folder Include="Features\Members\Mappings\" />
     </ItemGroup>
 

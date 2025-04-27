@@ -14,6 +14,6 @@ public class IrrigationUnitDevice : AuditableEntity
     public DateTime ManufacturedOn { get; set; } = DateTime.UtcNow;
 
     public bool IsAssigned { get; set; } = false;
-    public DateTime? IsAssignedAt { get; set; }
+    public DateTime? AssignedAt { get; set; }
     public string ProvisioningKey { get; set; } = default!;
 }

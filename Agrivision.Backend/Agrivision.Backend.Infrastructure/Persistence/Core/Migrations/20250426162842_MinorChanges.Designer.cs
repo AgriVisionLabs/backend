@@ -4,6 +4,7 @@ using Agrivision.Backend.Infrastructure.Persistence.Core;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
 {
     [DbContext(typeof(CoreDbContext))]
-    partial class CoreDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250426162842_MinorChanges")]
+    partial class MinorChanges
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -431,9 +434,6 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime?>("AssignedAt")
-                        .HasColumnType("datetime2");
-
                     b.Property<string>("CreatedById")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -454,6 +454,9 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
 
                     b.Property<bool>("IsAssigned")
                         .HasColumnType("bit");
+
+                    b.Property<DateTime?>("IsAssignedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");

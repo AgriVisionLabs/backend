@@ -39,6 +39,10 @@ public static class ErrorMapping
         "FarmUserRole.SelfModificationNotAllowed" => StatusCodes.Status400BadRequest,
         "FarmUserRole.CannotAssignElevatedRoles" => StatusCodes.Status403Forbidden,
         "FarmUserRole.CannotAssignOwnerRole" => StatusCodes.Status403Forbidden,
+        "IrrigationUnit.NotAssigned" => StatusCodes.Status404NotFound,
+        "IrrigationUnit.DeviceOffline" => StatusCodes.Status400BadRequest,
+        "IrrigationUnit.FailedToSendCommand" => StatusCodes.Status503ServiceUnavailable,
+        "IrrigationDeviceUnit.NotFound" => StatusCodes.Status404NotFound,
         _ => StatusCodes.Status400BadRequest // Default case
     };
 }

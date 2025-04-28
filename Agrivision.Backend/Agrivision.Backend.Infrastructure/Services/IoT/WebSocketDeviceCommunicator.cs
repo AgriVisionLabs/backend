@@ -45,4 +45,9 @@ public class WebSocketDeviceCommunicator(IWebSocketConnectionManager connectionM
     {
         return connectionManager.IsConnected(deviceId);
     }
+
+    public DateTime? GetLastAck(Guid deviceId, string command)
+    {
+        return connectionManager.GetLastAck(deviceId, command);
+    }
 }

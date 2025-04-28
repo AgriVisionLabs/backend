@@ -38,6 +38,14 @@ public class AddIrrigationUnitCommandHandler(IIrrigationUnitRepository irrigatio
         if (device is null)
             return Result.Failure<IrrigationUnitResponse>(IrrigationUnitDeviceErrors.DeviceNotFound);
         
+        // check if the field doesn't already have an irrigation unit
+        if (await irrigationUnitRepository.ExistsByFieldIdAsync(request.FieldId, cancellationToken))
+            return Result.Failure<IrrigationUnitResponse>(FieldErrors.FieldAlreadyHasIrrigationUnit);
+        
+        // check if the farm doesn't have a unit with the same name 
+        if (await irrigationUnitRepository.ExistsByNameAndFarmIdAsync(request.Name, request.FarmId, cancellationToken))
+            return Result.Failure<IrrigationUnitResponse>(IrrigationUnitErrors.DuplicateNameInFarm);
+        
         // add the unit
         var unit = new IrrigationUnit
         {

@@ -48,5 +48,20 @@ namespace Agrivision.Backend.Api.Controllers
 
             return result.Succeeded ? NoContent() : result.ToProblem(result.Error.ToStatusCode());
         }
+
+        [HttpPut("")]
+        public async Task<IActionResult> UpdateAsync([FromRoute] Guid farmId, [FromRoute] Guid fieldId, [FromBody] UpdateIrrigationUnitRequest request,
+            CancellationToken cancellationToken = default)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+                return Result.Failure(TokenErrors.InvalidToken).ToProblem(TokenErrors.InvalidToken.ToStatusCode());
+
+            var command = new UpdateIrrigationUnitCommand(farmId, fieldId, userId, request.Name, request.Status,
+                request.NewFieldId);
+            var result = await mediator.Send(command, cancellationToken);
+
+            return result.Succeeded ? NoContent() : result.ToProblem(result.Error.ToStatusCode());
+        }
     }
 }

@@ -11,4 +11,6 @@ public interface IWebSocketConnectionManager
     Task<bool> SendPingAsync(Guid deviceId);
     void UpdatePong(Guid deviceId);
     DateTime? GetLastPong(Guid deviceId);
+    public void UpdateAck(Guid deviceId, string command);
+    public DateTime? GetLastAck(Guid deviceId, string command);
 }

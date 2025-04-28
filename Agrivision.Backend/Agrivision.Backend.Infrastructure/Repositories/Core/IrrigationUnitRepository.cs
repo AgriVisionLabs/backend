@@ -97,4 +97,20 @@ public class IrrigationUnitRepository(CoreDbContext coreDbContext) : IIrrigation
         return coreDbContext.IrrigationUnits
             .AnyAsync(u => u.Id == unitId, cancellationToken);
     }
+
+    public async Task<IrrigationUnit?> FindByNameAndFarmIdAsync(string name, Guid farmId, CancellationToken cancellationToken = default)
+    {
+        return await coreDbContext.IrrigationUnits
+            .FirstOrDefaultAsync(u => u.Name == name && u.FarmId == farmId, cancellationToken);
+    }
+
+    public async Task<bool> ExistsByNameAndFarmIdAsync(string name, Guid farmId, CancellationToken cancellationToken = default)
+    {
+        return await coreDbContext.IrrigationUnits.AnyAsync(u => u.Name == name && u.FarmId == farmId && !u.IsDeleted, cancellationToken);
+    }
+
+    public async Task<bool> ExistsByFieldIdAsync(Guid fieldId, CancellationToken cancellationToken = default)
+    {
+        return await coreDbContext.IrrigationUnits.AnyAsync(u => u.FieldId == fieldId && !u.IsDeleted, cancellationToken);
+    }
 }

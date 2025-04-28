@@ -39,4 +39,13 @@ public interface IIrrigationUnitRepository
 
     // exits
     Task<bool> ExistsAsync(Guid unitId, CancellationToken cancellationToken = default);
+    
+    // find by name and farm (since name is unique per farm)
+    Task<IrrigationUnit?> FindByNameAndFarmIdAsync(string name, Guid farmId, CancellationToken cancellationToken = default);
+    
+    // exists by name and farm
+    Task<bool> ExistsByNameAndFarmIdAsync(string name, Guid farmId, CancellationToken cancellationToken = default);
+    
+    // exits by fieldId
+    Task<bool> ExistsByFieldIdAsync(Guid fieldId, CancellationToken cancellationToken = default);
 }

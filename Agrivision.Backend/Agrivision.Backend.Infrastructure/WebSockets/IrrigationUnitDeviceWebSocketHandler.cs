@@ -53,6 +53,16 @@ public class IrrigationUnitDeviceWebSocketHandler(IWebSocketConnectionManager co
 
         device.IsOnline = true;
         coreDbContext.IrrigationUnitDevices.Update(device);
+        var unit = await coreDbContext.IrrigationUnits
+            .FirstOrDefaultAsync(u => u.DeviceId == device.Id && !u.IsDeleted, CancellationToken.None);
+        if (unit is not null)
+        {
+            unit.IsOnline = true;
+            unit.IpAddress = payload.Ip;
+            unit.LastSeen = DateTime.UtcNow;
+            
+            coreDbContext.IrrigationUnits.Update(unit);
+        }
         await coreDbContext.SaveChangesAsync(CancellationToken.None);
         
         var confirmationMessage = new
@@ -69,20 +79,8 @@ public class IrrigationUnitDeviceWebSocketHandler(IWebSocketConnectionManager co
             WebSocketMessageType.Text,
             true,
             CancellationToken.None);
-
         
         
-        var unit = await coreDbContext.IrrigationUnits
-            .FirstOrDefaultAsync(u => u.DeviceId == device.Id && !u.IsDeleted, CancellationToken.None);
-        if (unit is not null)
-        {
-            unit.IsOnline = true;
-            unit.IpAddress = payload.Ip;
-            unit.LastSeen = DateTime.UtcNow;
-            
-            coreDbContext.IrrigationUnits.Update(unit);
-            await coreDbContext.SaveChangesAsync(CancellationToken.None);
-        }
         
         await Listen(socket, device.Id);
     }
@@ -125,6 +123,10 @@ public class IrrigationUnitDeviceWebSocketHandler(IWebSocketConnectionManager co
                             connectionManager.RemoveConnection(deviceId);
                             await socket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closed", CancellationToken.None);
                             break;
+                        } else if (payload.Type == "ack")
+                        {
+                            connectionManager.UpdateAck(deviceId, payload.Command!);
+                            logger.LogInformation("Acknowledgment for {DeviceId}:{CommandId}", deviceId, payload.Command);
                         }
 
                     }

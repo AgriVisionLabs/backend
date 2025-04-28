@@ -43,6 +43,9 @@ public static class ErrorMapping
         "IrrigationUnit.DeviceOffline" => StatusCodes.Status400BadRequest,
         "IrrigationUnit.FailedToSendCommand" => StatusCodes.Status503ServiceUnavailable,
         "IrrigationDeviceUnit.NotFound" => StatusCodes.Status404NotFound,
+        "IrrigationUnit.DeviceUnreachable" => StatusCodes.Status503ServiceUnavailable,
+        "Field.AlreadyHasIrrigationUnit" => StatusCodes.Status409Conflict,
+        "IrrigationUnit.DuplicateNameInFarm" => StatusCodes.Status409Conflict,
         _ => StatusCodes.Status400BadRequest // Default case
     };
 }

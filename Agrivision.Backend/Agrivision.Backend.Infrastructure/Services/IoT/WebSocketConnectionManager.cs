@@ -9,6 +9,7 @@ public class WebSocketConnectionManager : IWebSocketConnectionManager
 {
     private readonly ConcurrentDictionary<Guid, WebSocket> _connections = new();
     private readonly ConcurrentDictionary<Guid, DateTime> _lastPong = new();
+    private readonly ConcurrentDictionary<string, DateTime> _lastAck = new();
     
     public void AddConnection(Guid deviceId, WebSocket socket)
     {
@@ -70,5 +71,19 @@ public class WebSocketConnectionManager : IWebSocketConnectionManager
 
         return null;
     }
-    
+
+    public void UpdateAck(Guid deviceId, string command)
+    {
+        _lastAck[$"{deviceId}:{command}"] = DateTime.UtcNow;
+    }
+
+    public DateTime? GetLastAck(Guid deviceId, string command)
+    {
+        if (_lastAck.TryGetValue($"{deviceId}:{command}", out var lastAck))
+        {
+            return lastAck;
+        }
+
+        return null;
+    }
 }

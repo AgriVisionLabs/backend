@@ -9,6 +9,9 @@ public static class FieldErrors
     public static readonly Error UnauthorizedAction = new("Field.UnauthorizedAction", "User is not authorized to perform this action.");
     public static readonly Error InvalidFieldArea =
         new("Field.InvalidArea", "Field area is invalid or exceeds farm area.");
-
     public static readonly Error FieldNotFound = new("Field.NotFound", "Field not found.");
+
+    public static readonly Error FieldAlreadyHasIrrigationUnit = new("Field.AlreadyHasIrrigationUnit",
+        "The specified field already has an irrigation unit assigned to it.");
+
 }

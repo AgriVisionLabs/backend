@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
 namespace Agrivision.Backend.Application.Features.WebSockets;
@@ -15,4 +16,7 @@ public class DeviceMessage
 
     [JsonPropertyName("provisioningKey")]
     public string ProvisioningKey { get; set; }
+    
+    [JsonPropertyName("command")]
+    public string Command { get; set; }
 }

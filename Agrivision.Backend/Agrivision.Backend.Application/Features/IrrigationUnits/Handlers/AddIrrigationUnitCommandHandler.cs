@@ -71,7 +71,7 @@ public class AddIrrigationUnitCommandHandler(IIrrigationUnitRepository irrigatio
         // map to response
         var response = new IrrigationUnitResponse(unit.Id, unit.FarmId, unit.FieldId, field.Name, unit.Name,
             unit.InstallationDate, unit.Status, null, null, null, device.MacAddress, device.FirmwareVersion,
-            request.RequesterId, request.RequesterName, null, DateTime.UtcNow);
+            request.RequesterId, request.RequesterName, TimeSpan.Zero, DateTime.UtcNow);
 
         return Result.Success(response);
     }

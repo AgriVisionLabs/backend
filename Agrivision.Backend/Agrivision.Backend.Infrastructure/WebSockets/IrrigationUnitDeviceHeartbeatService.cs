@@ -11,6 +11,7 @@ namespace Agrivision.Backend.Infrastructure.WebSockets;
 public class IrrigationUnitDeviceHeartbeatService(IServiceScopeFactory scopeFactory, IWebSocketConnectionManager connectionManager, ILogger<IrrigationUnitDeviceHeartbeatService> logger) : BackgroundService
 {
     private readonly Dictionary<Guid, int> _failedPongs = new();
+    private readonly Dictionary<Guid, int> _successfulPongs = new();
     
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -68,10 +69,12 @@ public class IrrigationUnitDeviceHeartbeatService(IServiceScopeFactory scopeFact
 
             if (lastPong is null || (DateTime.UtcNow - lastPong.Value).TotalSeconds > 30)
             {
+                _successfulPongs.Remove(device.Id);
+                
                 if (!_failedPongs.TryAdd(device.Id, 1))
                     _failedPongs[device.Id]++;
 
-                if (_failedPongs[device.Id] >= 6)
+                if (_failedPongs[device.Id] >= 5)
                 {
                     var socket = connectionManager.GetConnection(device.Id);
                     if (socket is not null && (socket.State == WebSocketState.Open || socket.State == WebSocketState.CloseReceived))
@@ -101,12 +104,35 @@ public class IrrigationUnitDeviceHeartbeatService(IServiceScopeFactory scopeFact
                     device.LastSeen = DateTime.UtcNow;
                 }
             }
+            else
+            {
+                _failedPongs.Remove(device.Id);
+
+                if (_successfulPongs.TryGetValue(device.Id, out var count))
+                {
+                    if (count >= 2 && !device.IsOnline)
+                    {
+                        device.IsOnline = true;
+                        device.LastSeen = DateTime.UtcNow;
+                    }
+
+                    _successfulPongs[device.Id] = count + 1;
+                }
+                else
+                {
+                    _successfulPongs[device.Id] = 1;
+                }
+            }
+            
             // sync irrigation unit too
             if (unitsByDeviceId.TryGetValue(device.Id, out var unit))
             {
                 unit.IsOnline = device.IsOnline;
                 unit.LastSeen = device.LastSeen;
+                coreDbContext.IrrigationUnitDevices.Update(device);
+                coreDbContext.IrrigationUnits.Update(unit);
             }
+            
         }
         
         // save changes for the devices that weren't even connected

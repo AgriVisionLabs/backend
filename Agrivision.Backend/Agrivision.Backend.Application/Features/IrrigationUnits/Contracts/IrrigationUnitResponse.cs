@@ -18,6 +18,6 @@ public record IrrigationUnitResponse
     string FirmWareVersion,
     string AddedById,
     string AddedBy,
-    string? LastOperationDuration,
+    TimeSpan LastOperationDuration,
     DateTime LastUpdated
 );

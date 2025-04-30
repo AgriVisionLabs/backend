@@ -28,7 +28,7 @@ public class UpdateIrrigationUnitCommandHandler(IFieldRepository fieldRepository
         // check if irrigation unit exists
         var unit = await irrigationUnitRepository.FindByFieldIdAsync(field.Id, cancellationToken);
         if (unit is null)
-            return Result.Failure(IrrigationUnitErrors.UnitNotAssigned);
+            return Result.Failure(IrrigationUnitErrors.NoUnitAssigned);
         
         // check if the user has permission to update (only expert can't)
         if (farmUserRole.FarmRole.Name == "Expert")
@@ -59,6 +59,8 @@ public class UpdateIrrigationUnitCommandHandler(IFieldRepository fieldRepository
         // update
         unit.Name = request.Name;
         unit.Status = request.Status;
+        unit.UpdatedById = request.RequesterId;
+        unit.UpdatedOn = DateTime.UtcNow;
 
         await irrigationUnitRepository.UpdateAsync(unit, cancellationToken);
 

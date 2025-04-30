@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
-namespace Agrivision.Backend.Application.Features.WebSockets;
+namespace Agrivision.Backend.Application.Models;
 
 public class DeviceMessage
 {

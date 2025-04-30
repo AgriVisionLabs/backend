@@ -4,7 +4,7 @@ namespace Agrivision.Backend.Application.Errors;
 
 public static class IrrigationUnitErrors
 {
-    public static readonly Error UnitNotAssigned = new("IrrigationUnit.NotAssigned", "The requested irrigation unit is not assigned to a field yet.");
+    public static readonly Error NoUnitAssigned = new("IrrigationUnit.NoUnitAssigned", "The specified field doesn't have an irrigation unit assigned to it.");
 
     public static readonly Error
         DeviceOffline = new("IrrigationUnit.DeviceOffline", "The requested device is offline.");

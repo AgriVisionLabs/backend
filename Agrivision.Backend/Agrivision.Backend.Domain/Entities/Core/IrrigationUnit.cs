@@ -26,6 +26,8 @@ public class IrrigationUnit : AuditableEntity
     public string? ConfigJson { get; set; }
     public bool IsOnline { get; set; } = false;
     public DateTime? LastSeen { get; set; }
+    public bool IsOn { get; set; }
+    public string? ToggledById { get; set; }
 
     public string? IpAddress { get; set; }
     public string? Notes { get; set; }

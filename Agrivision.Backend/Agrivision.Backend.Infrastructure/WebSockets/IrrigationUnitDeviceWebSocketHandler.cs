@@ -1,7 +1,7 @@
 using System.Net.WebSockets;
 using System.Text;
 using System.Text.Json;
-using Agrivision.Backend.Application.Features.WebSockets;
+using Agrivision.Backend.Application.Models;
 using Agrivision.Backend.Infrastructure.Services.IoT;
 using Agrivision.Backend.Infrastructure.Persistence.Core;
 using Microsoft.AspNetCore.Http;
@@ -52,7 +52,10 @@ public class IrrigationUnitDeviceWebSocketHandler(IWebSocketConnectionManager co
         logger.LogInformation("Device connected with MacAddress: {MacAddress}, Ip: {Ip}, and ProvisioningKey: {ProvisioningKey}", payload.MacAddress, payload.Ip, payload.ProvisioningKey);
 
         device.IsOnline = true;
+        device.LastSeen = DateTime.UtcNow;
+        
         coreDbContext.IrrigationUnitDevices.Update(device);
+        
         var unit = await coreDbContext.IrrigationUnits
             .FirstOrDefaultAsync(u => u.DeviceId == device.Id && !u.IsDeleted, CancellationToken.None);
         if (unit is not null)
@@ -79,8 +82,6 @@ public class IrrigationUnitDeviceWebSocketHandler(IWebSocketConnectionManager co
             WebSocketMessageType.Text,
             true,
             CancellationToken.None);
-        
-        
         
         await Listen(socket, device.Id);
     }

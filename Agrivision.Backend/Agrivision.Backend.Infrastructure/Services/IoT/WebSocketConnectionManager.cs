@@ -79,9 +79,14 @@ public class WebSocketConnectionManager : IWebSocketConnectionManager
         _pending[key] = tcs;
 
         // auto-cancel after timeout
-        using var timeoutCts = new CancellationTokenSource(timeout);
-        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutCts.Token);
-        _ = linkedCts.Token.Register(() => tcs.TrySetResult(false));
+        var timeoutCts = new CancellationTokenSource(timeout);
+        var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutCts.Token);
+        linkedCts.Token.Register(() => {
+            if (_pending.TryRemove(key, out var source))
+            {
+                source.TrySetResult(false);
+            }
+        });
 
         return tcs.Task;
     }

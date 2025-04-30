@@ -2,11 +2,13 @@ using System.Net.WebSockets;
 using System.Text;
 using System.Text.Json;
 using Agrivision.Backend.Application.Services.IoT;
+using Agrivision.Backend.Infrastructure.Persistence.Core;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace Agrivision.Backend.Infrastructure.Services.IoT;
 
-public class WebSocketDeviceCommunicator(IWebSocketConnectionManager connectionManager, ILogger<WebSocketDeviceCommunicator> logger) : IWebSocketDeviceCommunicator
+public class WebSocketDeviceCommunicator(CoreDbContext coreDbContext, IWebSocketConnectionManager connectionManager, ILogger<WebSocketDeviceCommunicator> logger) : IWebSocketDeviceCommunicator
 {
     public async Task<bool> SendCommandAsync(Guid deviceId, string command, CancellationToken cancellationToken = default)
     {
@@ -17,13 +19,18 @@ public class WebSocketDeviceCommunicator(IWebSocketConnectionManager connectionM
         var cid = Guid.NewGuid().ToString("N");
 
         var ackTask = connectionManager.RegisterAckWaiter(deviceId, cid,
-            TimeSpan.FromSeconds(15), cancellationToken);
+            TimeSpan.FromSeconds(3), cancellationToken);
+
+        var unit = await coreDbContext.IrrigationUnits.FirstOrDefaultAsync(u => u.DeviceId == deviceId && !u.IsDeleted, cancellationToken);
+        if (unit is null)
+            return false;
 
         var payload = JsonSerializer.Serialize(new
         {
             type = "command",
-            cmd  = command,
-            cid
+            command  = command,
+            cid,
+            toState = !unit.IsOn // toggled to this state
         });
         var buffer = Encoding.UTF8.GetBytes(payload);
 

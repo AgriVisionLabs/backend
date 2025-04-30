@@ -8,5 +8,6 @@ public record ToggleIrrigationUnitCommand
 (
     Guid FarmId,
     Guid FieldId,
-    string RequesterId
+    string RequesterId,
+    string RequesterName
 ) : IRequest<Result<ToggleIrrigationUnitResponse>>;

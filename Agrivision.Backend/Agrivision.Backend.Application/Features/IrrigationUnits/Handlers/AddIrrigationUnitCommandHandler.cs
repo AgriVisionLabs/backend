@@ -57,6 +57,7 @@ public class AddIrrigationUnitCommandHandler(IIrrigationUnitRepository irrigatio
             InstallationDate = DateTime.UtcNow,
             Status = IrrigationUnitStatus.Idle,
             CreatedById = request.RequesterId,
+            CreatedBy = request.RequesterName,
             CreatedOn = DateTime.UtcNow
         };
         

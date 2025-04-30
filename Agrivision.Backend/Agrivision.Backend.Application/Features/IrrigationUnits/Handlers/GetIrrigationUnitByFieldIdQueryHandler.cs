@@ -35,12 +35,17 @@ public class GetIrrigationUnitByFieldIdQueryHandler(IFieldRepository fieldReposi
         if (unit is null)
             return Result.Failure<IrrigationUnitResponse>(IrrigationUnitErrors.NoUnitAssigned);
         
-        var duration = (unit.LastDeactivation ?? DateTime.UtcNow) - (unit.LastActivation ?? DateTime.UtcNow);
+        TimeSpan duration = TimeSpan.Zero;
+
+        if (unit.LastActivation.HasValue && unit.LastDeactivation.HasValue)
+        {
+            duration = unit.LastDeactivation.Value - unit.LastActivation.Value;
+        }
         
         // map to response
         var response = new IrrigationUnitResponse(unit.Id, unit.FarmId, unit.FieldId, field.Name, unit.Name,
             unit.InstallationDate, unit.Status, unit.LastMaintenance, unit.NextMaintenance, unit.IpAddress,
-            unit.Device.MacAddress, unit.Device.FirmwareVersion, unit.CreatedById, request.RequesterName, duration, unit.UpdatedOn ?? unit.CreatedOn);
+            unit.Device.MacAddress, unit.Device.FirmwareVersion, unit.CreatedById, unit.CreatedBy, duration, unit.UpdatedOn ?? unit.CreatedOn);
 
         return Result.Success(response);
     }

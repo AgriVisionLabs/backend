@@ -54,6 +54,7 @@ public class IrrigationUnitRepository(CoreDbContext coreDbContext) : IIrrigation
         return await coreDbContext.IrrigationUnits
             .Include(u => u.Farm)
             .Include(u => u.Field)
+            .Include(u => u.Device)
             .Where(u => u.FarmId == farmId && !u.IsDeleted)
             .ToListAsync(cancellationToken);
     }

@@ -4,10 +4,8 @@ using MediatR;
 
 namespace Agrivision.Backend.Application.Features.IrrigationUnits.Queries;
 
-public record GetIrrigationUnitByFieldIdQuery
+public record GetIrrigationUnitsByFarmIdQuery
 (
     Guid FarmId,
-    Guid FieldId,
     string RequesterId
-) : IRequest<Result<IrrigationUnitResponse>>;
-
+) : IRequest<Result<IReadOnlyList<IrrigationUnitResponse>>>;

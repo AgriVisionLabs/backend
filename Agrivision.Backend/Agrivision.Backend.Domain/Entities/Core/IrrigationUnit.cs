@@ -28,6 +28,7 @@ public class IrrigationUnit : AuditableEntity
     public DateTime? LastSeen { get; set; }
     public bool IsOn { get; set; }
     public string? ToggledById { get; set; }
+    public string CreatedBy { get; set; }
 
     public string? IpAddress { get; set; }
     public string? Notes { get; set; }

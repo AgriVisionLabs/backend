@@ -44,7 +44,7 @@ public class ToggleIrrigationUnitCommandHandler(IFieldRepository fieldRepository
             return Result.Failure<ToggleIrrigationUnitResponse>(IrrigationUnitErrors.FailedToSendCommand);
 
         var ack = communicator.GetLastAck(unit.DeviceId, "toggle_pump");
-        if (ack is null || (DateTime.UtcNow - ack.Value).TotalSeconds > 5)
+        if (ack is null || (DateTime.UtcNow - ack.Value).TotalSeconds > 10)
             return Result.Failure<ToggleIrrigationUnitResponse>(IrrigationUnitErrors.DeviceUnreachable);
 
         if (unit.IsOn)
@@ -59,7 +59,7 @@ public class ToggleIrrigationUnitCommandHandler(IFieldRepository fieldRepository
 
         await irrigationUnitRepository.UpdateAsync(unit, cancellationToken);
 
-        var response = new ToggleIrrigationUnitResponse(unit.IsOn, unit.ToggledById);
+        var response = new ToggleIrrigationUnitResponse(unit.IsOn, unit.ToggledById, request.RequesterName);
 
         return Result.Success(response);
     }

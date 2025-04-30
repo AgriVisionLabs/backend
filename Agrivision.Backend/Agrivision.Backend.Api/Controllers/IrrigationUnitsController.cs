@@ -43,8 +43,12 @@ namespace Agrivision.Backend.Api.Controllers
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userId))
                 return Result.Failure(TokenErrors.InvalidToken).ToProblem(TokenErrors.InvalidToken.ToStatusCode());
+            
+            var userName = User.FindFirstValue(JwtRegisteredClaimNames.Name);
+            if (string.IsNullOrEmpty(userName))
+                return Result.Failure(TokenErrors.InvalidToken).ToProblem(TokenErrors.InvalidToken.ToStatusCode());
 
-            var command = new ToggleIrrigationUnitCommand(farmId, fieldId, userId);
+            var command = new ToggleIrrigationUnitCommand(farmId, fieldId, userId, userName);
             var result = await mediator.Send(command, cancellationToken);
 
             return result.Succeeded ? NoContent() : result.ToProblem(result.Error.ToStatusCode());
@@ -84,12 +88,21 @@ namespace Agrivision.Backend.Api.Controllers
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userId))
                 return Result.Failure(TokenErrors.InvalidToken).ToProblem(TokenErrors.InvalidToken.ToStatusCode());
-            
-            var userName = User.FindFirstValue(JwtRegisteredClaimNames.Name);
-            if (string.IsNullOrEmpty(userName))
+
+            var query = new GetIrrigationUnitByFieldIdQuery(farmId, fieldId, userId);
+            var result = await mediator.Send(query, cancellationToken);
+
+            return result.Succeeded ? Ok(result.Value) : result.ToProblem(result.Error.ToStatusCode());
+        }
+
+        [HttpGet("[controller]")]
+        public async Task<IActionResult> GetAllAsync([FromRoute] Guid farmId, CancellationToken cancellationToken = default)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
                 return Result.Failure(TokenErrors.InvalidToken).ToProblem(TokenErrors.InvalidToken.ToStatusCode());
 
-            var query = new GetIrrigationUnitByFieldIdQuery(farmId, fieldId, userId, userName);
+            var query = new GetIrrigationUnitsByFarmIdQuery(farmId, userId);
             var result = await mediator.Send(query, cancellationToken);
 
             return result.Succeeded ? Ok(result.Value) : result.ToProblem(result.Error.ToStatusCode());

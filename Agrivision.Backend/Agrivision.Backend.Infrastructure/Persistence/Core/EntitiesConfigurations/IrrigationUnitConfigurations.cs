@@ -19,6 +19,10 @@ public class IrrigationUnitConfigurations : IEntityTypeConfiguration<IrrigationU
             .IsRequired()
             .HasMaxLength(100);
         
+        builder.Property(iu => iu.CreatedBy)
+            .IsRequired()
+            .HasMaxLength(100);
+        
         builder.HasIndex(iu => new { iu.FarmId, iu.Name })
             .IsUnique()
             .HasFilter("[IsDeleted] = 0");

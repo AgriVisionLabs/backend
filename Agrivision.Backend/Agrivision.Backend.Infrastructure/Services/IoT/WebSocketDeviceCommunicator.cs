@@ -50,4 +50,37 @@ public class WebSocketDeviceCommunicator(IWebSocketConnectionManager connectionM
     {
         return connectionManager.GetLastAck(deviceId, command);
     }
+
+    public async Task<bool> SendConfirmationAsync(Guid deviceId)
+    {
+        var socket = connectionManager.GetConnection(deviceId);
+
+        if (socket is null || socket.State != WebSocketState.Open)
+            return false;
+        
+        try
+        {
+            var messageObj = new
+            {
+                type = "ack",
+                message = "Acknowledgment received successfully to Agrivision Server. "
+            };
+
+            var json = JsonSerializer.Serialize(messageObj);
+            var buffer = Encoding.UTF8.GetBytes(json);
+
+            await socket.SendAsync(
+                new ArraySegment<byte>(buffer),
+                WebSocketMessageType.Text,
+                true,
+                CancellationToken.None);
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError("Error sending command to device {DeviceId}: {Message}", deviceId, ex.Message);
+            return false;
+        }
+    }
 }

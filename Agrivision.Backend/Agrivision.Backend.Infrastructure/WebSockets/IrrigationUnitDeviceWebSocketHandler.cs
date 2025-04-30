@@ -40,12 +40,15 @@ public class IrrigationUnitDeviceWebSocketHandler(IWebSocketConnectionManager co
         var device = await coreDbContext.IrrigationUnitDevices
             .FirstOrDefaultAsync(d =>
                 d.MacAddress == payload.MacAddress && d.ProvisioningKey == payload.ProvisioningKey);
-
+        
         if (device is null)
         {
             await socket.CloseAsync(WebSocketCloseStatus.PolicyViolation, "Unauthorized", CancellationToken.None);
             return;
         }
+        
+        var unit = await coreDbContext.IrrigationUnits
+            .FirstOrDefaultAsync(u => u.DeviceId == device.Id && !u.IsDeleted, CancellationToken.None);
         
         connectionManager.AddConnection(device.Id, socket);
         
@@ -54,10 +57,6 @@ public class IrrigationUnitDeviceWebSocketHandler(IWebSocketConnectionManager co
         device.IsOnline = true;
         device.LastSeen = DateTime.UtcNow;
         
-        coreDbContext.IrrigationUnitDevices.Update(device);
-        
-        var unit = await coreDbContext.IrrigationUnits
-            .FirstOrDefaultAsync(u => u.DeviceId == device.Id && !u.IsDeleted, CancellationToken.None);
         if (unit is not null)
         {
             unit.IsOnline = true;
@@ -66,6 +65,9 @@ public class IrrigationUnitDeviceWebSocketHandler(IWebSocketConnectionManager co
             
             coreDbContext.IrrigationUnits.Update(unit);
         }
+        
+        coreDbContext.IrrigationUnitDevices.Update(device);
+        
         await coreDbContext.SaveChangesAsync(CancellationToken.None);
         
         var confirmationMessage = new
@@ -124,12 +126,16 @@ public class IrrigationUnitDeviceWebSocketHandler(IWebSocketConnectionManager co
                             connectionManager.RemoveConnection(deviceId);
                             await socket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closed", CancellationToken.None);
                             break;
-                        } else if (payload.Type == "ack")
+                        } 
+                        else if (payload.Type == "ack")
                         {
                             connectionManager.UpdateAck(deviceId, payload.Command!);
                             logger.LogInformation("Acknowledgment for {DeviceId}:{CommandId}", deviceId, payload.Command);
                         }
-
+                        else
+                        {
+                            logger.LogInformation("Unrecognized message type received.");
+                        }
                     }
                 }
                 catch (Exception ex)

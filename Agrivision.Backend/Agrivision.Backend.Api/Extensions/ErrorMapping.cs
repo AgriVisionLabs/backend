@@ -40,7 +40,7 @@ public static class ErrorMapping
         "FarmUserRole.CannotAssignElevatedRoles" => StatusCodes.Status403Forbidden,
         "FarmUserRole.CannotAssignOwnerRole" => StatusCodes.Status403Forbidden,
         "IrrigationUnit.NoUnitAssigned" => StatusCodes.Status404NotFound,
-        "IrrigationUnit.DeviceOffline" => StatusCodes.Status409Conflict,
+        "IrrigationUnit.DeviceOffline" => StatusCodes.Status400BadRequest,
         "IrrigationUnit.FailedToSendCommand" => StatusCodes.Status503ServiceUnavailable,
         "IrrigationDeviceUnit.NotFound" => StatusCodes.Status404NotFound,
         "IrrigationUnit.DeviceUnreachable" => StatusCodes.Status503ServiceUnavailable,

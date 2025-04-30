@@ -59,6 +59,8 @@ public class ToggleIrrigationUnitCommandHandler(IFieldRepository fieldRepository
 
         await irrigationUnitRepository.UpdateAsync(unit, cancellationToken);
 
+        await communicator.SendConfirmationAsync(unit.DeviceId);
+
         var response = new ToggleIrrigationUnitResponse(unit.IsOn, unit.ToggledById, request.RequesterName);
 
         return Result.Success(response);

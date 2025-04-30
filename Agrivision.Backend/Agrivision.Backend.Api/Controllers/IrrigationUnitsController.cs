@@ -51,7 +51,7 @@ namespace Agrivision.Backend.Api.Controllers
             var command = new ToggleIrrigationUnitCommand(farmId, fieldId, userId, userName);
             var result = await mediator.Send(command, cancellationToken);
 
-            return result.Succeeded ? NoContent() : result.ToProblem(result.Error.ToStatusCode());
+            return result.Succeeded ? Ok(result.Value) : result.ToProblem(result.Error.ToStatusCode());
         }
 
         [HttpPut("fields/{fieldId}/[controller]")]

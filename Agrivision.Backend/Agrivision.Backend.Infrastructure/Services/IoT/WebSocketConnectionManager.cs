@@ -9,7 +9,7 @@ public class WebSocketConnectionManager : IWebSocketConnectionManager
 {
     private readonly ConcurrentDictionary<Guid, WebSocket> _connections = new();
     private readonly ConcurrentDictionary<Guid, DateTime> _lastPong = new();
-    private readonly ConcurrentDictionary<string, DateTime> _lastAck = new();
+    private readonly ConcurrentDictionary<string, TaskCompletionSource<bool>> _pending = new(StringComparer.Ordinal);
     
     public void AddConnection(Guid deviceId, WebSocket socket)
     {
@@ -71,19 +71,25 @@ public class WebSocketConnectionManager : IWebSocketConnectionManager
 
         return null;
     }
-
-    public void UpdateAck(Guid deviceId, string command)
+    
+    public Task<bool> RegisterAckWaiter(Guid deviceId, string cid, TimeSpan timeout, CancellationToken cancellationToken = default)
     {
-        _lastAck[$"{deviceId}:{command}"] = DateTime.UtcNow;
+        var key = $"{deviceId}:{cid}";
+        var tcs = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+        _pending[key] = tcs;
+
+        // auto-cancel after timeout
+        using var timeoutCts = new CancellationTokenSource(timeout);
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutCts.Token);
+        _ = linkedCts.Token.Register(() => tcs.TrySetResult(false));
+
+        return tcs.Task;
     }
-
-    public DateTime? GetLastAck(Guid deviceId, string command)
+    
+    public void CompleteAck(Guid deviceId, string cid)
     {
-        if (_lastAck.TryGetValue($"{deviceId}:{command}", out var lastAck))
-        {
-            return lastAck;
-        }
-
-        return null;
+        var key = $"{deviceId}:{cid}";
+        if (_pending.TryRemove(key, out var tcs))
+            tcs.TrySetResult(true);
     }
 }

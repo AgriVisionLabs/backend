@@ -129,8 +129,8 @@ public class IrrigationUnitDeviceWebSocketHandler(IWebSocketConnectionManager co
                         } 
                         else if (payload.Type == "ack")
                         {
-                            connectionManager.UpdateAck(deviceId, payload.Command!);
-                            logger.LogInformation("Acknowledgment for {DeviceId}:{CommandId}", deviceId, payload.Command);
+                            connectionManager.CompleteAck(deviceId, payload.Cid!);
+                            logger.LogInformation("Ack for {DeviceId}:{Cid}", deviceId, payload.Cid);
                         }
                         else
                         {

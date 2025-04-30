@@ -8,37 +8,28 @@ namespace Agrivision.Backend.Infrastructure.Services.IoT;
 
 public class WebSocketDeviceCommunicator(IWebSocketConnectionManager connectionManager, ILogger<WebSocketDeviceCommunicator> logger) : IWebSocketDeviceCommunicator
 {
-    public async Task<bool> SendCommandAsync(Guid deviceId, string command)
+    public async Task<bool> SendCommandAsync(Guid deviceId, string command, CancellationToken cancellationToken = default)
     {
         var socket = connectionManager.GetConnection(deviceId);
-
         if (socket is null || socket.State != WebSocketState.Open)
             return false;
-        
-        try
+
+        var cid = Guid.NewGuid().ToString("N");
+
+        var ackTask = connectionManager.RegisterAckWaiter(deviceId, cid,
+            TimeSpan.FromSeconds(15), cancellationToken);
+
+        var payload = JsonSerializer.Serialize(new
         {
-            var messageObj = new
-            {
-                type = "command",
-                command = command
-            };
+            type = "command",
+            cmd  = command,
+            cid
+        });
+        var buffer = Encoding.UTF8.GetBytes(payload);
 
-            var json = JsonSerializer.Serialize(messageObj);
-            var buffer = Encoding.UTF8.GetBytes(json);
+        await socket.SendAsync(buffer, WebSocketMessageType.Text, true, cancellationToken);
 
-            await socket.SendAsync(
-                new ArraySegment<byte>(buffer),
-                WebSocketMessageType.Text,
-                true,
-                CancellationToken.None);
-
-            return true;
-        }
-        catch (Exception ex)
-        {
-            logger.LogError("Error sending command to device {DeviceId}: {Message}", deviceId, ex.Message);
-            return false;
-        }
+        return await ackTask;
     }
 
     public bool IsDeviceConnected(Guid deviceId)
@@ -46,12 +37,7 @@ public class WebSocketDeviceCommunicator(IWebSocketConnectionManager connectionM
         return connectionManager.IsConnected(deviceId);
     }
 
-    public DateTime? GetLastAck(Guid deviceId, string command)
-    {
-        return connectionManager.GetLastAck(deviceId, command);
-    }
-
-    public async Task<bool> SendConfirmationAsync(Guid deviceId)
+    public async Task<bool> SendConfirmationAsync(Guid deviceId, string command)
     {
         var socket = connectionManager.GetConnection(deviceId);
 
@@ -63,6 +49,7 @@ public class WebSocketDeviceCommunicator(IWebSocketConnectionManager connectionM
             var messageObj = new
             {
                 type = "ack",
+                command = command,
                 message = "Acknowledgment received successfully to Agrivision Server. "
             };
 

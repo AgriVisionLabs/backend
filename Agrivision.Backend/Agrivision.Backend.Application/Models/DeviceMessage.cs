@@ -19,4 +19,7 @@ public class DeviceMessage
     
     [JsonPropertyName("command")]
     public string Command { get; set; }
+    
+    [JsonPropertyName("cid")]
+    public string Cid { get; set; }
 }

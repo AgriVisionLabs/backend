@@ -6,7 +6,7 @@ using MediatR;
 
 namespace Agrivision.Backend.Application.Features.IrrigationUnits.Handlers;
 
-public class RemoveIrrigationUnitCommandHandler(IFieldRepository fieldRepository, IFarmUserRoleRepository farmUserRoleRepository, IIrrigationUnitRepository irrigationUnitRepository) : IRequestHandler<RemoveIrrigationUnitCommand, Result>
+public class RemoveIrrigationUnitCommandHandler(IFieldRepository fieldRepository, IFarmUserRoleRepository farmUserRoleRepository, IIrrigationUnitRepository irrigationUnitRepository, IIrrigationUnitDeviceRepository irrigationUnitDeviceRepository) : IRequestHandler<RemoveIrrigationUnitCommand, Result>
 {
     public async Task<Result> Handle(RemoveIrrigationUnitCommand request, CancellationToken cancellationToken)
     {
@@ -39,8 +39,13 @@ public class RemoveIrrigationUnitCommandHandler(IFieldRepository fieldRepository
         unit.DeletedOn = DateTime.UtcNow;
         unit.UpdatedById = request.RequesterId;
         unit.UpdatedOn = DateTime.UtcNow;
+        unit.Device.IsAssigned = false;
+        unit.Device.AssignedAt = null;
+        unit.Device.UpdatedById = request.RequesterId;
+        unit.Device.UpdatedOn = DateTime.UtcNow;
 
         await irrigationUnitRepository.UpdateAsync(unit, cancellationToken);
+        await irrigationUnitDeviceRepository.UpdateAsync(unit.Device, cancellationToken);
         
         return Result.Success();
     }

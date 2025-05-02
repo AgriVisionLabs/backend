@@ -12,6 +12,12 @@ public class IrrigationUnitDeviceRepository(CoreDbContext coreDbContext) : IIrri
         return await coreDbContext.IrrigationUnitDevices
             .FirstOrDefaultAsync(d => d.SerialNumber == serialNumber && !d.IsDeleted, cancellationToken);
     }
+    
+    public async Task<IrrigationUnitDevice?> FindByDeviceIdAsync(Guid deviceId, CancellationToken cancellationToken = default)
+    {
+        return await coreDbContext.IrrigationUnitDevices
+            .FirstOrDefaultAsync(d => d.Id == deviceId && !d.IsDeleted, cancellationToken);
+    }
 
     public async Task UpdateAsync(IrrigationUnitDevice device, CancellationToken cancellationToken = default)
     {

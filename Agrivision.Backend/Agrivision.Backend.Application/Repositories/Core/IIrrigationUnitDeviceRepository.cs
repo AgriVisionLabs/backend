@@ -11,6 +11,7 @@ public interface IIrrigationUnitDeviceRepository
     // admin get by id
     
     // get by id 
+    Task<IrrigationUnitDevice?> FindByDeviceIdAsync(Guid deviceId, CancellationToken cancellationToken = default);
     
     // admin get by serial number 
     

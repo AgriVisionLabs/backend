@@ -5,7 +5,7 @@ namespace Agrivision.Backend.Application.Errors;
 public static class FarmUserRoleErrors
 {
     public static readonly Error UserRoleNotFound =
-        new("FarmUserRole.RoleNotFound", "The specified farm user role does not exist in the system.");
+        new("FarmUserRole.UserRoleNotFound", "The specified farm user role does not exist in the system.");
     public static readonly Error InsufficientPermission = new(
         "FarmUserRole.InsufficientPermission",
         "You do not have the required role to perform this action on this farm.");

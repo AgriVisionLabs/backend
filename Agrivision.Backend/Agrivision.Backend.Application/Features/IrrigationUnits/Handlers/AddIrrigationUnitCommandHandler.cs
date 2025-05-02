@@ -38,6 +38,10 @@ public class AddIrrigationUnitCommandHandler(IIrrigationUnitRepository irrigatio
         if (device is null)
             return Result.Failure<IrrigationUnitResponse>(IrrigationUnitDeviceErrors.DeviceNotFound);
         
+        // check if it is already assigned 
+        if (device.IsAssigned)
+            return Result.Failure<IrrigationUnitResponse>(IrrigationUnitDeviceErrors.AlreadyAssigned);
+        
         // check if the field doesn't already have an irrigation unit
         if (await irrigationUnitRepository.ExistsByFieldIdAsync(request.FieldId, cancellationToken))
             return Result.Failure<IrrigationUnitResponse>(FieldErrors.FieldAlreadyHasIrrigationUnit);

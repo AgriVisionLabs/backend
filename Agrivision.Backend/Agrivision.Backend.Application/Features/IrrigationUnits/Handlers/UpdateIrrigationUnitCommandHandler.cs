@@ -42,7 +42,7 @@ public class UpdateIrrigationUnitCommandHandler(IFieldRepository fieldRepository
         if (request.NewFieldId != unit.FieldId)
         {
             var newField = await fieldRepository.FindByIdAsync(request.NewFieldId, cancellationToken);
-            if (newField is null)
+            if (newField is null || newField.FarmId != request.FarmId)
                 return Result.Failure(FieldErrors.FieldNotFound);
             if (await irrigationUnitRepository.ExistsByFieldIdAsync(newField.Id, cancellationToken))
                 return Result.Failure(FieldErrors.FieldAlreadyHasIrrigationUnit);

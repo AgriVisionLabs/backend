@@ -23,7 +23,7 @@ public static class ErrorMapping
         "Field.NotFound" => StatusCodes.Status404NotFound,
         "Field.InvalidArea" => StatusCodes.Status400BadRequest,
         "User.GlobalRoleAssignmentFailed" => StatusCodes.Status422UnprocessableEntity,
-        "FarmUserRole.RoleNotFound" => StatusCodes.Status404NotFound,
+        "FarmUserRole.UserRoleNotFound" => StatusCodes.Status404NotFound,
         "FarmRole.RoleNotFound" => StatusCodes.Status404NotFound,
         "FarmInvitation.AlreadyExists" => StatusCodes.Status409Conflict,
         "FarmInvitation.SelfInvitation" => StatusCodes.Status409Conflict,
@@ -46,6 +46,7 @@ public static class ErrorMapping
         "IrrigationUnit.DeviceUnreachable" => StatusCodes.Status503ServiceUnavailable,
         "Field.AlreadyHasIrrigationUnit" => StatusCodes.Status409Conflict,
         "IrrigationUnit.DuplicateNameInFarm" => StatusCodes.Status409Conflict,
+        "IrrigationDeviceUnit.AlreadyAssigned" => StatusCodes.Status409Conflict,
         _ => StatusCodes.Status400BadRequest // Default case
     };
 }

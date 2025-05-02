@@ -19,4 +19,6 @@ public static class UserErrors
 
     public static readonly Error GlobalRoleAssignmentFailed =
         new("User.GlobalRoleAssignmentFailed", "Global role assignment failed.");
+    public static readonly Error ResetPasswordFailed =
+        new("User.ResetPasswordFailed", "Reset password failed.");
 }

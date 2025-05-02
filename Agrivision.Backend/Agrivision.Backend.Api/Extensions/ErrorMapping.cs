@@ -47,6 +47,7 @@ public static class ErrorMapping
         "Field.AlreadyHasIrrigationUnit" => StatusCodes.Status409Conflict,
         "IrrigationUnit.DuplicateNameInFarm" => StatusCodes.Status409Conflict,
         "IrrigationDeviceUnit.AlreadyAssigned" => StatusCodes.Status409Conflict,
+        "User.ResetPasswordFailed" => StatusCodes.Status400BadRequest,
         _ => StatusCodes.Status400BadRequest // Default case
     };
 }

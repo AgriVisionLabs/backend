@@ -16,17 +16,15 @@ public class ResetPasswordCommandHandler(IOtpProvider otpProvider,IUserRepositor
         if (!isValid)
             return Result.Failure(OtpErrors.InvalidOtp);
 
-       await otpProvider.EndVarification(request.Email, request.Otp, cancellationToken);
-       
+        await otpProvider.EndVarification(request.Email, request.Otp, cancellationToken); 
         var user = await userRepository.FindByEmailAsync(request.Email);
+        if (user is null)
+            return Result.Failure(UserErrors.UserNotFound);
 
+        var token = await userRepository.GeneratePasswordResetTokenAsync(user);
+        var succeeded = await userRepository.ResetPasswordAsync(user!, token, request.NewPassword);
 
-
-        var token = await userRepository.GeneratePasswordResetTokenAsync(user!);
-        var successed = await userRepository.ResetPasswordAsync(user!, token, request.NewPassword);
-
-        return Result.Success();
-
+        return succeeded ? Result.Success() : Result.Failure(UserErrors.ResetPasswordFailed);
     }
 
 }

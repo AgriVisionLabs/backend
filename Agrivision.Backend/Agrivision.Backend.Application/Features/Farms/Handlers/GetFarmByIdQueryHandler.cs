@@ -23,7 +23,7 @@ public class GetFarmByIdQueryHandler(IFarmUserRoleRepository farmUserRoleReposit
             return Result.Failure<FarmResponse>(FarmErrors.UnauthorizedAction);
 
         var response = new FarmResponse(access.Farm.Id, access.Farm.Name, access.Farm.Area, access.Farm.Location,
-            access.Farm.SoilType, access.FarmRole.Name, access.Farm.CreatedById, access.FarmRole.Name == "Owner");
+            access.Farm.SoilType, access.Farm.FieldsNo, access.FarmRole.Name, access.Farm.CreatedById, access.FarmRole.Name == "Owner");
 
         return Result.Success(response);
     }

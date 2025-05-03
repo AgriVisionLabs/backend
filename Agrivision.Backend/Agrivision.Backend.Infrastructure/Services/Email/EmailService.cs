@@ -52,7 +52,6 @@ public class EmailService(IOptions<MailSettings> mailSettings,IOptions<AppSettin
         await SendEmailAsync(email, "Agrivision: Email Confirmation", emailBody);
     }
     
-
     public async Task SendPasswordResetEmailAsync(string email, string otp)
     {
         var emailBody = EmailBodyBuilder.GenerateEmailBody("PasswordReset", new Dictionary<string, string>
@@ -60,8 +59,10 @@ public class EmailService(IOptions<MailSettings> mailSettings,IOptions<AppSettin
             {"{{otp_code}}", otp},
         });
 
-        await SendEmailAsync(email, "Agrivision: Reset Password", emailBody);
+        await SendEmailAsync(email, $"{otp} - Agrivision: Reset Password", emailBody);
     }
+    
+    
     public async Task SendInvitationEmail(string farmName, string senderName, string recipientEmail, string token)
     {
         var emailBody = EmailBodyBuilder.GenerateEmailBody("FarmInvitation", new Dictionary<string, string>

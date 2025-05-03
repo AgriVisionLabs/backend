@@ -215,33 +215,60 @@ public static class CoreSeeder
         var adminUser = await userManager.FindByEmailAsync(adminSettings.Email);
         if (adminUser is null)
             throw new Exception("Admin user not found. Who is in charge here?!");
-        
-        var existingIrrigationDevice = await coreDbContext.IrrigationUnitDevices
-            .AnyAsync(d => d.SerialNumber == "IRRIGATE-ESP32-01");
-        
-        if (!existingIrrigationDevice)
+
+        // Helper method to avoid repeating the AddAsync/Log combo
+        async Task SeedIrrigationDevice(string serial, string mac, string key)
         {
-            var irrigationDevice = new IrrigationUnitDevice
+            if (!await coreDbContext.IrrigationUnitDevices.AnyAsync(d => d.SerialNumber == serial))
             {
-                Id = Guid.NewGuid(),
-                SerialNumber = "IRRIGATE-ESP32-01",
-                MacAddress = "08:A6:F7:A8:56:A4",
-                FirmwareVersion = "1.0.0-irrigate",
-                ProvisioningKey = "IRRIGATE-X7Q4-PUMP-KEY9-Z1B3L",
-                ManufacturedOn = DateTime.UtcNow,
-                IsAssigned = false,
-                CreatedById = adminUser.Id,
-                CreatedOn = DateTime.UtcNow
-            };
+                var device = new IrrigationUnitDevice
+                {
+                    Id = Guid.NewGuid(),
+                    SerialNumber = serial,
+                    MacAddress = mac,
+                    FirmwareVersion = "1.0.0-irrigate",
+                    ProvisioningKey = key,
+                    ManufacturedOn = DateTime.UtcNow,
+                    IsAssigned = false,
+                    CreatedById = adminUser.Id,
+                    CreatedOn = DateTime.UtcNow
+                };
 
-            await coreDbContext.IrrigationUnitDevices.AddAsync(irrigationDevice);
-            await coreDbContext.SaveChangesAsync();
-
-            logger.LogInformation("Manufactured irrigation device IRRIGATE-ESP32-01 was seeded.");
+                await coreDbContext.IrrigationUnitDevices.AddAsync(device);
+                logger.LogInformation("Seeded irrigation device {SerialNumber}.", serial);
+            }
         }
-        else
+
+        async Task SeedSensorDevice(string serial, string mac, string key)
         {
-            logger.LogInformation("Manufactured irrigation device already exists. Skipping seed.");
+            if (!await coreDbContext.SensorUnitDevices.AnyAsync(d => d.SerialNumber == serial))
+            {
+                var device = new SensorUnitDevice
+                {
+                    Id = Guid.NewGuid(),
+                    SerialNumber = serial,
+                    MacAddress = mac,
+                    FirmwareVersion = "1.0.0-sensor",
+                    ProvisioningKey = key,
+                    ManufacturedOn = DateTime.UtcNow,
+                    IsAssigned = false,
+                    CreatedById = adminUser.Id,
+                    CreatedOn = DateTime.UtcNow
+                };
+
+                await coreDbContext.SensorUnitDevices.AddAsync(device);
+                logger.LogInformation("Seeded sensor device {SerialNumber}.", serial);
+            }
         }
+
+        // Production devices
+        await SeedIrrigationDevice("IRRIGATE-ESP32-01", "08:A6:F7:A8:56:A4", "IRRIGATE-X7Q4-PUMP-KEY9-Z1B3L");
+        await SeedSensorDevice("SENSOR-ESP32-01", "08:A6:F7:A8:32:F0", "SENSOR-X7Q4-MOIST-KEY9-Z3C4U");
+
+        // Test devices
+        await SeedIrrigationDevice("IRRIGATE-ESP32-TEST", "08:A6:F7:A8:99:99", "IRRIGATE-TEST-PUMP-KEY9-ZZZZZ");
+        await SeedSensorDevice("SENSOR-ESP32-TEST", "A8:B6:00:9C:FF:FF", "SENSOR-TEST-MOIST-KEY9-ZZZZZ");
+
+        await coreDbContext.SaveChangesAsync();
     }
 }

@@ -74,8 +74,8 @@ public class AddIrrigationUnitCommandHandler(IIrrigationUnitRepository irrigatio
         await irrigationUnitDeviceRepository.UpdateAsync(device, cancellationToken);
 
         // map to response
-        var response = new IrrigationUnitResponse(unit.Id, unit.FarmId, unit.FieldId, field.Name, unit.Name,
-            unit.InstallationDate, unit.Status, null, null, null, device.MacAddress, device.FirmwareVersion,
+        var response = new IrrigationUnitResponse(unit.Id, unit.FarmId, unit.FieldId, field.Name, unit.Name, unit.IsOn,
+            unit.InstallationDate, unit.Status, null, null, null, device.MacAddress, device.SerialNumber,device.FirmwareVersion,
             request.RequesterId, request.RequesterName, TimeSpan.Zero, DateTime.UtcNow);
 
         return Result.Success(response);

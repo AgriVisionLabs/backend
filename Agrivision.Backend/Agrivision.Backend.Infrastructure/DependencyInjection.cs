@@ -5,6 +5,7 @@ using Agrivision.Backend.Application.Repositories.Identity;
 using Agrivision.Backend.Application.Services.Email;
 using Agrivision.Backend.Application.Services.InvitationTokenGenerator;
 using Agrivision.Backend.Application.Services.IoT;
+using Agrivision.Backend.Application.Services.Otp;
 using Agrivision.Backend.Application.Services.Payment;
 using Agrivision.Backend.Application.Settings;
 using Agrivision.Backend.Infrastructure.Auth;
@@ -16,6 +17,7 @@ using Agrivision.Backend.Infrastructure.Repositories.Identity;
 using Agrivision.Backend.Infrastructure.Services.Email;
 using Agrivision.Backend.Infrastructure.Services.InvitationTokenGenerator;
 using Agrivision.Backend.Infrastructure.Services.IoT;
+using Agrivision.Backend.Infrastructure.Services.Otp;
 using Agrivision.Backend.Infrastructure.Services.Payment;
 using Agrivision.Backend.Infrastructure.Settings;
 using Agrivision.Backend.Infrastructure.WebSockets;
@@ -45,8 +47,6 @@ public static class DependencyInjection
         services.AddAuthenticationServices(config);
         
         services.MapEmailSettings(config);
-
-        services.MapOtpRateSettings(config);
 
         services.AddEmailSender();
         
@@ -93,6 +93,10 @@ public static class DependencyInjection
         services.AddIrrigationUnitDeviceRepository();
 
         services.AddIrrigationUnitDeviceHeartbeatService();
+
+        services.AddSensorUnitDeviceWebSocketHandler();
+
+        services.AddOtpServices();
         
         return services;
     }
@@ -225,12 +229,6 @@ public static class DependencyInjection
 
         return services;
     }
-    private static IServiceCollection MapOtpRateSettings(this IServiceCollection services, IConfiguration configuration)
-    {
-        services.Configure<OtpRateSettings>(configuration.GetSection(nameof(OtpRateSettings)));
-
-        return services;
-    }
 
     private static IServiceCollection MapAppSettings(this IServiceCollection services, IConfiguration configuration)
     {
@@ -316,23 +314,27 @@ public static class DependencyInjection
         return services;
     }
     
-    private static IServiceCollection AddOtpVerificationRepository(this IServiceCollection services)
-    {
-        services.AddScoped<IOtpVerificationRepository, OtpVerificationRepository>();
-
-        return services;
-    }
-    
     private static IServiceCollection AddInfrastructureLayerSettings(this IServiceCollection services)
     {
+        services.AddOptions<AppSettings>()
+            .BindConfiguration(AppSettings.SectionName)
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+        
+        services.AddOptions<MailSettings>()
+            .BindConfiguration(MailSettings.SectionName)
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+        
         services.AddOptions<AdminSettings>()
             .BindConfiguration(AdminSettings.SectionName)
             .ValidateDataAnnotations()
             .ValidateOnStart();
-
-        services.AddOptions<MailSettings>()
-            .BindConfiguration(MailSettings.SectionName)
+        
+        services.AddOptions<OtpSettings>()
+            .BindConfiguration(OtpSettings.SectionName)
             .ValidateDataAnnotations()
+            .Validate(otp => otp.Verification.MaxAttempts > 0 && otp.PasswordReset.MaxAttempts > 0 && otp.TwoFactor.MaxAttempts > 0, "OTP configuration must be valid.")
             .ValidateOnStart();
         
         return services;
@@ -355,6 +357,13 @@ public static class DependencyInjection
     private static IServiceCollection AddIrrigationUnitDeviceWebSocketHandler(this IServiceCollection services)
     {
         services.AddScoped<IrrigationUnitDeviceWebSocketHandler>();
+
+        return services;
+    }
+    
+    private static IServiceCollection AddSensorUnitDeviceWebSocketHandler(this IServiceCollection services)
+    {
+        services.AddScoped<SensorUnitDeviceWebSocketHandler>();
 
         return services;
     }
@@ -395,6 +404,24 @@ public static class DependencyInjection
     {
         services.AddSingleton<IrrigationUnitDeviceHeartbeatService>();
         services.AddHostedService(provider => provider.GetRequiredService<IrrigationUnitDeviceHeartbeatService>());
+
+        return services;
+    }
+    
+    private static IServiceCollection AddOtpVerificationRepository(this IServiceCollection services)
+    {
+        services.AddScoped<IOtpVerificationRepository, OtpVerificationRepository>();
+
+        return services;
+    }
+    
+    private static IServiceCollection AddOtpServices(this IServiceCollection services)
+    {
+        services.AddScoped<IOtpHashingService, OtpHashingService>();
+        
+        services.AddScoped<IOtpGenerator, OtpGenerator>();
+
+        services.AddScoped<IOtpProvider, OtpProvider>();
 
         return services;
     }

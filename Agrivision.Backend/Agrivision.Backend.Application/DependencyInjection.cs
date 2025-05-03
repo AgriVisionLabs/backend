@@ -47,18 +47,8 @@ public static class DependencyInjection
 
     private static IServiceCollection AddApplicationLayerSettings(this IServiceCollection services)
     {
-        services.AddOptions<AppSettings>()
-            .BindConfiguration(AppSettings.SectionName)
-            .ValidateDataAnnotations()
-            .ValidateOnStart();
-
         services.AddOptions<RefreshTokenSettings>()
             .BindConfiguration(RefreshTokenSettings.SectionName)
-            .ValidateDataAnnotations()
-            .ValidateOnStart();
-
-        services.AddOptions<OtpRateSettings>()
-            .BindConfiguration(OtpRateSettings.SectionName)
             .ValidateDataAnnotations()
             .ValidateOnStart();
         

@@ -21,4 +21,6 @@ public static class UserErrors
         new("User.GlobalRoleAssignmentFailed", "Global role assignment failed.");
     public static readonly Error ResetPasswordFailed =
         new("User.ResetPasswordFailed", "Reset password failed.");
+    public static readonly Error InvalidPasswordResetOtp = new("User.InvalidPasswordResetOtp", "Invalid or expired OTP.");
+    public static readonly Error InvalidPasswordResetToken = new("User.InvalidPasswordResetToken", "Invalid or expired password reset token.");
 }

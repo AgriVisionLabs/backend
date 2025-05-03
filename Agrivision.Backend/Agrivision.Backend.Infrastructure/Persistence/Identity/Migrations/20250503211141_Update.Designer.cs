@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Agrivision.Backend.Infrastructure.Persistence.Identity.Migrations
 {
     [DbContext(typeof(ApplicationUserDbContext))]
-    [Migration("20250420002706_OtpVerficationTableAddingIndex")]
-    partial class OtpVerficationTableAddingIndex
+    [Migration("20250503211141_Update")]
+    partial class Update
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -31,35 +31,55 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Identity.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime>("CreatedOn")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETUTCDATE()");
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
 
-                    b.Property<string>("Email")
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedById")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("HashedOtpCode")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<bool>("IsUsed")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Metadata")
+                        .HasMaxLength(512)
+                        .HasColumnType("nvarchar(512)");
+
+                    b.Property<string>("Purpose")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime?>("RevokedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UserId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<DateTime>("ExpiresOn")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsUsed")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false);
-
-                    b.Property<string>("OtpCode")
-                        .IsRequired()
-                        .HasMaxLength(6)
-                        .HasColumnType("nvarchar(6)");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("Email", "CreatedOn");
+                    b.HasIndex("DeletedById");
 
-                    b.HasIndex("Email", "OtpCode");
+                    b.HasIndex("ExpiresAt");
 
-                    b.ToTable("OtpVerifications");
+                    b.HasIndex("UserId", "Purpose")
+                        .HasFilter("[DeletedAt] IS NULL");
+
+                    b.ToTable("OtpVerifications", (string)null);
                 });
 
             modelBuilder.Entity("Agrivision.Backend.Infrastructure.Persistence.Identity.Entities.ApplicationUser", b =>
@@ -280,6 +300,22 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Identity.Migrations
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("AspNetUserTokens", (string)null);
+                });
+
+            modelBuilder.Entity("Agrivision.Backend.Domain.Entities.Identity.OtpVerification", b =>
+                {
+                    b.HasOne("Agrivision.Backend.Infrastructure.Persistence.Identity.Entities.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("DeletedById")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("FK_Otp_DeletedBy");
+
+                    b.HasOne("Agrivision.Backend.Infrastructure.Persistence.Identity.Entities.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_Otp_User");
                 });
 
             modelBuilder.Entity("Agrivision.Backend.Infrastructure.Persistence.Identity.Entities.ApplicationUser", b =>

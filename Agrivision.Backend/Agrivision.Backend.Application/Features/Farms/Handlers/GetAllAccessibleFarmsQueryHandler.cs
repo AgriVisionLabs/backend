@@ -20,6 +20,7 @@ public class GetAllAccessibleFarmsQueryHandler(IFarmUserRoleRepository farmUserR
                 fur.Farm.Area,
                 fur.Farm.Location,
                 fur.Farm.SoilType,
+                fur.Farm.FieldsNo,
                 fur.FarmRole.Name,
                 fur.Farm.CreatedById,
                 fur.FarmRole.Name == "Owner"))

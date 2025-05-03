@@ -44,6 +44,11 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
                     b.Property<DateTime?>("DeletedOn")
                         .HasColumnType("datetime2");
 
+                    b.Property<int>("FieldsNo")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
@@ -515,6 +520,87 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
                         .HasFilter("[IsDeleted] = 0");
 
                     b.ToTable("IrrigationUnitDevices", (string)null);
+                });
+
+            modelBuilder.Entity("Agrivision.Backend.Domain.Entities.Core.SensorUnitDevice", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("AssignedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedById")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedById")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("DeletedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("FirmwareVersion")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<bool>("IsAssigned")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsOnline")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("LastSeen")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("MacAddress")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime>("ManufacturedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ProvisioningKey")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
+                        .HasComment("Used to verify secure ownership during manual provisioning.");
+
+                    b.Property<string>("SerialNumber")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("UpdatedById")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("UpdatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MacAddress")
+                        .IsUnique()
+                        .HasFilter("[IsDeleted] = 0");
+
+                    b.HasIndex("ProvisioningKey")
+                        .IsUnique()
+                        .HasFilter("[IsDeleted] = 0");
+
+                    b.HasIndex("SerialNumber")
+                        .IsUnique()
+                        .HasFilter("[IsDeleted] = 0");
+
+                    b.ToTable("SensorUnitDevices", (string)null);
                 });
 
             modelBuilder.Entity("Agrivision.Backend.Domain.Entities.Core.SubscriptionPlan", b =>

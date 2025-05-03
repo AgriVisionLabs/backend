@@ -56,6 +56,12 @@ app.Map("/IrrigationDeviceWS", async context =>
     await handler.HandleAsync(context);
 });
 
+app.Map("/SensorDeviceWS", async context =>
+{
+    var handler = context.RequestServices.GetRequiredService<SensorUnitDeviceWebSocketHandler>();
+    await handler.HandleAsync(context);
+});
+
 app.UseSerilogRequestLogging();
 
 app.UseHttpsRedirection();

@@ -1,4 +1,5 @@
 using System.Net.WebSockets;
+using Agrivision.Backend.Domain.Enums.Core;
 using Agrivision.Backend.Infrastructure.Persistence.Core;
 using Agrivision.Backend.Infrastructure.Services.IoT;
 using Microsoft.EntityFrameworkCore;
@@ -129,6 +130,14 @@ public class IrrigationUnitDeviceHeartbeatService(IServiceScopeFactory scopeFact
             {
                 unit.IsOnline = device.IsOnline;
                 unit.LastSeen = device.LastSeen;
+                
+                // check for idle status
+                if (unit.LastActivation is not null && (DateTime.UtcNow - unit.LastActivation.Value).TotalDays > 3 && unit.Status == IrrigationUnitStatus.Active)
+                {
+                    unit.Status = IrrigationUnitStatus.Idle;
+                    logger.LogInformation("Marked unit {UnitId} as Idle due to inactivity", unit.Id);
+                }
+                
                 coreDbContext.IrrigationUnitDevices.Update(device);
                 coreDbContext.IrrigationUnits.Update(unit);
             }

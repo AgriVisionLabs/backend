@@ -28,6 +28,10 @@ public class FarmConfigurations : IEntityTypeConfiguration<Farm>
 
         builder.Property(farm => farm.SoilType)
             .IsRequired();
+        
+        builder.Property(farm => farm.FieldsNo)
+            .IsRequired()
+            .HasDefaultValue(0);
 
         builder.HasIndex(farm => new { farm.Name, farm.CreatedById })
             .IsUnique() // farm name is unique per user

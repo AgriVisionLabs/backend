@@ -48,6 +48,10 @@ public class CreateFieldCommandHandler (IFieldRepository fieldRepository, IFarmR
             IsDeleted = false
         };
 
+        farm.FieldsNo++;
+
+        await farmRepository.UpdateAsync(farm, cancellationToken);
+
         await fieldRepository.AddAsync(field, cancellationToken);
 
         return Result.Success(new FieldResponse(field.Id, field.Name, field.Area, field.IsActive, field.FarmId));

@@ -2,71 +2,129 @@
 using Agrivision.Backend.Application.Repositories.Identity;
 using Agrivision.Backend.Domain.Entities.Identity;
 using Microsoft.Extensions.Options;
-using Agrivision.Backend.Application.Settings;
-using System.Threading;
-using Agrivision.Backend.Domain.Abstractions;
-using Agrivision.Backend.Infrastructure.Services.Email;
-using Microsoft.Extensions.Logging;
+using Agrivision.Backend.Application.Services.Otp;
+using Agrivision.Backend.Domain.Enums.Identity;
+using Agrivision.Backend.Infrastructure.Settings;
 
 
 namespace Agrivision.Backend.Infrastructure.Auth;
-public class OtpProvider(IOtpVerificationRepository otpRepository, IOptions<OtpRateSettings> otpRateSettings , ILogger<OtpProvider> logger) : IOtpProvider
+public class OtpProvider(IOtpVerificationRepository otpVerificationRepository, IOtpHashingService otpHashingService, IOtpGenerator otpGenerator, IOptions<OtpSettings> otpOptions) : IOtpProvider
 {
-    public string GenerateOtp()
+    public async Task<string> GenerateAsync(string userId, OtpPurpose purpose, CancellationToken cancellationToken = default)
     {
-        // Generate a 6-digit OTP
-        var random = new Random();
-        return random.Next(100000, 999999).ToString();
-    }
-
-    public async Task StoreOtpAsync(string email, string otp, CancellationToken cancellationToken)
-    {
-        var otpVerification = new OtpVerification
+        var config = purpose switch
         {
-            Id = Guid.NewGuid(),
-            Email = email,
-            OtpCode = otp,
-            CreatedOn = DateTime.UtcNow,
-            ExpiresOn = DateTime.UtcNow.AddMinutes(10), // OTP valid for 10 minutes
-            IsUsed = false
+            OtpPurpose.PasswordReset => otpOptions.Value.PasswordReset,
+            OtpPurpose.EmailVerification => otpOptions.Value.Verification,
+            OtpPurpose.TwoFactorAuth => otpOptions.Value.TwoFactor,
+            _ => throw new InvalidOperationException("Unhandled OTP purpose")
         };
 
-        await otpRepository.AddAsync(otpVerification, cancellationToken);
+        // check rate limit
+        var recentCount = await otpVerificationRepository.CountRecentOtpsAsync(userId, purpose, TimeSpan.FromMinutes(config.WindowMinutes), cancellationToken);
+
+        if (recentCount >= config.MaxAttempts)
+            throw new InvalidOperationException("Too many OTP requests. Please wait before trying again.");
+
+        // revoke old OTPs
+        await RevokeAllButLatestAsync(userId, purpose, cancellationToken);
+
+        var rawOtp = otpGenerator.GenerateCode();
+        var hashedOtp = otpHashingService.Hash(rawOtp);
+
+        var otp = new OtpVerification
+        {
+            Id = Guid.NewGuid(),
+            UserId = userId,
+            Purpose = purpose,
+            HashedOtpCode = hashedOtp,
+            CreatedAt = DateTime.UtcNow,
+            ExpiresAt = DateTime.UtcNow.AddMinutes(config.ExpiryMinutes)
+        };
+
+        await otpVerificationRepository.AddAsync(otp, cancellationToken);
+
+        return rawOtp;
     }
 
-    public async Task<bool> VerifyOtpAsync(string email, string otp, CancellationToken cancellationToken)
+    public async Task RevokeAllButLatestAsync(string userId, OtpPurpose purpose, CancellationToken cancellationToken = default)
     {
-        var otpVerification = await otpRepository.FindByEmailAndOtpAsync(email, otp, cancellationToken);
-        if (otpVerification == null || otpVerification.IsUsed || otpVerification.ExpiresOn < DateTime.UtcNow)
+        var activeOtps = await otpVerificationRepository
+            .GetAllActiveOtpsForUserAsync(userId, purpose, cancellationToken);
+
+        if (!activeOtps.Any())
+            return;
+
+        var latest = activeOtps
+            .OrderByDescending(x => x.CreatedAt)
+            .First();
+
+        var toRevoke = activeOtps
+            .Where(x => x.Id != latest.Id)
+            .ToList();
+
+        if (!toRevoke.Any())
+            return;
+
+        foreach (var otp in toRevoke)
+        {
+            otp.RevokedAt = DateTime.UtcNow;
+            otp.UpdatedAt = DateTime.UtcNow;
+        }
+
+        await otpVerificationRepository.UpdateRangeAsync(toRevoke, cancellationToken);
+    }
+    
+    public async Task<bool> IsValidOtpAsync(string userId, string otpCode, OtpPurpose purpose, CancellationToken cancellationToken = default)
+    {
+        var otp = await otpVerificationRepository
+            .GetLatestActiveOtpAsync(userId, purpose, cancellationToken);
+
+        if (otp is null)
             return false;
 
+        if (otp.ExpiresAt < DateTime.UtcNow)
+            return false;
+
+        if (otp.IsUsed || otp.RevokedAt != null)
+            return false;
+
+        return otpHashingService.Verify(otpCode, otp.HashedOtpCode);;
+    }
+
+    public async Task<bool> VerifyAndConsumeAsync(string userId, string otpCode, OtpPurpose purpose, CancellationToken cancellationToken = default)
+    {
+        var otp = await otpVerificationRepository
+            .GetLatestActiveOtpAsync(userId, purpose, cancellationToken);
+
+        if (otp is null)
+            return false;
+
+        if (otp.ExpiresAt < DateTime.UtcNow)
+            return false;
+
+        if (otp.IsUsed || otp.RevokedAt != null)
+            return false;
         
+        var result = otpHashingService.Verify(otpCode, otp.HashedOtpCode);
+        if (!result)
+            return false;
+
+        await MarkAsUsedAsync(otp.Id, cancellationToken);
+
         return true;
     }
 
-    public async Task<bool> ExceededLimit(string email, CancellationToken cancellationToken)
+    public async Task MarkAsUsedAsync(Guid otpId, CancellationToken cancellationToken = default)
     {
-        var RateLimitWindow = TimeSpan.FromHours(otpRateSettings.Value.RateLimitWindowByHours);
-        var recentOtps = await otpRepository.GetRecentOtpsAsync(email, RateLimitWindow,cancellationToken);
+        var otp = await otpVerificationRepository.GetByIdAsync(otpId, cancellationToken);
+    
+        if (otp is null || otp.IsUsed || otp.DeletedAt != null)
+            return;
 
-        var MaxAttempts = otpRateSettings.Value.MaxAttempts;
+        otp.IsUsed = true;
+        otp.UpdatedAt = DateTime.UtcNow;
 
-
-        if (recentOtps.Count() >= MaxAttempts)
-        {
-            logger.LogWarning("Rate limit exceeded for email: {Email}. Max attempts: {MaxAttempts} within {Window}",
-                email, MaxAttempts, RateLimitWindow);
-            return true;
-        }
-
-        return false;
-    }
-    public async Task EndVarification(string email, string otp, CancellationToken cancellationToken)
-    {
-        var otpVerification = await otpRepository.FindByEmailAndOtpAsync(email, otp, cancellationToken);
-       
-        otpVerification!.IsUsed = true;
-        await otpRepository.UpdateAsync(otpVerification, cancellationToken);
-        
+        await otpVerificationRepository.UpdateAsync(otp, cancellationToken);
     }
 }

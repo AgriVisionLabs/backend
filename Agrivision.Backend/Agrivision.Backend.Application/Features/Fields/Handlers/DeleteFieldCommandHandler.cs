@@ -6,7 +6,7 @@ using MediatR;
 
 namespace Agrivision.Backend.Application.Features.Fields.Handlers;
 
-public class DeleteFieldCommandHandler(IFieldRepository fieldRepository) : IRequestHandler<DeleteFieldCommand, Result>
+public class DeleteFieldCommandHandler(IFieldRepository fieldRepository, IFarmRepository farmRepository) : IRequestHandler<DeleteFieldCommand, Result>
 {
     public async Task<Result> Handle(DeleteFieldCommand request, CancellationToken cancellationToken)
     {
@@ -27,8 +27,11 @@ public class DeleteFieldCommandHandler(IFieldRepository fieldRepository) : IRequ
         field.IsDeleted = true;
         field.DeletedOn = DateTime.UtcNow;
         field.DeletedById = request.DeletedById;
+        field.Farm.FieldsNo--;
+        
         
         // update database
+        await farmRepository.UpdateAsync(field.Farm, cancellationToken);
         await fieldRepository.UpdateAsync(field, cancellationToken);
 
         return Result.Success();

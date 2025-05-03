@@ -47,25 +47,24 @@ namespace Agrivision.Backend.Api.Controllers
             return result.Succeeded ? Ok() : result.ToProblem(result.Error.ToStatusCode());
         }
 
-        [HttpPost("forget-password")]
-        public async Task<IActionResult> ForgetPassword([FromBody] ForgetPasswordRequest request)
+        [HttpPost("request-password-reset")]
+        public async Task<IActionResult> RequestPasswordResetAsync([FromBody] RequestPasswordResetRequest request, CancellationToken cancellationToken = default)
         {
-            var result = await mediator.Send(new SendResetPasswordCodeCommand(request.Email));
+            var result = await mediator.Send(new RequestPasswordResetCommand(request.Email), cancellationToken);
             return result.Succeeded ? Ok() : result.ToProblem(result.Error.ToStatusCode());
         }
 
-
-        [HttpPost("verify-otp")]
-        public async Task<IActionResult> VerifyOtp([FromBody] VerifyOtpRequest request)
+        [HttpPost("verify-password-reset-otp")]
+        public async Task<IActionResult> VerifyPasswordResetAsync([FromBody] VerifyPasswordResetOtpRequest request, CancellationToken cancellationToken = default)
         {
-            var result = await mediator.Send(new VerifyOtpCommand(request.Otp,request.Email));
-            return result.Succeeded ? Ok() : result.ToProblem(result.Error.ToStatusCode());
+            var result = await mediator.Send(new VerifyPasswordResetOtpCommand(request.Email, request.OtpCode), cancellationToken);
+            return result.Succeeded ? Ok(result.Value) : result.ToProblem(result.Error.ToStatusCode());
         }
 
-        [HttpPost("reset-password")]
-        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest request)
+        [HttpPost("password-reset")]
+        public async Task<IActionResult> PasswordResetAsync([FromBody] ResetPasswordRequest request, CancellationToken cancellationToken = default)
         {
-            var result = await mediator.Send(new ResetPasswordCommand(request.Email,request.Otp,request.NewPassword));
+            var result = await mediator.Send(new ResetPasswordCommand(request.Token, request.NewPassword), cancellationToken);
             return result.Succeeded ? Ok() : result.ToProblem(result.Error.ToStatusCode());
         }
     }

@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore;
 using Agrivision.Backend.Domain.Entities.Identity;
+using Agrivision.Backend.Infrastructure.Persistence.Identity.Entities;
 
 namespace Agrivision.Backend.Infrastructure.Persistence.Identity.EntitiesConfigurations;
 public class OtpVerifactionConfigurations : IEntityTypeConfiguration<OtpVerification>
@@ -9,35 +10,50 @@ public class OtpVerifactionConfigurations : IEntityTypeConfiguration<OtpVerifica
     public void Configure(EntityTypeBuilder<OtpVerification> builder)
     {
         {
+            builder.ToTable("OtpVerifications");
 
-          builder.HasKey(o => o.Id); // Primary key
+            builder.HasKey(o => o.Id);
 
-            builder.Property(o => o.Email)
-                     .IsRequired();
+            builder.Property(o => o.HashedOtpCode)
+                .IsRequired()
+                .HasMaxLength(256);
 
-          builder.Property(o => o.OtpCode)
-                   .IsRequired()
-                   .HasMaxLength(6);
+            builder.Property(o => o.Purpose)
+                .IsRequired()
+                .HasConversion<string>()
+                .HasMaxLength(50);
 
-          builder.Property(o => o.CreatedOn)
-                  .IsRequired()
-                  .HasDefaultValueSql("GETUTCDATE()");
+            builder.Property(o => o.CreatedAt)
+                .IsRequired();
 
-          builder.Property(o => o.ExpiresOn)
-                  .IsRequired();
+            builder.Property(o => o.ExpiresAt)
+                .IsRequired();
 
-          builder.Property(o => o.IsUsed)
-                  .IsRequired()
-                  .HasDefaultValue(false);
+            builder.Property(o => o.RevokedAt)
+                .IsRequired(false);
 
-            // Index for faster lookups
-            builder.HasIndex(o => new { o.Email, o.OtpCode })
-                .IsUnique(false);
+            builder.Property(o => o.Metadata)
+                .HasMaxLength(512);
 
-            builder.HasIndex(o => new { o.Email, o.CreatedOn });
+            builder.Property(o => o.UserId)
+                .IsRequired();
 
+            builder.HasOne<ApplicationUser>()
+                .WithMany()
+                .HasForeignKey(x => x.UserId)
+                .HasConstraintName("FK_Otp_User")
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.HasOne<ApplicationUser>()
+                .WithMany()
+                .HasForeignKey(x => x.DeletedById)
+                .HasConstraintName("FK_Otp_DeletedBy")
+                .OnDelete(DeleteBehavior.SetNull);
             
-
+            builder.HasIndex(o => new { o.UserId, o.Purpose })
+                .HasFilter("[DeletedAt] IS NULL");
+            
+            builder.HasIndex(o => o.ExpiresAt);
         }
     }
 }

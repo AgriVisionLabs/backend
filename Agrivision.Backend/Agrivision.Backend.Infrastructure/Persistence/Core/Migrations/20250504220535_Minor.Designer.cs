@@ -4,6 +4,7 @@ using Agrivision.Backend.Infrastructure.Persistence.Core;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
 {
     [DbContext(typeof(CoreDbContext))]
-    partial class CoreDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250504220535_Minor")]
+    partial class Minor
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -700,7 +703,6 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
             modelBuilder.Entity("Agrivision.Backend.Domain.Entities.Core.SensorUnit", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("BatteryLevel")
@@ -782,8 +784,7 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("DeviceId")
-                        .IsUnique()
-                        .HasFilter("[IsDeleted] = 0");
+                        .IsUnique();
 
                     b.HasIndex("FarmId");
 
@@ -791,7 +792,7 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
 
                     b.HasIndex("IsOnline");
 
-                    b.HasIndex("FarmId", "Name")
+                    b.HasIndex("Name")
                         .IsUnique()
                         .HasFilter("[IsDeleted] = 0");
 

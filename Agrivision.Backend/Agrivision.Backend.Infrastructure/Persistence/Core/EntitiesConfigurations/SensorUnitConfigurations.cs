@@ -9,35 +9,45 @@ public class SensorUnitConfigurations : IEntityTypeConfiguration<SensorUnit>
     public void Configure(EntityTypeBuilder<SensorUnit> builder)
     {
         builder.ToTable("SensorUnits");
-
-        builder.HasKey(unit => unit.Id);
-
-        builder.Property(unit => unit.Id)
-            .ValueGeneratedNever(); 
-
-        builder.Property(unit => unit.Name)
+        
+        builder.HasKey(su => su.Id);
+        
+        builder.Property(su => su.Id)
+            .ValueGeneratedOnAdd();
+        
+        builder.Property(su => su.Name)
             .IsRequired()
             .HasMaxLength(100);
-
-        builder.Property(unit => unit.InstallationDate)
+        
+        builder.Property(su => su.CreatedBy)
+            .IsRequired()
+            .HasMaxLength(100);
+        
+        builder.HasIndex(su => new { su.FarmId, su.Name })
+            .IsUnique()
+            .HasFilter("[IsDeleted] = 0");
+        
+        builder.Property(su => su.InstallationDate)
             .IsRequired();
 
-        builder.Property(unit => unit.Status)
-            .HasConversion<int>()
+        builder.Property(su => su.Status)
             .IsRequired();
 
-        builder.Property(unit => unit.ConfigJson)
-            .HasColumnType("nvarchar(max)");
-
-        builder.Property(unit => unit.IpAddress)
+        builder.Property(su => su.IpAddress)
             .HasMaxLength(100);
 
-        builder.Property(unit => unit.Notes)
+        builder.Property(su => su.Notes)
             .HasMaxLength(500);
 
-        builder.Property(unit => unit.CreatedBy)
-            .IsRequired()
-            .HasMaxLength(100); 
+        builder.Property(su => su.DeviceId)
+            .IsRequired();
+        
+        builder.Property(su => su.ConfigJson)
+            .HasColumnType("nvarchar(max)");
+
+        builder.HasIndex(su => su.DeviceId)
+            .IsUnique()
+            .HasFilter("[IsDeleted] = 0");
 
         builder.HasOne(unit => unit.Device)
             .WithOne()
@@ -54,12 +64,11 @@ public class SensorUnitConfigurations : IEntityTypeConfiguration<SensorUnit>
             .HasForeignKey(unit => unit.FieldId)
             .OnDelete(DeleteBehavior.Restrict);
         
-        builder.HasIndex(unit => unit.DeviceId);
-        
         builder.HasIndex(unit => unit.FarmId);
         
         builder.HasIndex(unit => unit.FieldId);
         
         builder.HasIndex(unit => unit.IsOnline);
+        
     }
 }

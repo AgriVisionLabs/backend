@@ -21,6 +21,7 @@ public class CoreDbContext(DbContextOptions<CoreDbContext> options) : DbContext(
     public DbSet<SensorUnit> SensorUnits { get; set; }
     public DbSet<SensorConfiguration> SensorConfigurations { get; set; }
     public DbSet<SensorReading> SensorReadings { get; set; }
+    public DbSet<AutomationRule> AutomationRules { get; set; }
     
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)

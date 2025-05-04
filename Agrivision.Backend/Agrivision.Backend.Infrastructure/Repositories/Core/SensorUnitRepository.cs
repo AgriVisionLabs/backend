@@ -98,13 +98,13 @@ public class SensorUnitRepository(CoreDbContext coreDbContext) : ISensorUnitRepo
     public Task<bool> ExistsAsync(Guid unitId, CancellationToken cancellationToken = default)
     {
         return coreDbContext.SensorUnits
-            .AnyAsync(u => u.Id == unitId, cancellationToken);
+            .AnyAsync(u => u.Id == unitId && !u.IsDeleted, cancellationToken);
     }
 
     public async Task<SensorUnit?> FindByNameAndFarmIdAsync(string name, Guid farmId, CancellationToken cancellationToken = default)
     {
         return await coreDbContext.SensorUnits
-            .FirstOrDefaultAsync(u => u.Name == name && u.FarmId == farmId, cancellationToken);
+            .FirstOrDefaultAsync(u => u.Name == name && u.FarmId == farmId && !u.IsDeleted, cancellationToken);
     }
 
     public async Task<bool> ExistsByNameAndFarmIdAsync(string name, Guid farmId, CancellationToken cancellationToken = default)

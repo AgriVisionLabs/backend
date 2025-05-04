@@ -19,4 +19,6 @@ public static class SensorUnitErrors
     
     public static readonly Error SensorUnitNotFound = new("SensorUnitErrors.SensorUnitNotFound",
         "The specified sensor unit was not found.");
+    public static readonly Error NoUnitAssigned = new("SensorUnitErrors.NoUnitAssigned", "The specified field doesn't have an sensor unit assigned to it.");
+
 }

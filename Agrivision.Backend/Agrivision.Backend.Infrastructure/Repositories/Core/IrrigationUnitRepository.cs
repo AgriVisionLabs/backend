@@ -103,7 +103,7 @@ public class IrrigationUnitRepository(CoreDbContext coreDbContext) : IIrrigation
     public async Task<IrrigationUnit?> FindByNameAndFarmIdAsync(string name, Guid farmId, CancellationToken cancellationToken = default)
     {
         return await coreDbContext.IrrigationUnits
-            .FirstOrDefaultAsync(u => u.Name == name && u.FarmId == farmId, cancellationToken);
+            .FirstOrDefaultAsync(u => u.Name == name && u.FarmId == farmId && !u.IsDeleted, cancellationToken);
     }
 
     public async Task<bool> ExistsByNameAndFarmIdAsync(string name, Guid farmId, CancellationToken cancellationToken = default)

@@ -4,6 +4,7 @@ using Agrivision.Backend.Infrastructure.Persistence.Core;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
 {
     [DbContext(typeof(CoreDbContext))]
-    partial class CoreDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250504205152_AddAutomationRule")]
+    partial class AddAutomationRule
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -30,6 +33,9 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
 
                     b.Property<int?>("ActiveDays")
                         .HasColumnType("int");
+
+                    b.Property<string>("ComparisonOperator")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("CreatedById")
                         .IsRequired()
@@ -59,12 +65,6 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
                     b.Property<bool>("IsEnabled")
                         .HasColumnType("bit");
 
-                    b.Property<float?>("MaximumThresholdValue")
-                        .HasColumnType("real");
-
-                    b.Property<float?>("MinimumThresholdValue")
-                        .HasColumnType("real");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -79,6 +79,9 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
                     b.Property<string>("TargetSensorType")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<float?>("ThresholdValue")
+                        .HasColumnType("real");
+
                     b.Property<string>("Type")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -92,10 +95,6 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("IrrigationUnitId");
-
-                    b.HasIndex("Name")
-                        .IsUnique()
-                        .HasFilter("[IsDeleted] = 0");
 
                     b.HasIndex("SensorUnitId");
 
@@ -700,7 +699,6 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
             modelBuilder.Entity("Agrivision.Backend.Domain.Entities.Core.SensorUnit", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("BatteryLevel")
@@ -782,18 +780,13 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("DeviceId")
-                        .IsUnique()
-                        .HasFilter("[IsDeleted] = 0");
+                        .IsUnique();
 
                     b.HasIndex("FarmId");
 
                     b.HasIndex("FieldId");
 
                     b.HasIndex("IsOnline");
-
-                    b.HasIndex("FarmId", "Name")
-                        .IsUnique()
-                        .HasFilter("[IsDeleted] = 0");
 
                     b.ToTable("SensorUnits", (string)null);
                 });

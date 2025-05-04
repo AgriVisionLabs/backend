@@ -105,6 +105,8 @@ public static class DependencyInjection
         services.AddSensorUnitRepository();
 
         services.AddSensorReadingRepository();
+
+        services.AddAutomationRuleRepository();
         
         return services;
     }
@@ -477,6 +479,13 @@ public static class DependencyInjection
     private static IServiceCollection AddSensorReadingRepository(this IServiceCollection services)
     {
         services.AddScoped<ISensorReadingRepository, SensorReadingRepository>();
+
+        return services;
+    }
+    
+    private static IServiceCollection AddAutomationRuleRepository(this IServiceCollection services)
+    {
+        services.AddScoped<IAutomationRuleRepository, AutomationRuleRepository>();
 
         return services;
     }

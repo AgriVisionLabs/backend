@@ -1,4 +1,5 @@
 using Agrivision.Backend.Application.Features.Fields.Contracts;
+using Agrivision.Backend.Domain.Enums.Core;
 using FluentValidation;
 
 namespace Agrivision.Backend.Application.Features.Fields.Validators;
@@ -10,6 +11,10 @@ public class CreateFieldRequestValidator : AbstractValidator<CreateFieldRequest>
         RuleFor(request => request.Name)
             .NotEmpty()
             .Length(3, 100);
+
+        RuleFor(request => request.Crop)
+             .NotNull()
+             .IsInEnum();
 
         RuleFor(request => request.Area)
             .NotEmpty()

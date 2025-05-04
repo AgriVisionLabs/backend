@@ -19,7 +19,7 @@ public static class CoreSeeder
     {
         var coreDbContext = serviceProvider.GetRequiredService<CoreDbContext>();
         var logger = serviceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("CoreSeeder");
-        
+
         var defaultRoles = new List<FarmRole>
         {
             new() { Name = "Owner", Description = "Full Access to the farm", IsDefault = true },
@@ -40,7 +40,7 @@ public static class CoreSeeder
         }
 
         await coreDbContext.SaveChangesAsync();
-        
+
         logger.LogInformation("Farm roles were seeded successfully.");
     }
 
@@ -52,7 +52,7 @@ public static class CoreSeeder
         var logger = serviceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("CoreSeeder");
 
         var adminSettings = options.Value;
-        
+
         try
         {
             // get admin user
@@ -63,7 +63,7 @@ public static class CoreSeeder
             var farmExists =
                 await coreDbContext.Farms.AnyAsync(f =>
                     f.Name == "Giga Farm" && f.CreatedById == adminUser.Id && !f.IsDeleted);
-            
+
             // check if farm already exists
             if (farmExists)
             {
@@ -83,10 +83,14 @@ public static class CoreSeeder
 
             await coreDbContext.Farms.AddAsync(demoFarm);
             await coreDbContext.SaveChangesAsync();
-            
+
             logger.LogInformation("Seeded demo farm: {Name}", demoFarm.Name);
-            
+
             // add some fields
+            var cropTypes = await coreDbContext.CropTypes.AsNoTracking().ToListAsync();
+            var pepperCrop = cropTypes.FirstOrDefault(c => c.Name == CropTypes.PEPPER);
+            var TomatoCrop = cropTypes.FirstOrDefault(c => c.Name == CropTypes.TOMATO);
+
             var fields = new List<Field>
             {
                 new()
@@ -95,6 +99,7 @@ public static class CoreSeeder
                     Area = 8.5,
                     IsActive = true,
                     FarmId = demoFarm.Id,
+                    CropTypeId=pepperCrop.Id,
                     CreatedById = adminUser.Id
                 },
                 new()
@@ -103,15 +108,16 @@ public static class CoreSeeder
                     Area = 6.0,
                     IsActive = true,
                     FarmId = demoFarm.Id,
+                    CropTypeId=TomatoCrop.Id,
                     CreatedById = adminUser.Id
                 }
             };
 
             await coreDbContext.Fields.AddRangeAsync(fields);
             await coreDbContext.SaveChangesAsync();
-            
+
             logger.LogInformation("Seeded fields for farm: {FarmName}", demoFarm.Name);
-            
+
             // get owner role
             var ownerRole = await coreDbContext.FarmRoles
                 .FirstOrDefaultAsync(r => r.Name == "Owner" && !r.IsDeleted);
@@ -121,7 +127,7 @@ public static class CoreSeeder
                 logger.LogError("Owner farm role not found.");
                 throw new Exception("Owner farm role not found.");
             }
-            
+
             // assign admin as owner
             var farmUserRole = new FarmUserRole
             {
@@ -133,14 +139,14 @@ public static class CoreSeeder
 
             await coreDbContext.FarmUserRoles.AddAsync(farmUserRole);
             await coreDbContext.SaveChangesAsync();
-            
+
             logger.LogInformation("Admin assigned as Owner for farm: {FarmName}", demoFarm.Name);
         }
         catch (Exception e)
         {
             logger.LogError(e, "Failed to seed demo farm.");
         }
-        
+
     }
 
     public static async Task SeedCoreRolePermissionAsync(IServiceProvider serviceProvider)
@@ -163,7 +169,7 @@ public static class CoreSeeder
                 CorePermissions.ViewFarms,
                 CorePermissions.ViewFields
             ],
-            ["Worker"] = 
+            ["Worker"] =
             [
                 CorePermissions.ViewFarms,
                 CorePermissions.ViewFields,
@@ -195,7 +201,7 @@ public static class CoreSeeder
                     ClaimType = CorePermissions.Type,
                     ClaimValue = p
                 });
-            
+
             coreDbContext.FarmRoleClaims.AddRange(newClaims);
         }
 
@@ -215,9 +221,11 @@ public static class CoreSeeder
         var adminUser = await userManager.FindByEmailAsync(adminSettings.Email);
         if (adminUser is null)
             throw new Exception("Admin user not found. Who is in charge here?!");
-
-        // Helper method to avoid repeating the AddAsync/Log combo
-        async Task SeedIrrigationDevice(string serial, string mac, string key)
+        
+        var existingIrrigationDevice = await coreDbContext.IrrigationUnitDevices
+            .AnyAsync(d => d.SerialNumber == "IRRIGATE-ESP32-01");
+        
+        if (!existingIrrigationDevice)
         {
             if (!await coreDbContext.IrrigationUnitDevices.AnyAsync(d => d.SerialNumber == serial))
             {
@@ -270,5 +278,176 @@ public static class CoreSeeder
         await SeedSensorDevice("SENSOR-ESP32-TEST", "A8:B6:00:9C:FF:FF", "SENSOR-TEST-MOIST-KEY9-ZZZZZ");
 
         await coreDbContext.SaveChangesAsync();
+    }
+
+
+    public static async Task SeedCropsAsync(IServiceProvider serviceProvider)
+    {
+        var coreDbContext = serviceProvider.GetRequiredService<CoreDbContext>();
+        var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+        var options = serviceProvider.GetRequiredService<IOptions<AdminSettings>>();
+        var logger = serviceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("CoreSeeder");
+
+        var adminSettings = options.Value;
+
+        var adminUser = await userManager.FindByEmailAsync(adminSettings.Email);
+        if (adminUser is null)
+            throw new Exception("Admin user not found. Who is in charge here?!");
+
+        var existingCrops = await coreDbContext.CropTypes
+       .AnyAsync(d => new[] { CropTypes.PEPPER, CropTypes.POTATO, CropTypes.TOMATO }.Contains(d.Name));
+
+        if (!existingCrops)
+        {
+            var Crops = new List<CropType>
+            {
+                new()
+                {
+                    Name = CropTypes.EMPTY,
+                    SupportsDiseaseDetection=false,
+                    CreatedById = adminUser.Id
+                },
+                new()
+                {
+                    Name = CropTypes.TOMATO,
+                    SupportsDiseaseDetection=true,
+                    CreatedById = adminUser.Id
+                },
+                new()
+                {
+                   Name = CropTypes.PEPPER,
+                    SupportsDiseaseDetection=true,
+                    CreatedById = adminUser.Id
+                },
+                new()
+                {
+                   Name = CropTypes.POTATO,
+                    SupportsDiseaseDetection=true,
+                    CreatedById = adminUser.Id
+                },
+                new()
+                {
+                   Name =CropTypes.MANGO,
+                    SupportsDiseaseDetection=false,
+                    CreatedById = adminUser.Id
+                }
+            };
+
+            await coreDbContext.CropTypes.AddRangeAsync(Crops);
+            await coreDbContext.SaveChangesAsync();
+        }
+        else
+        {
+            logger.LogInformation(" Those Crops already exists. Skipping seed.");
+        }
+
+    }
+    public static async Task SeedDiseasesAsync(IServiceProvider serviceProvider)
+    {
+        var coreDbContext = serviceProvider.GetRequiredService<CoreDbContext>();
+        var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+        var options = serviceProvider.GetRequiredService<IOptions<AdminSettings>>();
+        var logger = serviceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("CoreSeeder");
+
+        var adminSettings = options.Value;
+
+        var adminUser = await userManager.FindByEmailAsync(adminSettings.Email);
+        if (adminUser is null)
+            throw new Exception("Admin user not found. Who is in charge here?!");
+
+
+        // Get the crop types from the database as disease contain a foriegn key for the croptype
+        var cropTypes = await coreDbContext.CropTypes.AsNoTracking().ToListAsync();
+        var pepperCrop = cropTypes.FirstOrDefault(c => c.Name == CropTypes.PEPPER);
+        var TomatoCrop = cropTypes.FirstOrDefault(c => c.Name == CropTypes.TOMATO);
+        var PotatoCrop = cropTypes.FirstOrDefault(c => c.Name == CropTypes.POTATO);
+
+
+
+        //  var existingDiseases = await coreDbContext.Diseases
+        // .AnyAsync(d => new[] { CropTypes.PEPPER, CropTypes.POTATO, CropTypes.TOMATO }.Contains(d.Name));
+
+        //  if (!existingCrops)
+        //  {
+        var diseases = new List<Disease>
+            {
+                new()
+                {
+                Name = "Pepper__bell___Bacterial_spot",CropTypeId=pepperCrop!.Id,ClassIdInModelPredictions=0,Is_Safe=false,CreatedById = adminUser.Id
+                },
+                new()
+                {
+                Name ="Pepper__bell___healthy",CropTypeId=pepperCrop!.Id,ClassIdInModelPredictions=1,Is_Safe=true,CreatedById = adminUser.Id
+                },
+
+
+
+                new()
+                {
+                Name = "Potato___Early_blight",CropTypeId=PotatoCrop!.Id,ClassIdInModelPredictions=2,Is_Safe=false,CreatedById = adminUser.Id
+                },
+                new()
+                {
+                Name ="Potato___Late_blight",CropTypeId=PotatoCrop!.Id,ClassIdInModelPredictions=3,Is_Safe=false,CreatedById = adminUser.Id
+                },
+                new()
+                {
+                Name ="Potato___healthy",CropTypeId=PotatoCrop!.Id,ClassIdInModelPredictions=4,Is_Safe=true,CreatedById = adminUser.Id
+                },
+
+
+
+
+                new()
+                {
+                Name = "Tomato_Bacterial_spot",CropTypeId=TomatoCrop!.Id,ClassIdInModelPredictions=5,Is_Safe=false,CreatedById = adminUser.Id
+                },
+                new()
+                {
+                Name ="Tomato_Early_blight",CropTypeId=TomatoCrop!.Id,ClassIdInModelPredictions=6,Is_Safe=false,CreatedById = adminUser.Id
+                },
+                new()
+                {
+                Name ="Tomato_Late_blight",CropTypeId=TomatoCrop!.Id,ClassIdInModelPredictions=7,Is_Safe=false,CreatedById = adminUser.Id
+                },
+                new()
+                {
+                Name = "Tomato_Leaf_Mold",CropTypeId=TomatoCrop!.Id,ClassIdInModelPredictions=8,Is_Safe=false,CreatedById = adminUser.Id
+                },
+                new()
+                {
+                Name ="Tomato_Septoria_leaf_spot",CropTypeId=TomatoCrop!.Id,ClassIdInModelPredictions=9,Is_Safe=false,CreatedById = adminUser.Id
+                },
+                new()
+                {
+                Name ="Tomato_Spider_mites_Two_spotted_spider_mite",CropTypeId=TomatoCrop!.Id,ClassIdInModelPredictions=10,Is_Safe=false,CreatedById = adminUser.Id
+                },
+                new()
+                {
+                Name ="Tomato__Target_Spot",CropTypeId=TomatoCrop!.Id,ClassIdInModelPredictions=11,Is_Safe=false,CreatedById = adminUser.Id
+                },
+                new()
+                {
+                Name = "Tomato__Tomato_YellowLeaf__Curl_Virus",CropTypeId=TomatoCrop!.Id,ClassIdInModelPredictions=12,Is_Safe=false,CreatedById = adminUser.Id
+                },
+                new()
+                {
+                Name ="Tomato__Tomato_mosaic_virus",CropTypeId=TomatoCrop!.Id,ClassIdInModelPredictions=13,Is_Safe=false,CreatedById = adminUser.Id
+                },
+                new()
+                {
+                Name ="Tomato_healthy",CropTypeId=TomatoCrop!.Id,ClassIdInModelPredictions=14,Is_Safe=true,CreatedById = adminUser.Id
+                }
+
+            };
+
+            await coreDbContext.Diseases.AddRangeAsync(diseases);
+            await coreDbContext.SaveChangesAsync();
+      //  }
+      //  else
+      //  {
+      //    logger.LogInformation(" Those Diseases already exists. Skipping seed.");
+      //  }
+
     }
 }

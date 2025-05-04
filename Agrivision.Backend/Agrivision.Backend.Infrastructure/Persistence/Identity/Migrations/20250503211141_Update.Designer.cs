@@ -12,8 +12,13 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Agrivision.Backend.Infrastructure.Persistence.Identity.Migrations
 {
     [DbContext(typeof(ApplicationUserDbContext))]
+<<<<<<< HEAD:Agrivision.Backend/Agrivision.Backend.Infrastructure/Persistence/Identity/Migrations/20250503211141_Update.Designer.cs
     [Migration("20250503211141_Update")]
     partial class Update
+=======
+    [Migration("20250502194356_OtpVerficationTableAddingIndex")]
+    partial class OtpVerficationTableAddingIndex
+>>>>>>> .....:Agrivision.Backend/Agrivision.Backend.Infrastructure/Persistence/Identity/Migrations/20250502194356_OtpVerficationTableAddingIndex.Designer.cs
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

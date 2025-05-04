@@ -3,11 +3,12 @@ using Agrivision.Backend.Application.Features.Fields.Commands;
 using Agrivision.Backend.Application.Features.Fields.Contracts;
 using Agrivision.Backend.Application.Repositories.Core;
 using Agrivision.Backend.Domain.Abstractions;
+using Agrivision.Backend.Domain.Enums.Core;
 using MediatR;
 
 namespace Agrivision.Backend.Application.Features.Fields.Handlers;
 
-public class CreateFieldCommandHandler (IFieldRepository fieldRepository, IFarmRepository farmRepository) : IRequestHandler<CreateFieldCommand, Result<FieldResponse>>
+public class CreateFieldCommandHandler (IFieldRepository fieldRepository,ICropRepository cropRepository, IFarmRepository farmRepository) : IRequestHandler<CreateFieldCommand, Result<FieldResponse>>
 {
     public async Task<Result<FieldResponse>> Handle(CreateFieldCommand request, CancellationToken cancellationToken)
     {
@@ -35,6 +36,11 @@ public class CreateFieldCommandHandler (IFieldRepository fieldRepository, IFarmR
         if (usedArea + request.Area > farm.Area)
             return Result.Failure<FieldResponse>(FieldErrors.InvalidFieldArea);
 
+        
+        // get crop 
+        var crop = await cropRepository.GetByNameAsync(request.Crop, cancellationToken);
+        
+
         // map to field
         var field = new Domain.Entities.Core.Field
         {
@@ -43,6 +49,7 @@ public class CreateFieldCommandHandler (IFieldRepository fieldRepository, IFarmR
             Area = request.Area,
             IsActive = false,
             FarmId = farm.Id,
+            CropTypeId=crop!.Id,
             CreatedOn = DateTime.UtcNow,
             CreatedById = request.CreatedById,
             IsDeleted = false
@@ -54,6 +61,6 @@ public class CreateFieldCommandHandler (IFieldRepository fieldRepository, IFarmR
 
         await fieldRepository.AddAsync(field, cancellationToken);
 
-        return Result.Success(new FieldResponse(field.Id, field.Name, field.Area, field.IsActive, field.FarmId));
+        return Result.Success(new FieldResponse(field.Id, field.Name, field.Area, field.IsActive, field.FarmId,crop.Name));
     }
 }

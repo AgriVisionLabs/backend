@@ -16,19 +16,27 @@ using Agrivision.Backend.Infrastructure.Repositories.Core;
 using Agrivision.Backend.Infrastructure.Repositories.Identity;
 using Agrivision.Backend.Infrastructure.Services.Email;
 using Agrivision.Backend.Infrastructure.Services.InvitationTokenGenerator;
-using Agrivision.Backend.Infrastructure.Services.IoT;
-using Agrivision.Backend.Infrastructure.Services.Otp;
-using Agrivision.Backend.Infrastructure.Services.Payment;
 using Agrivision.Backend.Infrastructure.Settings;
 using Agrivision.Backend.Infrastructure.WebSockets;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using IFileService= Agrivision.Backend.Application.Services.FileManagement.IFileService;
+using FileService = Agrivision.Backend.Infrastructure.Services.FileManagement.FileService;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
+using Stripe;
 using Serilog;
+using Agrivision.Backend.Application.Services.IoT;
+using Agrivision.Backend.Application.Services.Payment;
+using Agrivision.Backend.Infrastructure.Services.Payment;
+using Agrivision.Backend.Application.Services.FileManagement;
+using Agrivision.Backend.Application.Services.DetectionModel;
+using Agrivision.Backend.Infrastructure.Services.DetectionModel;
+
+
 
 
 namespace Agrivision.Backend.Infrastructure;
@@ -54,6 +62,8 @@ public static class DependencyInjection
 
         services.AddFarmRepository();
 
+        services.AddCropRepository();
+
         services.AddFieldRepository();
 
         services.MapAdminSettings(config);
@@ -68,11 +78,17 @@ public static class DependencyInjection
 
         services.AddInvitationTokenService();
 
+        services.AddStripeService();
+
         services.AddFarmInvitationRepository();
 
         services.AddOtpProvider();
 
         services.AddOtpVerificationRepository();
+
+        services.AddDiseaseDetectionRepository();
+
+        services.AddDiseaseRepository();
 
         services.AddInfrastructureLayerSettings();
 
@@ -80,23 +96,7 @@ public static class DependencyInjection
 
         services.AddWebSocketDeviceCommunicator();
 
-        services.AddIrrigationUnitDeviceWebSocketHandler();
-
-        services.AddSubscriptionPlanRepository();
-
-        services.AddUserSubscriptionRepository();
-        
-        services.AddStripeService();
-
-        services.AddIrrigationUnitRepository();
-
-        services.AddIrrigationUnitDeviceRepository();
-
-        services.AddIrrigationUnitDeviceHeartbeatService();
-
-        services.AddSensorUnitDeviceWebSocketHandler();
-
-        services.AddOtpServices();
+        services.AddIrrigationDeviceWebSocketHandler();
         
         return services;
     }
@@ -243,7 +243,18 @@ public static class DependencyInjection
 
         return services;
     }
+    private static IServiceCollection AddDiseaseRepository(this IServiceCollection services)
+    {
+        services.AddScoped<IDiseaseRepository, DiseaseRepository>();
 
+        return services;
+    }
+    private static IServiceCollection AddDiseaseDetectionRepository(this IServiceCollection services)
+    {
+        services.AddScoped<IDiseaseDetectionRepository, DiseaseDetectionRepository>();
+
+        return services;
+    }
     private static IServiceCollection AddFarmRepository(this IServiceCollection services)
     {
         services.AddScoped<IFarmRepository, FarmRepository>();
@@ -258,13 +269,50 @@ public static class DependencyInjection
         return services;
     }
     
+    private static IServiceCollection AddSubscriptionPlanRepository(this IServiceCollection services)
+    {
+        services.AddScoped<ISubscriptionPlanRepository, SubscriptionPlanRepository>();
+
+        return services;
+    }
+    private static IServiceCollection AddUserSubscriptionRepository(this IServiceCollection services)
+    {
+        services.AddScoped<IUserSubscriptionRepository, UserSubscriptionRepository>();
+
+        return services;
+    }
+    private static IServiceCollection AddStripeService(this IServiceCollection services)
+    {
+        services.AddScoped<IStripeService, StripeService>();
+
+        return services;
+    }
     private static IServiceCollection MapAdminSettings(this IServiceCollection services, IConfiguration configuration)
     {
         services.Configure<AdminSettings>(configuration.GetSection(nameof(AdminSettings)));
 
         return services;
     }
-    
+    private static IServiceCollection MapDetectionModelSettings(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.Configure<DetectionModelSettings>(configuration.GetSection(nameof(DetectionModelSettings)));
+
+        return services;
+    }
+   
+    private static IServiceCollection AddDiseaseDetectionService(this IServiceCollection services)
+    {
+        services.AddScoped<IDiseaseDetectionService, DiseaseDetectionService>();
+
+        return services;
+    }
+    private static IServiceCollection AddFileService(this IServiceCollection services)
+    {
+        services.AddScoped<IFileService, FileService>();
+
+        return services;
+    }
+
     private static IServiceCollection AddFarmRoleRepository(this IServiceCollection services)
     {
         services.AddScoped<IFarmRoleRepository, FarmRoleRepository>();
@@ -411,17 +459,6 @@ public static class DependencyInjection
     private static IServiceCollection AddOtpVerificationRepository(this IServiceCollection services)
     {
         services.AddScoped<IOtpVerificationRepository, OtpVerificationRepository>();
-
-        return services;
-    }
-    
-    private static IServiceCollection AddOtpServices(this IServiceCollection services)
-    {
-        services.AddScoped<IOtpHashingService, OtpHashingService>();
-        
-        services.AddScoped<IOtpGenerator, OtpGenerator>();
-
-        services.AddScoped<IOtpProvider, OtpProvider>();
 
         return services;
     }

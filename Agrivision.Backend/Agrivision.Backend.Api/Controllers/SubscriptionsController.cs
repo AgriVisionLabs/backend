@@ -1,8 +1,12 @@
 ﻿using Agrivision.Backend.Application.Features.Subscription.Contracts;
+using Agrivision.Backend.Application.Features.DiseaseDetections.Contracts;
 using Microsoft.AspNetCore.Mvc;
 using MediatR;
 using Agrivision.Backend.Application.Features.Subscription.Commands;
+using Agrivision.Backend.Application.Services.FileManagement;
 using Agrivision.Backend.Api.Extensions;
+
+
 namespace Agrivision.Backend.Api.Controllers;
 [Route("[controller]")]
 [ApiController]
@@ -28,6 +32,8 @@ public class SubscriptionsController(IMediator mediator) : ControllerBase
 
 
     }
-
+   
 
 }
+
+

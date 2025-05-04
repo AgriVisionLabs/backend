@@ -24,7 +24,10 @@ public class FieldConfigurations : IEntityTypeConfiguration<Field>
 
         builder.Property(field => field.IsActive)
             .IsRequired();
-        
+
+        builder.Property(field => field.CropTypeId)
+           .IsRequired();
+
         builder.HasIndex(field => new { field.Name, field.FarmId })
             .IsUnique() // field name is unique per user
             .HasFilter("[IsDeleted] = 0");

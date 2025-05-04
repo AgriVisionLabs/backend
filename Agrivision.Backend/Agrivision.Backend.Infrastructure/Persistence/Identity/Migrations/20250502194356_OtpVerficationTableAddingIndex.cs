@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Agrivision.Backend.Infrastructure.Persistence.Identity.Migrations
 {
     /// <inheritdoc />
-    public partial class IdentityDbCreation : Migration
+    public partial class OtpVerficationTableAddingIndex : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -54,6 +54,22 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Identity.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AspNetUsers", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "OtpVerifications",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Email = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    OtpCode = table.Column<string>(type: "nvarchar(6)", maxLength: 6, nullable: false),
+                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
+                    ExpiresOn = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    IsUsed = table.Column<bool>(type: "bit", nullable: false, defaultValue: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_OtpVerifications", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -223,6 +239,16 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Identity.Migrations
                 column: "NormalizedUserName",
                 unique: true,
                 filter: "[NormalizedUserName] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_OtpVerifications_Email_CreatedOn",
+                table: "OtpVerifications",
+                columns: new[] { "Email", "CreatedOn" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_OtpVerifications_Email_OtpCode",
+                table: "OtpVerifications",
+                columns: new[] { "Email", "OtpCode" });
         }
 
         /// <inheritdoc />
@@ -242,6 +268,9 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Identity.Migrations
 
             migrationBuilder.DropTable(
                 name: "AspNetUserTokens");
+
+            migrationBuilder.DropTable(
+                name: "OtpVerifications");
 
             migrationBuilder.DropTable(
                 name: "RefreshTokens");

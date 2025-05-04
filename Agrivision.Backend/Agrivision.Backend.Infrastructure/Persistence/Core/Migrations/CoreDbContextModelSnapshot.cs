@@ -22,6 +22,154 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("Agrivision.Backend.Domain.Entities.Core.CropType", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CreatedById")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedById")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("DeletedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("Name")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("SupportsDiseaseDetection")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("UpdatedById")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("UpdatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("CropTypes");
+                });
+
+            modelBuilder.Entity("Agrivision.Backend.Domain.Entities.Core.Disease", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("ClassIdInModelPredictions")
+                        .HasColumnType("int");
+
+                    b.Property<string>("CreatedById")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("CropTypeId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("DeletedById")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("DeletedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("Is_Safe")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UpdatedById")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("UpdatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClassIdInModelPredictions")
+                        .IsUnique();
+
+                    b.HasIndex("CropTypeId");
+
+                    b.ToTable("Diseases");
+                });
+
+            modelBuilder.Entity("Agrivision.Backend.Domain.Entities.Core.DiseaseDetection", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CreatedById")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedById")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("DeletedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("DiseaseId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("FarmId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("FieldId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ImagePath")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UpdatedById")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("UpdatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DiseaseId");
+
+                    b.HasIndex("FarmId");
+
+                    b.HasIndex("FieldId");
+
+                    b.ToTable("DiseaseDetections");
+                });
+
             modelBuilder.Entity("Agrivision.Backend.Domain.Entities.Core.Farm", b =>
                 {
                     b.Property<Guid>("Id")
@@ -296,6 +444,9 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
                     b.Property<DateTime>("CreatedOn")
                         .HasColumnType("datetime2");
 
+                    b.Property<Guid>("CropTypeId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("DeletedById")
                         .HasColumnType("nvarchar(max)");
 
@@ -323,6 +474,8 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CropTypeId");
 
                     b.HasIndex("FarmId");
 
@@ -718,6 +871,44 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
                     b.ToTable("UserSubscriptions", (string)null);
                 });
 
+            modelBuilder.Entity("Agrivision.Backend.Domain.Entities.Core.Disease", b =>
+                {
+                    b.HasOne("Agrivision.Backend.Domain.Entities.Core.CropType", "CropType")
+                        .WithMany("Diseases")
+                        .HasForeignKey("CropTypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CropType");
+                });
+
+            modelBuilder.Entity("Agrivision.Backend.Domain.Entities.Core.DiseaseDetection", b =>
+                {
+                    b.HasOne("Agrivision.Backend.Domain.Entities.Core.Disease", "Disease")
+                        .WithMany("DiseaseDetections")
+                        .HasForeignKey("DiseaseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Agrivision.Backend.Domain.Entities.Core.Farm", "Farm")
+                        .WithMany()
+                        .HasForeignKey("FarmId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Agrivision.Backend.Domain.Entities.Core.Field", "Field")
+                        .WithMany("DiseaseDetection")
+                        .HasForeignKey("FieldId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Disease");
+
+                    b.Navigation("Farm");
+
+                    b.Navigation("Field");
+                });
+
             modelBuilder.Entity("Agrivision.Backend.Domain.Entities.Core.FarmInvitation", b =>
                 {
                     b.HasOne("Agrivision.Backend.Domain.Entities.Core.Farm", "Farm")
@@ -769,11 +960,19 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
 
             modelBuilder.Entity("Agrivision.Backend.Domain.Entities.Core.Field", b =>
                 {
+                    b.HasOne("Agrivision.Backend.Domain.Entities.Core.CropType", "CropType")
+                        .WithMany("Fields")
+                        .HasForeignKey("CropTypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Agrivision.Backend.Domain.Entities.Core.Farm", "Farm")
                         .WithMany("Fields")
                         .HasForeignKey("FarmId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("CropType");
 
                     b.Navigation("Farm");
                 });
@@ -816,6 +1015,18 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
                     b.Navigation("SubscriptionPlan");
                 });
 
+            modelBuilder.Entity("Agrivision.Backend.Domain.Entities.Core.CropType", b =>
+                {
+                    b.Navigation("Diseases");
+
+                    b.Navigation("Fields");
+                });
+
+            modelBuilder.Entity("Agrivision.Backend.Domain.Entities.Core.Disease", b =>
+                {
+                    b.Navigation("DiseaseDetections");
+                });
+
             modelBuilder.Entity("Agrivision.Backend.Domain.Entities.Core.Farm", b =>
                 {
                     b.Navigation("FarmInvitations");
@@ -836,6 +1047,8 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
 
             modelBuilder.Entity("Agrivision.Backend.Domain.Entities.Core.Field", b =>
                 {
+                    b.Navigation("DiseaseDetection");
+
                     b.Navigation("IrrigationUnits");
                 });
 #pragma warning restore 612, 618

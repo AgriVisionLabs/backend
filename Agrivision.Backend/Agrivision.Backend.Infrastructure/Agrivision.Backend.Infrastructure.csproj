@@ -33,6 +33,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <Folder Include="Persistence\Core\Migrations\" />
       <Folder Include="Persistence\Identity\Migrations\" />
     </ItemGroup>
 

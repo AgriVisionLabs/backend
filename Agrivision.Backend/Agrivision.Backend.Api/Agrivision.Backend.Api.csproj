@@ -19,15 +19,11 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="wwwroot\" />
+      <Folder Include="wwwroot\Images\" />
     </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\Agrivision.Backend.Infrastructure\Agrivision.Backend.Infrastructure.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <_ContentIncludedByDefault Remove="wwwroot\.well-known\pki-validation\C68CE5784068C854ADAD1DD0F4FC2A5B.txt" />
     </ItemGroup>
 
 </Project>

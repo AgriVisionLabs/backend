@@ -22,10 +22,8 @@ public class ResetPasswordCommandHandler(IUserRepository userRepository, IJwtPro
         if (user is null)
             return Result.Failure(UserErrors.UserNotFound);
 
-        // reset the password
-        var success = await userRepository.ResetPasswordAsync(user, resetToken, request.NewPassword);
-        if (!success)
-            return Result.Failure(UserErrors.ResetPasswordFailed);
+        var token = await userRepository.GeneratePasswordResetTokenAsync(user!);
+        var successed = await userRepository.ResetPasswordAsync(user!, token, request.NewPassword);
 
         return Result.Success();
     }

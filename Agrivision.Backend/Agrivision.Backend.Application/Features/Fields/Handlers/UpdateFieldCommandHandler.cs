@@ -6,7 +6,7 @@ using MediatR;
 
 namespace Agrivision.Backend.Application.Features.Fields.Handlers;
 
-public class UpdateFieldCommandHandler(IFieldRepository fieldRepository, IFarmRepository farmRepository) : IRequestHandler<UpdateFieldCommand, Result>
+public class UpdateFieldCommandHandler(IFieldRepository fieldRepository,ICropRepository cropRepository, IFarmRepository farmRepository) : IRequestHandler<UpdateFieldCommand, Result>
 {
     public async Task<Result> Handle(UpdateFieldCommand request, CancellationToken cancellationToken)
     {
@@ -42,10 +42,14 @@ public class UpdateFieldCommandHandler(IFieldRepository fieldRepository, IFarmRe
         // check if field area is appropriate
         if (usedArea + request.Area > farm.Area)
             return Result.Failure(FieldErrors.InvalidFieldArea);
-        
+
+        // get crop 
+        var crop = await cropRepository.GetByNameAsync(request.Crop, cancellationToken);
+
         // update
         field.Name = request.Name;
         field.Area = request.Area;
+        field.CropTypeId = crop!.Id;
         field.UpdatedOn = DateTime.UtcNow;
         field.UpdatedById = request.UpdatedById;
         

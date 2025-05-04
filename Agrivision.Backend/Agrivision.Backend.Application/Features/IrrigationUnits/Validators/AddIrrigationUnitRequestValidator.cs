@@ -13,6 +13,6 @@ public class AddIrrigationUnitRequestValidator : AbstractValidator<AddIrrigation
 
         RuleFor(u => u.Name)
             .NotEmpty()
-            .MinimumLength(3);
+            .Length(3, 100);
     }
 }

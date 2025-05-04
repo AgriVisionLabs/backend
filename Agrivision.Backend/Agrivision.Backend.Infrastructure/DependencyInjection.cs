@@ -99,6 +99,12 @@ public static class DependencyInjection
         services.AddOtpServices();
 
         services.AddSensorUnitDeviceHeartbeatService();
+
+        services.AddSensorUnitDeviceRepository();
+        
+        services.AddSensorUnitRepository();
+
+        services.AddSensorReadingRepository();
         
         return services;
     }
@@ -183,6 +189,24 @@ public static class DependencyInjection
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings?.Key!)),
                     ValidIssuer = jwtSettings?.Issuer,
                     ValidAudience = jwtSettings?.Audience,
+                };
+                
+                // the magic for SignalR
+                o.Events = new JwtBearerEvents
+                {
+                    OnMessageReceived = context =>
+                    {
+                        var accessToken = context.Request.Query["access_token"];
+
+                        // If the request is for our hub...
+                        var path = context.HttpContext.Request.Path;
+                        if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/hub/sensors"))
+                        {
+                            context.Token = accessToken;
+                        }
+
+                        return Task.CompletedTask;
+                    }
                 };
             });
 
@@ -432,6 +456,27 @@ public static class DependencyInjection
     {
         services.AddSingleton<SensorUnitDeviceHeartbeatService>();
         services.AddHostedService(provider => provider.GetRequiredService<SensorUnitDeviceHeartbeatService>());
+
+        return services;
+    }
+    
+    private static IServiceCollection AddSensorUnitDeviceRepository(this IServiceCollection services)
+    {
+        services.AddScoped<ISensorUnitDeviceRepository, SensorUnitDeviceRepository>();
+
+        return services;
+    }
+    
+    private static IServiceCollection AddSensorUnitRepository(this IServiceCollection services)
+    {
+        services.AddScoped<ISensorUnitRepository, SensorUnitRepository>();
+
+        return services;
+    }
+    
+    private static IServiceCollection AddSensorReadingRepository(this IServiceCollection services)
+    {
+        services.AddScoped<ISensorReadingRepository, SensorReadingRepository>();
 
         return services;
     }

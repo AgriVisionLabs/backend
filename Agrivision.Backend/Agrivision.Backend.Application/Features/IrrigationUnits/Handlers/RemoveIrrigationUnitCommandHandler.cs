@@ -32,7 +32,7 @@ public class RemoveIrrigationUnitCommandHandler(IFieldRepository fieldRepository
         
         // check if user can remove (only owner and manager can remove)
         if (farmUserRole.FarmRole.Name != "Owner" && farmUserRole.FarmRole.Name != "Manager")
-            return Result.Failure(FieldErrors.UnauthorizedAction);
+            return Result.Failure(FarmUserRoleErrors.InsufficientPermissions);
 
         unit.IsDeleted = true;
         unit.DeletedById = request.RequesterId;

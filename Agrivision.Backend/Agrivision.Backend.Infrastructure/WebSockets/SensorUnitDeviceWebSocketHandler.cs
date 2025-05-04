@@ -139,75 +139,86 @@ public class SensorUnitDeviceWebSocketHandler(IWebSocketConnectionManager connec
                             using var scope = scopeFactory.CreateScope();
                             var coreDbContext = scope.ServiceProvider.GetRequiredService<CoreDbContext>();
 
-                            var sensorConfigurations = await coreDbContext.SensorConfigurations
-                                .Where(sc => sc.DeviceId == deviceId && sc.IsActive)
-                                .ToListAsync();
+                            var device = await coreDbContext.SensorUnitDevices.FirstOrDefaultAsync(d =>
+                                d.MacAddress == payload.MacAddress && !d.IsDeleted);
 
-                            var readingsToSave = new List<SensorReading>();
-
-                            foreach (var config in sensorConfigurations)
+                            if (device is not null && device.IsAssigned)
                             {
-                                switch (config.Type)
+                                var sensorConfigurations = await coreDbContext.SensorConfigurations
+                                    .Where(sc => sc.DeviceId == deviceId && sc.IsActive)
+                                    .ToListAsync();
+
+                                var readingsToSave = new List<SensorReading>();
+
+                                foreach (var config in sensorConfigurations)
                                 {
-                                    case SensorType.Moisture:
-                                        if (float.TryParse(payload.Readings?.Moisture, out var moistureVal))
-                                        {
-                                            readingsToSave.Add(new SensorReading
+                                    switch (config.Type)
+                                    {
+                                        case SensorType.Moisture:
+                                            if (float.TryParse(payload.Readings?.Moisture, out var moistureVal))
                                             {
-                                                SensorConfigurationId = config.Id,
-                                                TimeStamp = DateTime.UtcNow,
-                                                Value = (moistureVal / 2550) * 100,
-                                                Unit = "%",
-                                                Type = SensorType.Moisture
-                                            });
-                                        }
-                                        break;
+                                                readingsToSave.Add(new SensorReading
+                                                {
+                                                    SensorConfigurationId = config.Id,
+                                                    TimeStamp = DateTime.UtcNow,
+                                                    Value = (moistureVal / 2550) * 100,
+                                                    Unit = "%",
+                                                    Type = SensorType.Moisture
+                                                });
+                                            }
 
-                                    case SensorType.Temperature:
-                                        if (float.TryParse(payload.Readings?.Temperature, out var tempVal))
-                                        {
-                                            readingsToSave.Add(new SensorReading
+                                            break;
+
+                                        case SensorType.Temperature:
+                                            if (float.TryParse(payload.Readings?.Temperature, out var tempVal))
                                             {
-                                                SensorConfigurationId = config.Id,
-                                                TimeStamp = DateTime.UtcNow,
-                                                Value = tempVal,
-                                                Unit = "°C",
-                                                Type = SensorType.Temperature
-                                            });
-                                        }
+                                                readingsToSave.Add(new SensorReading
+                                                {
+                                                    SensorConfigurationId = config.Id,
+                                                    TimeStamp = DateTime.UtcNow,
+                                                    Value = tempVal,
+                                                    Unit = "°C",
+                                                    Type = SensorType.Temperature
+                                                });
+                                            }
 
-                                        if (float.TryParse(payload.Readings?.Humidity, out var humidityVal))
-                                        {
-                                            readingsToSave.Add(new SensorReading
+                                            if (float.TryParse(payload.Readings?.Humidity, out var humidityVal))
                                             {
-                                                SensorConfigurationId = config.Id,
-                                                TimeStamp = DateTime.UtcNow,
-                                                Value = humidityVal,
-                                                Unit = "%",
-                                                Type = SensorType.Humidity
-                                            });
-                                        }
-                                        break;
+                                                readingsToSave.Add(new SensorReading
+                                                {
+                                                    SensorConfigurationId = config.Id,
+                                                    TimeStamp = DateTime.UtcNow,
+                                                    Value = humidityVal,
+                                                    Unit = "%",
+                                                    Type = SensorType.Humidity
+                                                });
+                                            }
 
-                                    case SensorType.Camera:
-                                        logger.LogInformation("Camera sensor present. Expecting image data... someday.");
-                                        break;
+                                            break;
 
-                                    default:
-                                        logger.LogWarning("Unknown sensor type {Type} on config {ConfigId}", config.Type, config.Id);
-                                        break;
+                                        case SensorType.Camera:
+                                            logger.LogInformation(
+                                                "Camera sensor present. Expecting image data... someday.");
+                                            break;
+
+                                        default:
+                                            logger.LogWarning("Unknown sensor type {Type} on config {ConfigId}",
+                                                config.Type, config.Id);
+                                            break;
+                                    }
                                 }
-                            }
 
-                            if (readingsToSave.Any())
-                            {
-                                await coreDbContext.SensorReadings.AddRangeAsync(readingsToSave);
-                                await coreDbContext.SaveChangesAsync();
-                                logger.LogInformation("Saved {Count} sensor readings for device {DeviceId}", readingsToSave.Count, deviceId);
-                            }
-                            else
-                            {
-                                logger.LogWarning("No valid readings parsed for device {DeviceId}", deviceId);
+                                if (readingsToSave.Any())
+                                {
+                                    await coreDbContext.SensorReadings.AddRangeAsync(readingsToSave);
+                                    await coreDbContext.SaveChangesAsync();
+                                    logger.LogInformation("Saved {Count} sensor readings for device {DeviceId}",
+                                        readingsToSave.Count, deviceId);
+                                }
+                                else
+                                {
+                                    logger.LogWarning("No valid readings parsed for device {DeviceId}", deviceId);
+                                }
                             }
                         }
                         else

@@ -30,7 +30,7 @@ public class AddIrrigationUnitCommandHandler(IIrrigationUnitRepository irrigatio
         
         // check if the user has permission to add (only owner and manager can add)
         if (farmUserRole.FarmRole.Name != "Owner" && farmUserRole.FarmRole.Name != "Manager")
-            return Result.Failure<IrrigationUnitResponse>(FarmUserRoleErrors.InsufficientPermission);
+            return Result.Failure<IrrigationUnitResponse>(FarmUserRoleErrors.InsufficientPermissions);
         
         // verify the device exists
         var device =

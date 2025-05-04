@@ -21,7 +21,7 @@ public class GetInvitationsByFarmIdQueryHandler(IFarmRepository farmRepository, 
         var userRole =
             await farmUserRoleRepository.GetByUserAndFarmAsync(request.FarmId, request.RequesterId, cancellationToken);
         if (userRole is null || (userRole.FarmRole.Name != "Owner" && userRole.FarmRole.Name != "Manager"))
-            return Result.Failure<IReadOnlyList<InvitationResponse>>(FarmUserRoleErrors.InsufficientPermission);
+            return Result.Failure<IReadOnlyList<InvitationResponse>>(FarmUserRoleErrors.InsufficientPermissions);
         
         // get invitations
         var invitations = await farmInvitationRepository.GetActiveByFarmIdAsync(farm.Id, cancellationToken);

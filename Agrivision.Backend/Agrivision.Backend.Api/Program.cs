@@ -1,4 +1,5 @@
 using Agrivision.Backend.Api;
+using Agrivision.Backend.Api.Hubs;
 using Agrivision.Backend.Infrastructure;
 using Agrivision.Backend.Infrastructure.Persistence.Core;
 using Agrivision.Backend.Infrastructure.Persistence.Identity;
@@ -18,23 +19,23 @@ builder.Host.AddSerilog();
 var app = builder.Build();
 
 // seed the database(s)
-using (var scope = app.Services.CreateScope())
-{
-    // seed identity
-    var identityDbContext = scope.ServiceProvider.GetRequiredService<ApplicationUserDbContext>();
-    identityDbContext.Database.Migrate();
-    await IdentitySeeder.SeedGlobalRolesAsync(scope.ServiceProvider);
-    await IdentitySeeder.SeedAdminUserAsync(scope.ServiceProvider);
-    await IdentitySeeder.SeedGlobalRolePermissionAsync(scope.ServiceProvider);
-    
-    // seed core
-    var coreDbContext = scope.ServiceProvider.GetRequiredService<CoreDbContext>();
-    coreDbContext.Database.Migrate();
-    await CoreSeeder.SeedRolesAsync(scope.ServiceProvider);
-    await CoreSeeder.SeedDemoFarmAsync(scope.ServiceProvider);
-    await CoreSeeder.SeedCoreRolePermissionAsync(scope.ServiceProvider);
-    await CoreSeeder.SeedDevicesAsync(scope.ServiceProvider);
-}
+// using (var scope = app.Services.CreateScope())
+// {
+//     // seed identity
+//     var identityDbContext = scope.ServiceProvider.GetRequiredService<ApplicationUserDbContext>();
+//     identityDbContext.Database.Migrate();
+//     await IdentitySeeder.SeedGlobalRolesAsync(scope.ServiceProvider);
+//     await IdentitySeeder.SeedAdminUserAsync(scope.ServiceProvider);
+//     await IdentitySeeder.SeedGlobalRolePermissionAsync(scope.ServiceProvider);
+//     
+//     // seed core
+//     var coreDbContext = scope.ServiceProvider.GetRequiredService<CoreDbContext>();
+//     coreDbContext.Database.Migrate();
+//     await CoreSeeder.SeedRolesAsync(scope.ServiceProvider);
+//     await CoreSeeder.SeedDemoFarmAsync(scope.ServiceProvider);
+//     await CoreSeeder.SeedCoreRolePermissionAsync(scope.ServiceProvider);
+//     await CoreSeeder.SeedDevicesAsync(scope.ServiceProvider);
+// }
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment() || builder.Configuration.GetValue<bool>("ApiDocumentation:Enabled")) 
@@ -71,6 +72,8 @@ app.UseCors("AllowAny");
 app.UseAuthentication();
 
 app.UseAuthorization();
+
+app.MapHub<SensorHub>("/hub/sensors");
 
 app.MapControllers();
 

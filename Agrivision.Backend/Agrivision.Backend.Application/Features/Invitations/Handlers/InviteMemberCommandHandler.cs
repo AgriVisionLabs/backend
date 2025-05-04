@@ -21,7 +21,7 @@ public class InviteMemberCommandHandler(IUserRepository userRepository, IFarmRep
         // check if user can invite
         var userRole = await farmUserRoleRepository.GetByUserAndFarmAsync(request.FarmId, request.SenderId, cancellationToken);
         if (userRole is null || (userRole.FarmRole.Name != "Owner" && userRole.FarmRole.Name != "Manager"))
-            return Result.Failure(FarmUserRoleErrors.InsufficientPermission);
+            return Result.Failure(FarmUserRoleErrors.InsufficientPermissions);
         
         // check whether email or username
         var isEmail = request.Recipient.Contains('@');

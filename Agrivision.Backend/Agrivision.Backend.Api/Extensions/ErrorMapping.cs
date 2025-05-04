@@ -28,7 +28,7 @@ public static class ErrorMapping
         "FarmInvitation.AlreadyExists" => StatusCodes.Status409Conflict,
         "FarmInvitation.SelfInvitation" => StatusCodes.Status409Conflict,
         "FarmInvitation.CannotInviteAsOwner" => StatusCodes.Status409Conflict,
-        "FarmUserRole.InsufficientPermission" => StatusCodes.Status403Forbidden,
+        "FarmUserRole.InsufficientPermissions" => StatusCodes.Status403Forbidden,
         "FarmInvitation.InvalidToken" => StatusCodes.Status403Forbidden,
         "FarmUserRole.UserAlreadyHasAccess" => StatusCodes.Status409Conflict,
         "FarmInvitation.InvitationNotFound" => StatusCodes.Status404NotFound,
@@ -50,6 +50,9 @@ public static class ErrorMapping
         "User.ResetPasswordFailed" => StatusCodes.Status400BadRequest,
         "User.InvalidPasswordResetOtp" => StatusCodes.Status401Unauthorized,
         "User.InvalidPasswordResetToken" => StatusCodes.Status401Unauthorized,
+        "SensorUnitDeviceErrors.NotFound" => StatusCodes.Status404NotFound,
+        "SensorUnitDeviceErrors.AlreadyAssigned" => StatusCodes.Status409Conflict,
+        "SensorUnitErrors.SensorUnitNotFound" => StatusCodes.Status404NotFound,
         _ => StatusCodes.Status400BadRequest // Default case
     };
 }

@@ -17,6 +17,8 @@ public static class DependencyInjections
 
         services.AddCors();
 
+        services.AddSignalR();
+
         return services;
     }
 

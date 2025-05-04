@@ -11,7 +11,7 @@ public record IrrigationUnitResponse
     string Name,
     bool IsOn,
     DateTime InstallationDate,
-    IrrigationUnitStatus Status,
+    UnitStatus Status,
     DateTime? LastMaintenance,
     DateTime? NextMaintenance,
     string? IpAddress,

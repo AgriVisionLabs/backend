@@ -132,9 +132,9 @@ public class IrrigationUnitDeviceHeartbeatService(IServiceScopeFactory scopeFact
                 unit.LastSeen = device.LastSeen;
                 
                 // check for idle status
-                if (unit.LastActivation is not null && (DateTime.UtcNow - unit.LastActivation.Value).TotalDays > 3 && unit.Status == IrrigationUnitStatus.Active)
+                if (unit.LastActivation is not null && (DateTime.UtcNow - unit.LastActivation.Value).TotalDays > 3 && unit.Status == UnitStatus.Active)
                 {
-                    unit.Status = IrrigationUnitStatus.Idle;
+                    unit.Status = UnitStatus.Idle;
                     logger.LogInformation("Marked unit {UnitId} as Idle due to inactivity", unit.Id);
                 }
                 

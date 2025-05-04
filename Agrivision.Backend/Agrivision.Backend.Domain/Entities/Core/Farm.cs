@@ -17,4 +17,5 @@ public class Farm : AuditableEntity
     public ICollection<FarmUserRole> FarmUserRoles { get; set; } = new List<FarmUserRole>();
     public ICollection<FarmInvitation> FarmInvitations { get; set; } = new List<FarmInvitation>();
     public ICollection<IrrigationUnit> IrrigationUnits { get; set; } = new List<IrrigationUnit>();
+    public ICollection<SensorUnit> SensorUnits { get; set; } = new List<SensorUnit>();
 }

@@ -14,4 +14,5 @@ public class Field : AuditableEntity
     public Guid FarmId { get; set; }
     public Farm Farm { get; set; } = default!;
     public ICollection<IrrigationUnit> IrrigationUnits { get; set; } = new List<IrrigationUnit>();
+    public ICollection<SensorUnit> SensorUnits { get; set; } = new List<SensorUnit>();
 }

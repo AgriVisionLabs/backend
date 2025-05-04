@@ -5,6 +5,6 @@ namespace Agrivision.Backend.Application.Features.IrrigationUnits.Contracts;
 public record UpdateIrrigationUnitRequest
 (
     string Name,
-    IrrigationUnitStatus Status,
+    UnitStatus Status,
     Guid NewFieldId
 );

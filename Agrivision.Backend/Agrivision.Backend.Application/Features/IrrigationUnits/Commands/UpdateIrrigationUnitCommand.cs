@@ -10,6 +10,6 @@ public record UpdateIrrigationUnitCommand
     Guid FieldId,
     string RequesterId,
     string Name,
-    IrrigationUnitStatus Status,
+    UnitStatus Status,
     Guid NewFieldId
 ) : IRequest<Result>;

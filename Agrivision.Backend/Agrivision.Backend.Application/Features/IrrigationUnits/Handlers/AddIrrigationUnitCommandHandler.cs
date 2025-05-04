@@ -59,7 +59,7 @@ public class AddIrrigationUnitCommandHandler(IIrrigationUnitRepository irrigatio
             FieldId = field.Id,
             Name = request.Name,
             InstallationDate = DateTime.UtcNow,
-            Status = IrrigationUnitStatus.Idle,
+            Status = UnitStatus.Idle,
             CreatedById = request.RequesterId,
             CreatedBy = request.RequesterName,
             CreatedOn = DateTime.UtcNow

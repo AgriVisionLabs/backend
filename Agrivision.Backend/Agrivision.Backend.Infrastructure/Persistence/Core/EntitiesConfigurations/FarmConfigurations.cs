@@ -56,5 +56,10 @@ public class FarmConfigurations : IEntityTypeConfiguration<Farm>
             .WithOne(iu => iu.Farm)
             .HasForeignKey(iu => iu.FarmId)
             .OnDelete(DeleteBehavior.Restrict);
+        
+        builder.HasMany(farm => farm.SensorUnits)
+            .WithOne(su => su.Farm)
+            .HasForeignKey(su => su.FarmId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

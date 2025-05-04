@@ -1,6 +1,6 @@
 namespace Agrivision.Backend.Domain.Enums.Core;
 
-public enum IrrigationUnitStatus
+public enum UnitStatus
 {
     Active,
     Idle,

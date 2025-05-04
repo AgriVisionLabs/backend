@@ -39,5 +39,10 @@ public class FieldConfigurations : IEntityTypeConfiguration<Field>
             .WithOne(iu => iu.Field)
             .HasForeignKey(iu => iu.FieldId)
             .OnDelete(DeleteBehavior.Restrict);
+        
+        builder.HasMany(field => field.SensorUnits)
+            .WithOne(su => su.Field)
+            .HasForeignKey(su => su.FieldId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

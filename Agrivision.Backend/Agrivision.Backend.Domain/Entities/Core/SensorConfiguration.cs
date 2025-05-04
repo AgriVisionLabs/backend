@@ -6,8 +6,8 @@ namespace Agrivision.Backend.Domain.Entities.Core;
 public class SensorConfiguration : AuditableEntity
 {
     public Guid Id { get; set; } = Guid.NewGuid();
-    public Guid SensorUnitId { get; set; }
-    public SensorUnit SensorUnit { get; set; } = default!;
+    public Guid DeviceId { get; set; }
+    public SensorUnitDevice SensorUnitDevice { get; set; } = default!;
     
     public SensorType Type { get; set; }
     public string Pin { get; set; } = default!;

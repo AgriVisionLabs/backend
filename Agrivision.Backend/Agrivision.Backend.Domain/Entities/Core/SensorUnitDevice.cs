@@ -16,4 +16,6 @@ public class SensorUnitDevice : AuditableEntity
     public bool IsAssigned { get; set; } = false;
     public DateTime? AssignedAt { get; set; }
     public string ProvisioningKey { get; set; } = default!;
+    
+    public ICollection<SensorConfiguration> SensorConfigurations { get; set; } = new List<SensorConfiguration>();
 }

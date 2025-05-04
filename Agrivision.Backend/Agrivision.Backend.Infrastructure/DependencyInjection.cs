@@ -97,6 +97,8 @@ public static class DependencyInjection
         services.AddSensorUnitDeviceWebSocketHandler();
 
         services.AddOtpServices();
+
+        services.AddSensorUnitDeviceHeartbeatService();
         
         return services;
     }
@@ -422,6 +424,14 @@ public static class DependencyInjection
         services.AddScoped<IOtpGenerator, OtpGenerator>();
 
         services.AddScoped<IOtpProvider, OtpProvider>();
+
+        return services;
+    }
+    
+    private static IServiceCollection AddSensorUnitDeviceHeartbeatService(this IServiceCollection services)
+    {
+        services.AddSingleton<SensorUnitDeviceHeartbeatService>();
+        services.AddHostedService(provider => provider.GetRequiredService<SensorUnitDeviceHeartbeatService>());
 
         return services;
     }

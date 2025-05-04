@@ -1,7 +1,6 @@
-using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
-namespace Agrivision.Backend.Application.Models;
+namespace Agrivision.Backend.Domain.Models;
 
 public class DeviceMessage
 {
@@ -22,4 +21,7 @@ public class DeviceMessage
     
     [JsonPropertyName("cid")]
     public string Cid { get; set; }
+    
+    [JsonPropertyName("readings")]
+    public Readings Readings { get; set; }
 }

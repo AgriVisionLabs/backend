@@ -1,7 +1,7 @@
 using System.Net.WebSockets;
 using System.Text;
 using System.Text.Json;
-using Agrivision.Backend.Application.Models;
+using Agrivision.Backend.Domain.Models;
 using Agrivision.Backend.Infrastructure.Services.IoT;
 using Agrivision.Backend.Infrastructure.Persistence.Core;
 using Microsoft.AspNetCore.Http;

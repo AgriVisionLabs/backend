@@ -29,14 +29,20 @@ public class SensorConfigurationConfigurations : IEntityTypeConfiguration<Sensor
         builder.Property(config => config.IsActive)
             .IsRequired();
 
-        builder.HasOne(config => config.SensorUnit)
-            .WithMany(unit => unit.SensorConfigurations)
-            .HasForeignKey(config => config.SensorUnitId)
+        builder.HasOne(config => config.SensorUnitDevice)
+            .WithMany(device => device.SensorConfigurations)
+            .HasForeignKey(config => config.DeviceId)
             .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasMany(config => config.SensorReadings)
             .WithOne(reading => reading.SensorConfiguration)
             .HasForeignKey(reading => reading.SensorConfigurationId)
             .OnDelete(DeleteBehavior.Cascade);
+        
+        builder.HasIndex(config => config.DeviceId);
+
+        builder.HasIndex(config => config.Type);
+        
+        builder.HasIndex(config => config.IsActive);
     }
 }

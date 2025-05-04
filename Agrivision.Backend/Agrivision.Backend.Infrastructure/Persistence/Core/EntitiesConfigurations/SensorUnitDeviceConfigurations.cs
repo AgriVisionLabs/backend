@@ -49,5 +49,10 @@ public class SensorUnitDeviceConfigurations : IEntityTypeConfiguration<SensorUni
         builder.HasIndex(device => device.ProvisioningKey)
             .IsUnique()
             .HasFilter("[IsDeleted] = 0");
+        
+        builder.HasMany(device => device.SensorConfigurations)
+            .WithOne(config => config.SensorUnitDevice)
+            .HasForeignKey(config => config.DeviceId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

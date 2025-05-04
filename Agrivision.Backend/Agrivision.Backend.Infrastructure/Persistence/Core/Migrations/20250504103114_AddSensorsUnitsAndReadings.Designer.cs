@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
 {
     [DbContext(typeof(CoreDbContext))]
-    [Migration("20250504101135_AddSensorUnit")]
-    partial class AddSensorUnit
+    [Migration("20250504103114_AddSensorsUnitsAndReadings")]
+    partial class AddSensorsUnitsAndReadings
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -546,6 +546,9 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
                     b.Property<DateTime?>("DeletedOn")
                         .HasColumnType("datetime2");
 
+                    b.Property<Guid>("DeviceId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<Guid?>("IrrigationUnitId")
                         .HasColumnType("uniqueidentifier");
 
@@ -560,9 +563,6 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<Guid>("SensorUnitId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<int>("Type")
                         .HasColumnType("int");
 
@@ -574,9 +574,13 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("DeviceId");
+
                     b.HasIndex("IrrigationUnitId");
 
-                    b.HasIndex("SensorUnitId");
+                    b.HasIndex("IsActive");
+
+                    b.HasIndex("Type");
 
                     b.ToTable("SensorConfigurations", (string)null);
                 });
@@ -603,6 +607,10 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("SensorConfigurationId");
+
+                    b.HasIndex("TimeStamp");
+
+                    b.HasIndex("SensorConfigurationId", "TimeStamp");
 
                     b.ToTable("SensorReadings", (string)null);
                 });
@@ -696,6 +704,8 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
                     b.HasIndex("FarmId");
 
                     b.HasIndex("FieldId");
+
+                    b.HasIndex("IsOnline");
 
                     b.ToTable("SensorUnits", (string)null);
                 });
@@ -985,17 +995,17 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
 
             modelBuilder.Entity("Agrivision.Backend.Domain.Entities.Core.SensorConfiguration", b =>
                 {
+                    b.HasOne("Agrivision.Backend.Domain.Entities.Core.SensorUnitDevice", "SensorUnitDevice")
+                        .WithMany("SensorConfigurations")
+                        .HasForeignKey("DeviceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Agrivision.Backend.Domain.Entities.Core.IrrigationUnit", null)
                         .WithMany("SensorConfigurations")
                         .HasForeignKey("IrrigationUnitId");
 
-                    b.HasOne("Agrivision.Backend.Domain.Entities.Core.SensorUnit", "SensorUnit")
-                        .WithMany("SensorConfigurations")
-                        .HasForeignKey("SensorUnitId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("SensorUnit");
+                    b.Navigation("SensorUnitDevice");
                 });
 
             modelBuilder.Entity("Agrivision.Backend.Domain.Entities.Core.SensorReading", b =>
@@ -1084,7 +1094,7 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
                     b.Navigation("SensorReadings");
                 });
 
-            modelBuilder.Entity("Agrivision.Backend.Domain.Entities.Core.SensorUnit", b =>
+            modelBuilder.Entity("Agrivision.Backend.Domain.Entities.Core.SensorUnitDevice", b =>
                 {
                     b.Navigation("SensorConfigurations");
                 });

@@ -17,6 +17,10 @@ public class SensorReadingConfigurations : IEntityTypeConfiguration<SensorReadin
 
         builder.Property(r => r.SensorConfigurationId)
             .IsRequired();
+        
+        builder.Property(r => r.Type)
+            .HasConversion<int>()
+            .IsRequired();
 
         builder.Property(r => r.TimeStamp)
             .IsRequired();
@@ -32,5 +36,13 @@ public class SensorReadingConfigurations : IEntityTypeConfiguration<SensorReadin
             .WithMany(config => config.SensorReadings)
             .HasForeignKey(r => r.SensorConfigurationId)
             .OnDelete(DeleteBehavior.Cascade);
+        
+        builder.HasIndex(reading => reading.SensorConfigurationId);
+        
+        builder.HasIndex(reading => reading.TimeStamp);
+        
+        builder.HasIndex(r => new { r.SensorConfigurationId, r.TimeStamp });
+        
+        builder.HasIndex(r => r.Type);
     }
 }

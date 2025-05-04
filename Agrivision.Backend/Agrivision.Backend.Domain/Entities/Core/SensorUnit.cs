@@ -14,7 +14,7 @@ public class SensorUnit : AuditableEntity
     public Field Field { get; set; } = default!;
     public string Name { get; set; } = default!;
     public DateTime InstallationDate { get; set; } = DateTime.UtcNow;
-    public UnitStatus Status { get; set; } = UnitStatus.Idle;
+    public UnitStatus Status { get; set; } = UnitStatus.Active;
     public DateTime? LastMaintenance { get; set; }
     public DateTime? LasMaintenanceCompleted { get; set; }
     public DateTime? NextMaintenance { get; set; }
@@ -25,6 +25,4 @@ public class SensorUnit : AuditableEntity
     public string CreatedBy { get; set; } = default!;
     public string? IpAddress { get; set; }
     public string? Notes { get; set; }
-
-    public ICollection<SensorConfiguration> SensorConfigurations { get; set; } = new List<SensorConfiguration>();
 }

@@ -18,6 +18,9 @@ public class CoreDbContext(DbContextOptions<CoreDbContext> options) : DbContext(
     public DbSet<SubscriptionPlan> SubscriptionPlans { get; set; }
     public DbSet<UserSubscription> UserSubscriptions { get; set; }
     public DbSet<SensorUnitDevice> SensorUnitDevices { get; set; }
+    public DbSet<SensorUnit> SensorUnits { get; set; }
+    public DbSet<SensorConfiguration> SensorConfigurations { get; set; }
+    public DbSet<SensorReading> SensorReadings { get; set; }
     
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)

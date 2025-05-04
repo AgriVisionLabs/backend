@@ -6,11 +6,46 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
 {
     /// <inheritdoc />
-    public partial class AddSensorUnit : Migration
+    public partial class AddSensorsUnitsAndReadings : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.CreateTable(
+                name: "SensorConfigurations",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    DeviceId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Type = table.Column<int>(type: "int", nullable: false),
+                    Pin = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    CalibrationDataJson = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false),
+                    IrrigationUnitId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
+                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedOn = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    DeletedOn = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    CreatedById = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    UpdatedById = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    DeletedById = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SensorConfigurations", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_SensorConfigurations_IrrigationUnits_IrrigationUnitId",
+                        column: x => x.IrrigationUnitId,
+                        principalTable: "IrrigationUnits",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_SensorConfigurations_SensorUnitDevices_DeviceId",
+                        column: x => x.DeviceId,
+                        principalTable: "SensorUnitDevices",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.CreateTable(
                 name: "SensorUnits",
                 columns: table => new
@@ -64,41 +99,6 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "SensorConfigurations",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    SensorUnitId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Type = table.Column<int>(type: "int", nullable: false),
-                    Pin = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    CalibrationDataJson = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    IsActive = table.Column<bool>(type: "bit", nullable: false),
-                    IrrigationUnitId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
-                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdatedOn = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    DeletedOn = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    CreatedById = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    UpdatedById = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    DeletedById = table.Column<string>(type: "nvarchar(max)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_SensorConfigurations", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_SensorConfigurations_IrrigationUnits_IrrigationUnitId",
-                        column: x => x.IrrigationUnitId,
-                        principalTable: "IrrigationUnits",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_SensorConfigurations_SensorUnits_SensorUnitId",
-                        column: x => x.SensorUnitId,
-                        principalTable: "SensorUnits",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "SensorReadings",
                 columns: table => new
                 {
@@ -120,19 +120,39 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_SensorConfigurations_DeviceId",
+                table: "SensorConfigurations",
+                column: "DeviceId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_SensorConfigurations_IrrigationUnitId",
                 table: "SensorConfigurations",
                 column: "IrrigationUnitId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_SensorConfigurations_SensorUnitId",
+                name: "IX_SensorConfigurations_IsActive",
                 table: "SensorConfigurations",
-                column: "SensorUnitId");
+                column: "IsActive");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SensorConfigurations_Type",
+                table: "SensorConfigurations",
+                column: "Type");
 
             migrationBuilder.CreateIndex(
                 name: "IX_SensorReadings_SensorConfigurationId",
                 table: "SensorReadings",
                 column: "SensorConfigurationId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SensorReadings_SensorConfigurationId_TimeStamp",
+                table: "SensorReadings",
+                columns: new[] { "SensorConfigurationId", "TimeStamp" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SensorReadings_TimeStamp",
+                table: "SensorReadings",
+                column: "TimeStamp");
 
             migrationBuilder.CreateIndex(
                 name: "IX_SensorUnits_DeviceId",
@@ -149,6 +169,11 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
                 name: "IX_SensorUnits_FieldId",
                 table: "SensorUnits",
                 column: "FieldId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SensorUnits_IsOnline",
+                table: "SensorUnits",
+                column: "IsOnline");
         }
 
         /// <inheritdoc />
@@ -158,10 +183,10 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
                 name: "SensorReadings");
 
             migrationBuilder.DropTable(
-                name: "SensorConfigurations");
+                name: "SensorUnits");
 
             migrationBuilder.DropTable(
-                name: "SensorUnits");
+                name: "SensorConfigurations");
         }
     }
 }

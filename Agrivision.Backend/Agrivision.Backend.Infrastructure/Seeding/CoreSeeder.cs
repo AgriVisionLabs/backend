@@ -216,10 +216,84 @@ public static class CoreSeeder
         if (adminUser is null)
             throw new Exception("Admin user not found. Who is in charge here?!");
 
-        // Helper method to avoid repeating the AddAsync/Log combo
+        // Helper
+        async Task<Guid> SeedSensorDevice(string serial, string mac, string key)
+        {
+            if (!await coreDbContext.SensorUnitDevices.AnyAsync(d => d.SerialNumber == serial || d.MacAddress == mac))
+            {
+                var deviceId = Guid.NewGuid();
+                var device = new SensorUnitDevice
+                {
+                    Id = deviceId,
+                    SerialNumber = serial,
+                    MacAddress = mac,
+                    FirmwareVersion = "1.0.0-sensor",
+                    ProvisioningKey = key,
+                    ManufacturedOn = DateTime.UtcNow,
+                    IsAssigned = false,
+                    CreatedById = adminUser.Id,
+                    CreatedOn = DateTime.UtcNow
+                };
+
+                await coreDbContext.SensorUnitDevices.AddAsync(device);
+
+                var configs = new[]
+                {
+                    new SensorConfiguration
+                    {
+                        Id = Guid.NewGuid(),
+                        DeviceId = deviceId,
+                        Type = SensorType.Temperature,
+                        Pin = "GPIO15",
+                        IsActive = true,
+                        CreatedById = adminUser.Id,
+                        CreatedOn = DateTime.UtcNow
+                    },
+                    new SensorConfiguration
+                    {
+                        Id = Guid.NewGuid(),
+                        DeviceId = deviceId,
+                        Type = SensorType.Humidity,
+                        Pin = "GPIO15", // same pin, same sensor
+                        IsActive = true,
+                        CreatedById = adminUser.Id,
+                        CreatedOn = DateTime.UtcNow
+                    },
+                    new SensorConfiguration
+                    {
+                        Id = Guid.NewGuid(),
+                        DeviceId = deviceId,
+                        Type = SensorType.Moisture,
+                        Pin = "GPIO35",
+                        IsActive = true,
+                        CreatedById = adminUser.Id,
+                        CreatedOn = DateTime.UtcNow
+                    },
+                    new SensorConfiguration
+                    {
+                        Id = Guid.NewGuid(),
+                        DeviceId = deviceId,
+                        Type = SensorType.Camera,
+                        Pin = "CAM0",
+                        IsActive = true,
+                        CreatedById = adminUser.Id,
+                        CreatedOn = DateTime.UtcNow
+                    }
+                };
+
+                await coreDbContext.SensorConfigurations.AddRangeAsync(configs);
+
+                logger.LogInformation("Seeded sensor device {SerialNumber} with 3 sensor configs.", serial);
+
+                return deviceId;
+            }
+
+            return Guid.Empty;
+        }
+
         async Task SeedIrrigationDevice(string serial, string mac, string key)
         {
-            if (!await coreDbContext.IrrigationUnitDevices.AnyAsync(d => d.SerialNumber == serial))
+            if (!await coreDbContext.IrrigationUnitDevices.AnyAsync(d => d.SerialNumber == serial || d.MacAddress == mac))
             {
                 var device = new IrrigationUnitDevice
                 {
@@ -236,28 +310,6 @@ public static class CoreSeeder
 
                 await coreDbContext.IrrigationUnitDevices.AddAsync(device);
                 logger.LogInformation("Seeded irrigation device {SerialNumber}.", serial);
-            }
-        }
-
-        async Task SeedSensorDevice(string serial, string mac, string key)
-        {
-            if (!await coreDbContext.SensorUnitDevices.AnyAsync(d => d.SerialNumber == serial))
-            {
-                var device = new SensorUnitDevice
-                {
-                    Id = Guid.NewGuid(),
-                    SerialNumber = serial,
-                    MacAddress = mac,
-                    FirmwareVersion = "1.0.0-sensor",
-                    ProvisioningKey = key,
-                    ManufacturedOn = DateTime.UtcNow,
-                    IsAssigned = false,
-                    CreatedById = adminUser.Id,
-                    CreatedOn = DateTime.UtcNow
-                };
-
-                await coreDbContext.SensorUnitDevices.AddAsync(device);
-                logger.LogInformation("Seeded sensor device {SerialNumber}.", serial);
             }
         }
 

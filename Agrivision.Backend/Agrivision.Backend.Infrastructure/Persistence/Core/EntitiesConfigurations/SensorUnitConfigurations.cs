@@ -53,10 +53,13 @@ public class SensorUnitConfigurations : IEntityTypeConfiguration<SensorUnit>
             .WithMany(field => field.SensorUnits)
             .HasForeignKey(unit => unit.FieldId)
             .OnDelete(DeleteBehavior.Restrict);
-
-        builder.HasMany(unit => unit.SensorConfigurations)
-            .WithOne(config => config.SensorUnit)
-            .HasForeignKey(config => config.SensorUnitId)
-            .OnDelete(DeleteBehavior.Cascade);
+        
+        builder.HasIndex(unit => unit.DeviceId);
+        
+        builder.HasIndex(unit => unit.FarmId);
+        
+        builder.HasIndex(unit => unit.FieldId);
+        
+        builder.HasIndex(unit => unit.IsOnline);
     }
 }

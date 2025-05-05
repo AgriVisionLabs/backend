@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
 {
     [DbContext(typeof(CoreDbContext))]
-    [Migration("20250504222751_Minor2")]
-    partial class Minor2
+    [Migration("20250505070106_AddDiseaseAndMinorUpdates")]
+    partial class AddDiseaseAndMinorUpdates
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -49,6 +49,9 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
 
                     b.Property<TimeOnly?>("EndTime")
                         .HasColumnType("time");
+
+                    b.Property<Guid>("FarmId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("IrrigationUnitId")
                         .HasColumnType("uniqueidentifier");
@@ -96,13 +99,169 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
 
                     b.HasIndex("IrrigationUnitId");
 
+                    b.HasIndex("SensorUnitId");
+
+                    b.HasIndex("FarmId", "Name")
+                        .IsUnique()
+                        .HasFilter("[IsDeleted] = 0");
+
+                    b.ToTable("AutomationRules", (string)null);
+                });
+
+            modelBuilder.Entity("Agrivision.Backend.Domain.Entities.Core.CropType", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CreatedById")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedById")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("DeletedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("Name")
+                        .HasMaxLength(100)
+                        .HasColumnType("int");
+
+                    b.Property<bool>("SupportsDiseaseDetection")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("UpdatedById")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("UpdatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
                     b.HasIndex("Name")
                         .IsUnique()
                         .HasFilter("[IsDeleted] = 0");
 
-                    b.HasIndex("SensorUnitId");
+                    b.ToTable("CropTypes", (string)null);
+                });
 
-                    b.ToTable("AutomationRules", (string)null);
+            modelBuilder.Entity("Agrivision.Backend.Domain.Entities.Core.Disease", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("ClassIdInModelPredictions")
+                        .HasColumnType("int");
+
+                    b.Property<string>("CreatedById")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("CropTypeId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("DeletedById")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("DeletedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("Is_Safe")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("UpdatedById")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("UpdatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClassIdInModelPredictions")
+                        .IsUnique();
+
+                    b.HasIndex("CropTypeId");
+
+                    b.HasIndex("Name")
+                        .IsUnique()
+                        .HasFilter("[IsDeleted] = 0");
+
+                    b.ToTable("Diseases", (string)null);
+                });
+
+            modelBuilder.Entity("Agrivision.Backend.Domain.Entities.Core.DiseaseDetection", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CreatedById")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedById")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("DeletedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("DiseaseId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("FarmId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("FieldId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ImagePath")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UpdatedById")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("UpdatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DiseaseId");
+
+                    b.HasIndex("FarmId");
+
+                    b.HasIndex("FieldId");
+
+                    b.ToTable("DiseaseDetections", (string)null);
                 });
 
             modelBuilder.Entity("Agrivision.Backend.Domain.Entities.Core.Farm", b =>
@@ -379,6 +538,9 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
                     b.Property<DateTime>("CreatedOn")
                         .HasColumnType("datetime2");
 
+                    b.Property<Guid>("CropTypeId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("DeletedById")
                         .HasColumnType("nvarchar(max)");
 
@@ -406,6 +568,8 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CropTypeId");
 
                     b.HasIndex("FarmId");
 
@@ -999,6 +1163,12 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
 
             modelBuilder.Entity("Agrivision.Backend.Domain.Entities.Core.AutomationRule", b =>
                 {
+                    b.HasOne("Agrivision.Backend.Domain.Entities.Core.Farm", "Farm")
+                        .WithMany("AutomationRules")
+                        .HasForeignKey("FarmId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("Agrivision.Backend.Domain.Entities.Core.IrrigationUnit", "IrrigationUnit")
                         .WithMany()
                         .HasForeignKey("IrrigationUnitId")
@@ -1011,9 +1181,49 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("Farm");
+
                     b.Navigation("IrrigationUnit");
 
                     b.Navigation("SensorUnit");
+                });
+
+            modelBuilder.Entity("Agrivision.Backend.Domain.Entities.Core.Disease", b =>
+                {
+                    b.HasOne("Agrivision.Backend.Domain.Entities.Core.CropType", "CropType")
+                        .WithMany("Diseases")
+                        .HasForeignKey("CropTypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CropType");
+                });
+
+            modelBuilder.Entity("Agrivision.Backend.Domain.Entities.Core.DiseaseDetection", b =>
+                {
+                    b.HasOne("Agrivision.Backend.Domain.Entities.Core.Disease", "Disease")
+                        .WithMany("DiseaseDetections")
+                        .HasForeignKey("DiseaseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Agrivision.Backend.Domain.Entities.Core.Farm", "Farm")
+                        .WithMany("DiseaseDetections")
+                        .HasForeignKey("FarmId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Agrivision.Backend.Domain.Entities.Core.Field", "Field")
+                        .WithMany("DiseaseDetections")
+                        .HasForeignKey("FieldId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Disease");
+
+                    b.Navigation("Farm");
+
+                    b.Navigation("Field");
                 });
 
             modelBuilder.Entity("Agrivision.Backend.Domain.Entities.Core.FarmInvitation", b =>
@@ -1067,11 +1277,19 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
 
             modelBuilder.Entity("Agrivision.Backend.Domain.Entities.Core.Field", b =>
                 {
+                    b.HasOne("Agrivision.Backend.Domain.Entities.Core.CropType", "CropType")
+                        .WithMany("Fields")
+                        .HasForeignKey("CropTypeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("Agrivision.Backend.Domain.Entities.Core.Farm", "Farm")
                         .WithMany("Fields")
                         .HasForeignKey("FarmId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("CropType");
 
                     b.Navigation("Farm");
                 });
@@ -1091,8 +1309,8 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
                         .IsRequired();
 
                     b.HasOne("Agrivision.Backend.Domain.Entities.Core.Field", "Field")
-                        .WithMany("IrrigationUnits")
-                        .HasForeignKey("FieldId")
+                        .WithOne("IrrigationUnit")
+                        .HasForeignKey("Agrivision.Backend.Domain.Entities.Core.IrrigationUnit", "FieldId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -1167,8 +1385,24 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
                     b.Navigation("SubscriptionPlan");
                 });
 
+            modelBuilder.Entity("Agrivision.Backend.Domain.Entities.Core.CropType", b =>
+                {
+                    b.Navigation("Diseases");
+
+                    b.Navigation("Fields");
+                });
+
+            modelBuilder.Entity("Agrivision.Backend.Domain.Entities.Core.Disease", b =>
+                {
+                    b.Navigation("DiseaseDetections");
+                });
+
             modelBuilder.Entity("Agrivision.Backend.Domain.Entities.Core.Farm", b =>
                 {
+                    b.Navigation("AutomationRules");
+
+                    b.Navigation("DiseaseDetections");
+
                     b.Navigation("FarmInvitations");
 
                     b.Navigation("FarmUserRoles");
@@ -1189,7 +1423,10 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
 
             modelBuilder.Entity("Agrivision.Backend.Domain.Entities.Core.Field", b =>
                 {
-                    b.Navigation("IrrigationUnits");
+                    b.Navigation("DiseaseDetections");
+
+                    b.Navigation("IrrigationUnit")
+                        .IsRequired();
 
                     b.Navigation("SensorUnits");
                 });

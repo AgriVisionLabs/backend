@@ -47,12 +47,17 @@ public class AutomationRuleConfigurations : IEntityTypeConfiguration<AutomationR
             .WithMany()
             .HasForeignKey(x => x.IrrigationUnitId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasOne(x => x.Farm)
+            .WithMany(f => f.AutomationRules)
+            .HasForeignKey(x => x.FarmId)
+            .OnDelete(DeleteBehavior.Restrict);
         
         builder.HasIndex(x => x.SensorUnitId);
         
         builder.HasIndex(x => x.IrrigationUnitId);
 
-        builder.HasIndex(x => x.Name)
+        builder.HasIndex(x => new { x.FarmId, x.Name })
             .IsUnique()
             .HasFilter("[IsDeleted] = 0");
     }

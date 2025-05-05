@@ -47,6 +47,9 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
                     b.Property<TimeOnly?>("EndTime")
                         .HasColumnType("time");
 
+                    b.Property<Guid>("FarmId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<Guid>("IrrigationUnitId")
                         .HasColumnType("uniqueidentifier");
 
@@ -93,11 +96,11 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
 
                     b.HasIndex("IrrigationUnitId");
 
-                    b.HasIndex("Name")
+                    b.HasIndex("SensorUnitId");
+
+                    b.HasIndex("FarmId", "Name")
                         .IsUnique()
                         .HasFilter("[IsDeleted] = 0");
-
-                    b.HasIndex("SensorUnitId");
 
                     b.ToTable("AutomationRules", (string)null);
                 });
@@ -125,6 +128,7 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
                         .HasColumnType("bit");
 
                     b.Property<int>("Name")
+                        .HasMaxLength(100)
                         .HasColumnType("int");
 
                     b.Property<bool>("SupportsDiseaseDetection")
@@ -139,7 +143,8 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("Name")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasFilter("[IsDeleted] = 0");
 
                     b.ToTable("CropTypes", (string)null);
                 });
@@ -177,7 +182,8 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("UpdatedById")
                         .HasColumnType("nvarchar(max)");
@@ -191,6 +197,10 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
                         .IsUnique();
 
                     b.HasIndex("CropTypeId");
+
+                    b.HasIndex("Name")
+                        .IsUnique()
+                        .HasFilter("[IsDeleted] = 0");
 
                     b.ToTable("Diseases", (string)null);
                 });
@@ -225,7 +235,8 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
 
                     b.Property<string>("ImagePath")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
@@ -1149,6 +1160,12 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
 
             modelBuilder.Entity("Agrivision.Backend.Domain.Entities.Core.AutomationRule", b =>
                 {
+                    b.HasOne("Agrivision.Backend.Domain.Entities.Core.Farm", "Farm")
+                        .WithMany("AutomationRules")
+                        .HasForeignKey("FarmId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("Agrivision.Backend.Domain.Entities.Core.IrrigationUnit", "IrrigationUnit")
                         .WithMany()
                         .HasForeignKey("IrrigationUnitId")
@@ -1160,6 +1177,8 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
                         .HasForeignKey("SensorUnitId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Farm");
 
                     b.Navigation("IrrigationUnit");
 
@@ -1186,15 +1205,15 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
                         .IsRequired();
 
                     b.HasOne("Agrivision.Backend.Domain.Entities.Core.Farm", "Farm")
-                        .WithMany()
+                        .WithMany("DiseaseDetections")
                         .HasForeignKey("FarmId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Agrivision.Backend.Domain.Entities.Core.Field", "Field")
-                        .WithMany("DiseaseDetection")
+                        .WithMany("DiseaseDetections")
                         .HasForeignKey("FieldId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Disease");
@@ -1258,7 +1277,7 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
                     b.HasOne("Agrivision.Backend.Domain.Entities.Core.CropType", "CropType")
                         .WithMany("Fields")
                         .HasForeignKey("CropTypeId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("Agrivision.Backend.Domain.Entities.Core.Farm", "Farm")
@@ -1287,8 +1306,8 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
                         .IsRequired();
 
                     b.HasOne("Agrivision.Backend.Domain.Entities.Core.Field", "Field")
-                        .WithMany("IrrigationUnits")
-                        .HasForeignKey("FieldId")
+                        .WithOne("IrrigationUnit")
+                        .HasForeignKey("Agrivision.Backend.Domain.Entities.Core.IrrigationUnit", "FieldId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -1377,6 +1396,10 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
 
             modelBuilder.Entity("Agrivision.Backend.Domain.Entities.Core.Farm", b =>
                 {
+                    b.Navigation("AutomationRules");
+
+                    b.Navigation("DiseaseDetections");
+
                     b.Navigation("FarmInvitations");
 
                     b.Navigation("FarmUserRoles");
@@ -1397,9 +1420,10 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
 
             modelBuilder.Entity("Agrivision.Backend.Domain.Entities.Core.Field", b =>
                 {
-                    b.Navigation("DiseaseDetection");
+                    b.Navigation("DiseaseDetections");
 
-                    b.Navigation("IrrigationUnits");
+                    b.Navigation("IrrigationUnit")
+                        .IsRequired();
 
                     b.Navigation("SensorUnits");
                 });

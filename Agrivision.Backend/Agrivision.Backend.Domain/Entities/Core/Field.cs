@@ -17,9 +17,8 @@ public class Field : AuditableEntity
     public Guid CropTypeId { get; set; }
     public CropType CropType { get; set; }=default!;
 
-    public ICollection<IrrigationUnit> IrrigationUnits { get; set; } = new List<IrrigationUnit>();
+    public IrrigationUnit IrrigationUnit { get; set; } = default!;
     public ICollection<SensorUnit> SensorUnits { get; set; } = new List<SensorUnit>();
-    public ICollection<DiseaseDetection> DiseaseDetection { get; set; } = [];
     public ICollection<DiseaseDetection> DiseaseDetections { get; set; } = new List<DiseaseDetection>();
 
 }

@@ -35,14 +35,19 @@ public class FieldConfigurations : IEntityTypeConfiguration<Field>
             .HasForeignKey(field => field.FarmId)
             .OnDelete(DeleteBehavior.Restrict);
         
-        builder.HasMany(field => field.IrrigationUnits)
+        builder.HasOne(field => field.IrrigationUnit)
             .WithOne(iu => iu.Field)
-            .HasForeignKey(iu => iu.FieldId)
+            .HasForeignKey<IrrigationUnit>(iu => iu.FieldId)
             .OnDelete(DeleteBehavior.Restrict);
         
         builder.HasMany(field => field.SensorUnits)
             .WithOne(su => su.Field)
             .HasForeignKey(su => su.FieldId)
+            .OnDelete(DeleteBehavior.Restrict);
+        
+        builder.HasMany(f => f.DiseaseDetections)
+            .WithOne(d => d.Field)
+            .HasForeignKey(d => d.FieldId)
             .OnDelete(DeleteBehavior.Restrict);
     }
 }

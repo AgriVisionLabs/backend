@@ -6,14 +6,33 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
 {
     /// <inheritdoc />
-    public partial class AddingDetectionAndCropTables : Migration
+    public partial class AddDiseaseAndMinorUpdates : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropIndex(
+                name: "IX_SensorUnits_DeviceId",
+                table: "SensorUnits");
+
+            migrationBuilder.DropIndex(
+                name: "IX_SensorUnits_Name",
+                table: "SensorUnits");
+
+            migrationBuilder.DropIndex(
+                name: "IX_AutomationRules_Name",
+                table: "AutomationRules");
+
             migrationBuilder.AddColumn<Guid>(
                 name: "CropTypeId",
                 table: "Fields",
+                type: "uniqueidentifier",
+                nullable: false,
+                defaultValue: new Guid("00000000-0000-0000-0000-000000000000"));
+
+            migrationBuilder.AddColumn<Guid>(
+                name: "FarmId",
+                table: "AutomationRules",
                 type: "uniqueidentifier",
                 nullable: false,
                 defaultValue: new Guid("00000000-0000-0000-0000-000000000000"));
@@ -23,7 +42,7 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Name = table.Column<int>(type: "int", nullable: false),
+                    Name = table.Column<int>(type: "int", maxLength: 100, nullable: false),
                     SupportsDiseaseDetection = table.Column<bool>(type: "bit", nullable: false),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false),
                     CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -43,7 +62,7 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     CropTypeId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     ClassIdInModelPredictions = table.Column<int>(type: "int", nullable: false),
                     Is_Safe = table.Column<bool>(type: "bit", nullable: false),
@@ -72,7 +91,7 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false),
-                    ImagePath = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ImagePath = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
                     FarmId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     FieldId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     DiseaseId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -104,8 +123,22 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
                         column: x => x.FieldId,
                         principalTable: "Fields",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SensorUnits_DeviceId",
+                table: "SensorUnits",
+                column: "DeviceId",
+                unique: true,
+                filter: "[IsDeleted] = 0");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SensorUnits_FarmId_Name",
+                table: "SensorUnits",
+                columns: new[] { "FarmId", "Name" },
+                unique: true,
+                filter: "[IsDeleted] = 0");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Fields_CropTypeId",
@@ -113,10 +146,18 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
                 column: "CropTypeId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_AutomationRules_FarmId_Name",
+                table: "AutomationRules",
+                columns: new[] { "FarmId", "Name" },
+                unique: true,
+                filter: "[IsDeleted] = 0");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_CropTypes_Name",
                 table: "CropTypes",
                 column: "Name",
-                unique: true);
+                unique: true,
+                filter: "[IsDeleted] = 0");
 
             migrationBuilder.CreateIndex(
                 name: "IX_DiseaseDetections_DiseaseId",
@@ -144,18 +185,37 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
                 table: "Diseases",
                 column: "CropTypeId");
 
+            migrationBuilder.CreateIndex(
+                name: "IX_Diseases_Name",
+                table: "Diseases",
+                column: "Name",
+                unique: true,
+                filter: "[IsDeleted] = 0");
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_AutomationRules_Farms_FarmId",
+                table: "AutomationRules",
+                column: "FarmId",
+                principalTable: "Farms",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Restrict);
+
             migrationBuilder.AddForeignKey(
                 name: "FK_Fields_CropTypes_CropTypeId",
                 table: "Fields",
                 column: "CropTypeId",
                 principalTable: "CropTypes",
                 principalColumn: "Id",
-                onDelete: ReferentialAction.NoAction);
+                onDelete: ReferentialAction.Restrict);
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropForeignKey(
+                name: "FK_AutomationRules_Farms_FarmId",
+                table: "AutomationRules");
+
             migrationBuilder.DropForeignKey(
                 name: "FK_Fields_CropTypes_CropTypeId",
                 table: "Fields");
@@ -170,12 +230,48 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
                 name: "CropTypes");
 
             migrationBuilder.DropIndex(
+                name: "IX_SensorUnits_DeviceId",
+                table: "SensorUnits");
+
+            migrationBuilder.DropIndex(
+                name: "IX_SensorUnits_FarmId_Name",
+                table: "SensorUnits");
+
+            migrationBuilder.DropIndex(
                 name: "IX_Fields_CropTypeId",
                 table: "Fields");
+
+            migrationBuilder.DropIndex(
+                name: "IX_AutomationRules_FarmId_Name",
+                table: "AutomationRules");
 
             migrationBuilder.DropColumn(
                 name: "CropTypeId",
                 table: "Fields");
+
+            migrationBuilder.DropColumn(
+                name: "FarmId",
+                table: "AutomationRules");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SensorUnits_DeviceId",
+                table: "SensorUnits",
+                column: "DeviceId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SensorUnits_Name",
+                table: "SensorUnits",
+                column: "Name",
+                unique: true,
+                filter: "[IsDeleted] = 0");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AutomationRules_Name",
+                table: "AutomationRules",
+                column: "Name",
+                unique: true,
+                filter: "[IsDeleted] = 0");
         }
     }
 }

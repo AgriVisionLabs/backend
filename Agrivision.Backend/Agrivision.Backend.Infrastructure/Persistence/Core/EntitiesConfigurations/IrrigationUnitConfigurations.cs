@@ -56,8 +56,8 @@ public class IrrigationUnitConfigurations : IEntityTypeConfiguration<IrrigationU
             .OnDelete(DeleteBehavior.Restrict);
         
         builder.HasOne(iu => iu.Field)
-            .WithMany(f => f.IrrigationUnits)
-            .HasForeignKey(iu => iu.FieldId)
+            .WithOne(f => f.IrrigationUnit)
+            .HasForeignKey<IrrigationUnit>(iu => iu.FieldId)
             .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasIndex(iu => iu.DeviceId)

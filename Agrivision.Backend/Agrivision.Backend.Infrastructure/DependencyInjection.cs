@@ -5,6 +5,7 @@ using Agrivision.Backend.Application.Repositories.Identity;
 using Agrivision.Backend.Application.Services.DetectionModel;
 using Agrivision.Backend.Application.Services.Email;
 using Agrivision.Backend.Application.Services.FileManagement;
+using Agrivision.Backend.Application.Services.Hubs;
 using Agrivision.Backend.Application.Services.InvitationTokenGenerator;
 using Agrivision.Backend.Application.Services.IoT;
 using Agrivision.Backend.Application.Services.Otp;
@@ -20,6 +21,7 @@ using Agrivision.Backend.Infrastructure.Repositories.Identity;
 using Agrivision.Backend.Infrastructure.Services.DetectionModel;
 using Agrivision.Backend.Infrastructure.Services.FileManagement;
 using Agrivision.Backend.Infrastructure.Services.Email;
+using Agrivision.Backend.Infrastructure.Services.Hubs;
 using Agrivision.Backend.Infrastructure.Services.InvitationTokenGenerator;
 using Agrivision.Backend.Infrastructure.Services.IoT;
 using Agrivision.Backend.Infrastructure.Services.Otp;
@@ -126,6 +128,8 @@ public static class DependencyInjection
         services.AddFileService();
 
         services.AddAutomationRuleExecutionService();
+
+        services.AddFarmConnectionTracker();
 
         return services;
     }
@@ -551,6 +555,13 @@ public static class DependencyInjection
     {
         services.AddSingleton<AutomationRuleExecutionService>();
         services.AddHostedService(provider => provider.GetRequiredService<AutomationRuleExecutionService>());
+
+        return services;
+    }
+    
+    private static IServiceCollection AddFarmConnectionTracker(this IServiceCollection services)
+    {
+        services.AddSingleton<IFarmConnectionTracker, FarmConnectionTracker>();
 
         return services;
     }

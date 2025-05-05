@@ -46,7 +46,7 @@ namespace Agrivision.Backend.Api.Controllers
             return result.Succeeded ? Ok(result.Value) : result.ToProblem(result.Error.ToStatusCode());
         }
         
-        [HttpGet("")]
+        [HttpGet("[controller]")]
         public async Task<IActionResult> GetByFarmId([FromRoute] Guid farmId, CancellationToken cancellationToken = default)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);

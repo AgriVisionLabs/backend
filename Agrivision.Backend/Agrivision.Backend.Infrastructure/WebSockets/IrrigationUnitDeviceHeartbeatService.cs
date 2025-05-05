@@ -75,7 +75,7 @@ public class IrrigationUnitDeviceHeartbeatService(IServiceScopeFactory scopeFact
                 if (!_failedPongs.TryAdd(device.Id, 1))
                     _failedPongs[device.Id]++;
 
-                if (_failedPongs[device.Id] >= 4)
+                if (_failedPongs[device.Id] >= 999999999)
                 {
                     var socket = connectionManager.GetConnection(device.Id);
                     if (socket is not null && (socket.State == WebSocketState.Open || socket.State == WebSocketState.CloseReceived))

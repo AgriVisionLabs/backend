@@ -85,13 +85,11 @@ public class AutomationRuleExecutionService(IServiceScopeFactory scopeFactory, I
 
             if (!shouldToggle)
             {
-                logger.LogInformation("Rule '{RuleName}' skipped — value {Value} within thresholds.", rule.Name, value);
                 continue;
             }
 
             if (!unit.IsOnline || !communicator.IsDeviceConnected(unit.DeviceId))
             {
-                logger.LogWarning("Irrigation unit {UnitId} offline/disconnected for rule '{RuleName}'", unit.Id, rule.Name);
                 continue;
             }
 
@@ -153,7 +151,6 @@ public class AutomationRuleExecutionService(IServiceScopeFactory scopeFactory, I
 
             if (!unit.IsOnline || !communicator.IsDeviceConnected(unit.DeviceId))
             {
-                logger.LogWarning("Unit {UnitId} is offline or disconnected for rule '{RuleName}'", unit.Id, rule.Name);
                 continue;
             }
 

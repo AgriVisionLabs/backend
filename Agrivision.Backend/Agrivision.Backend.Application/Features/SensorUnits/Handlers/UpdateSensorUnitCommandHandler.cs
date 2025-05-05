@@ -30,7 +30,7 @@ public class UpdateSensorUnitCommandHandler(IFieldRepository fieldRepository, IF
             return Result.Failure(FieldErrors.UnauthorizedAction);
         
         // check if the sensor unit exists
-        var sensorUnit = await sensorUnitRepository.FindByIdAsync(request.FieldId, cancellationToken);
+        var sensorUnit = await sensorUnitRepository.FindByIdAsync(request.SensorUnitId, cancellationToken);
         if (sensorUnit is null)
             return Result.Failure(SensorUnitErrors.SensorUnitNotFound);
         

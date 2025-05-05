@@ -15,6 +15,7 @@ public class UpdateSensorUnitRequestValidator : AbstractValidator<UpdateSensorUn
             .NotEmpty();
 
         RuleFor(r => r.Status)
-            .NotEmpty();
+            .NotNull()
+            .IsInEnum();
     }
 }

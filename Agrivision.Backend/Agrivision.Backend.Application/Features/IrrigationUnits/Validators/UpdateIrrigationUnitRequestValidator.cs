@@ -15,6 +15,7 @@ public class UpdateIrrigationUnitRequestValidator : AbstractValidator<UpdateIrri
             .NotEmpty();
 
         RuleFor(r => r.Status)
-            .NotEmpty();
+            .NotNull()
+            .IsInEnum();
     }
 }

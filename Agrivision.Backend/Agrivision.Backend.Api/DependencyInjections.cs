@@ -1,5 +1,8 @@
+using Agrivision.Backend.Api.Services.Hubs;
 using Agrivision.Backend.Application;
+using Agrivision.Backend.Application.Services.Hubs;
 using Agrivision.Backend.Infrastructure;
+using Agrivision.Backend.Infrastructure.Services.Hubs;
 
 namespace Agrivision.Backend.Api;
 
@@ -19,6 +22,10 @@ public static class DependencyInjections
 
         services.AddSignalR();
 
+        services.AddHubServices();
+
+        services.AddSensorReadingBroadcaster();
+
         return services;
     }
 
@@ -31,6 +38,20 @@ public static class DependencyInjections
                     .AllowAnyOrigin()
             )
         );
+
+        return services;
+    }
+    
+    private static IServiceCollection AddHubServices(this IServiceCollection services)
+    {
+        services.AddScoped<ISensorHubNotifier, SensorHubNotifier>();
+
+        return services;
+    }
+    
+    private static IServiceCollection AddSensorReadingBroadcaster(this IServiceCollection services)
+    {
+        services.AddScoped<ISensorReadingBroadcaster, SensorReadingBroadcaster>();
 
         return services;
     }

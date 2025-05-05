@@ -7,6 +7,7 @@ using Agrivision.Backend.Domain.Models;
 using Agrivision.Backend.Infrastructure.Cache;
 using Agrivision.Backend.Infrastructure.Services.IoT;
 using Agrivision.Backend.Infrastructure.Persistence.Core;
+using Agrivision.Backend.Infrastructure.Services.Hubs;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,7 +15,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Agrivision.Backend.Infrastructure.WebSockets;
 
-public class SensorUnitDeviceWebSocketHandler(IWebSocketConnectionManager connectionManager, IServiceScopeFactory scopeFactory, ILogger<SensorUnitDeviceWebSocketHandler> logger)
+public class SensorUnitDeviceWebSocketHandler(IWebSocketConnectionManager connectionManager, IServiceScopeFactory scopeFactory, ISensorReadingBroadcaster sensorReadingBroadcaster, ILogger<SensorUnitDeviceWebSocketHandler> logger)
 {
     public async Task HandleAsync(HttpContext context)
     {
@@ -154,7 +155,14 @@ public class SensorUnitDeviceWebSocketHandler(IWebSocketConnectionManager connec
                                 var sensorConfigurations = await coreDbContext.SensorConfigurations
                                     .Where(sc => sc.DeviceId == deviceId && sc.IsActive)
                                     .ToListAsync();
-
+                                
+                                var unit = await coreDbContext.SensorUnits
+                                    .FirstOrDefaultAsync(u => u.DeviceId == device.Id && !u.IsDeleted, CancellationToken.None);
+                                if (unit is null)
+                                {
+                                    logger.LogWarning("Sensor unit not found for device {DeviceId}", deviceId);
+                                }
+                                
                                 var readingsToSave = new List<SensorReading>();
 
                                 foreach (var config in sensorConfigurations)
@@ -231,6 +239,24 @@ public class SensorUnitDeviceWebSocketHandler(IWebSocketConnectionManager connec
                                     await coreDbContext.SaveChangesAsync();
                                     logger.LogInformation("Saved {Count} sensor readings for device {DeviceId}",
                                         readingsToSave.Count, deviceId);
+                                    
+                                    // send readings to subscribed clients
+                                    var readingsDict = new Dictionary<string, string>();
+
+                                    foreach (var reading in readingsToSave)
+                                    {
+                                        var type = reading.Type.ToString().ToLowerInvariant(); // e.g., "moisture"
+                                        var valueStr = reading.Value.ToString("0.##"); // round to 2 decimals max
+                                        readingsDict[type] = valueStr;
+                                    }
+
+                                    var fullPayload = new
+                                    {
+                                        unitId = unit!.Id,
+                                        readings = readingsDict
+                                    };
+
+                                    await sensorReadingBroadcaster.BroadcastAsync(unit.Id, fullPayload);
                                 }
                                 else
                                 {

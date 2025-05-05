@@ -12,6 +12,7 @@ public class UpdateAutomationRuleRequestValidator : AbstractValidator<UpdateAuto
             .NotEmpty().WithMessage("Rule name is required.");
 
         RuleFor(x => x.Type)
+            .NotNull()
             .IsInEnum().WithMessage("Automation rule type must be specified.");
 
         When(x => x.Type == AutomationRuleType.Threshold, () =>
@@ -41,7 +42,7 @@ public class UpdateAutomationRuleRequestValidator : AbstractValidator<UpdateAuto
                 .NotNull().WithMessage("End time is required for scheduled rules.");
 
             RuleFor(x => x.ActiveDays)
-                .NotNull().WithMessage("Active days are required for scheduled rules.");
+                .NotNull().IsInEnum().WithMessage("Active days are required for scheduled rules.");
 
             RuleFor(x => x.TargetSensorType)
                 .Null().WithMessage("Target sensor type must be null for scheduled rules.");

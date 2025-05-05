@@ -22,6 +22,7 @@ public class UpdateFarmRequestValidator : AbstractValidator<UpdateFarmRequest>
             .Length(3, 200);
 
         RuleFor(request => request.SoilType)
-            .NotEmpty();
+            .NotNull()
+            .IsInEnum();
     }
 }

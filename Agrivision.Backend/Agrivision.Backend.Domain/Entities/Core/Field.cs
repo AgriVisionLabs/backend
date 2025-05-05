@@ -13,6 +13,12 @@ public class Field : AuditableEntity
     // navigational property
     public Guid FarmId { get; set; }
     public Farm Farm { get; set; } = default!;
+
+    public Guid CropTypeId { get; set; }
+    public CropType CropType { get; set; }=default!;
+
     public ICollection<IrrigationUnit> IrrigationUnits { get; set; } = new List<IrrigationUnit>();
     public ICollection<SensorUnit> SensorUnits { get; set; } = new List<SensorUnit>();
+    public ICollection<DiseaseDetection> DiseaseDetection { get; set; } = [];
+
 }

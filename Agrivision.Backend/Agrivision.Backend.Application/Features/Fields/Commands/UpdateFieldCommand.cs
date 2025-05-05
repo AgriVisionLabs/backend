@@ -1,4 +1,5 @@
 using Agrivision.Backend.Domain.Abstractions;
+using Agrivision.Backend.Domain.Enums.Core;
 using MediatR;
 
 namespace Agrivision.Backend.Application.Features.Fields.Commands;
@@ -9,5 +10,6 @@ public record UpdateFieldCommand
     Guid FieldId,
     string Name,
     double Area,
+    CropTypes Crop,
     string UpdatedById
 ) : IRequest<Result>;

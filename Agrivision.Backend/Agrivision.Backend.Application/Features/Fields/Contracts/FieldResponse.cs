@@ -1,3 +1,5 @@
+using Agrivision.Backend.Domain.Enums.Core;
+
 namespace Agrivision.Backend.Application.Features.Fields.Contracts;
 
 public record FieldResponse
@@ -6,5 +8,6 @@ public record FieldResponse
     string Name,
     double Area,
     bool IsActive,
-    Guid FarmId
+    Guid FarmId,
+    CropTypes Crop
 );

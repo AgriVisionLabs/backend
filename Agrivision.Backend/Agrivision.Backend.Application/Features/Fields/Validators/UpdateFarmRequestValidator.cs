@@ -11,6 +11,10 @@ public class UpdateFarmRequestValidator : AbstractValidator<UpdateFieldRequest>
             .NotEmpty()
             .Length(3, 100);
 
+        RuleFor(request => request.Crop)
+             .NotNull()
+             .IsInEnum();
+
         RuleFor(request => request.Area)
             .NotEmpty()
             .GreaterThanOrEqualTo(0.25)

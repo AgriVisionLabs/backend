@@ -19,8 +19,8 @@ builder.Host.AddSerilog();
 var app = builder.Build();
 
 // seed the database(s)
-// using (var scope = app.Services.CreateScope())
-// {
+ //using (var scope = app.Services.CreateScope())
+ //{
 //     // seed identity
 //     var identityDbContext = scope.ServiceProvider.GetRequiredService<ApplicationUserDbContext>();
 //     identityDbContext.Database.Migrate();
@@ -35,6 +35,8 @@ var app = builder.Build();
 //     await CoreSeeder.SeedDemoFarmAsync(scope.ServiceProvider);
 //     await CoreSeeder.SeedCoreRolePermissionAsync(scope.ServiceProvider);
 //     await CoreSeeder.SeedDevicesAsync(scope.ServiceProvider);
+//     await CoreSeeder.SeedCropsAsync(scope.ServiceProvider);
+//     await CoreSeeder.SeedDiseasesAsync(scope.ServiceProvider);
 // }
 
 // Configure the HTTP request pipeline.

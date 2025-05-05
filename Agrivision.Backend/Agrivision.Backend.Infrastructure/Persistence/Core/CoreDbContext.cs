@@ -22,8 +22,10 @@ public class CoreDbContext(DbContextOptions<CoreDbContext> options) : DbContext(
     public DbSet<SensorConfiguration> SensorConfigurations { get; set; }
     public DbSet<SensorReading> SensorReadings { get; set; }
     public DbSet<AutomationRule> AutomationRules { get; set; }
-    
-    
+    public DbSet<Disease> Diseases { get; set; }
+    public DbSet<DiseaseDetection> DiseaseDetections { get; set; }
+    public DbSet<CropType> CropTypes { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfigurationsFromAssembly(

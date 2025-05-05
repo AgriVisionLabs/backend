@@ -2,7 +2,9 @@ using System.Text;
 using Agrivision.Backend.Application.Auth;
 using Agrivision.Backend.Application.Repositories.Core;
 using Agrivision.Backend.Application.Repositories.Identity;
+using Agrivision.Backend.Application.Services.DetectionModel;
 using Agrivision.Backend.Application.Services.Email;
+using Agrivision.Backend.Application.Services.FileManagement;
 using Agrivision.Backend.Application.Services.InvitationTokenGenerator;
 using Agrivision.Backend.Application.Services.IoT;
 using Agrivision.Backend.Application.Services.Otp;
@@ -14,6 +16,8 @@ using Agrivision.Backend.Infrastructure.Persistence.Identity;
 using Agrivision.Backend.Infrastructure.Persistence.Identity.Entities;
 using Agrivision.Backend.Infrastructure.Repositories.Core;
 using Agrivision.Backend.Infrastructure.Repositories.Identity;
+using Agrivision.Backend.Infrastructure.Services.DetectionModel;
+using Agrivision.Backend.Infrastructure.Services.FileManagement;
 using Agrivision.Backend.Infrastructure.Services.Email;
 using Agrivision.Backend.Infrastructure.Services.InvitationTokenGenerator;
 using Agrivision.Backend.Infrastructure.Services.IoT;
@@ -107,7 +111,20 @@ public static class DependencyInjection
         services.AddSensorReadingRepository();
 
         services.AddAutomationRuleRepository();
-        
+
+        services.AddCropRepository();
+
+        services.AddDiseaseRepository();
+
+        services.AddDiseaseDetectionRepository();
+
+        services.MapDetectionModelSettings(config);
+
+        services.AddDiseaseDetectionService();
+
+        services.AddFileService();
+
+
         return services;
     }
 
@@ -486,6 +503,44 @@ public static class DependencyInjection
     private static IServiceCollection AddAutomationRuleRepository(this IServiceCollection services)
     {
         services.AddScoped<IAutomationRuleRepository, AutomationRuleRepository>();
+
+        return services;
+    }
+   
+    private static IServiceCollection AddCropRepository(this IServiceCollection services)
+    {
+        services.AddScoped<ICropRepository, CropRepository>();
+
+        return services;
+    }
+    private static IServiceCollection AddDiseaseRepository(this IServiceCollection services)
+    {
+        services.AddScoped<IDiseaseRepository, DiseaseRepository>();
+
+        return services;
+    }
+    private static IServiceCollection AddDiseaseDetectionRepository(this IServiceCollection services)
+    {
+        services.AddScoped<IDiseaseDetectionRepository, DiseaseDetectionRepository>();
+
+        return services;
+    }
+    private static IServiceCollection MapDetectionModelSettings(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.Configure<DetectionModelSettings>(configuration.GetSection(nameof(DetectionModelSettings)));
+
+        return services;
+    }
+
+    private static IServiceCollection AddDiseaseDetectionService(this IServiceCollection services)
+    {
+        services.AddScoped<IDiseaseDetectionService, DiseaseDetectionService>();
+
+        return services;
+    }
+    private static IServiceCollection AddFileService(this IServiceCollection services)
+    {
+        services.AddScoped<IFileService, FileService>();
 
         return services;
     }

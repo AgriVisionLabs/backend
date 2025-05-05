@@ -11,6 +11,7 @@ using Agrivision.Backend.Application.Services.Otp;
 using Agrivision.Backend.Application.Services.Payment;
 using Agrivision.Backend.Application.Settings;
 using Agrivision.Backend.Infrastructure.Auth;
+using Agrivision.Backend.Infrastructure.Background;
 using Agrivision.Backend.Infrastructure.Persistence.Core;
 using Agrivision.Backend.Infrastructure.Persistence.Identity;
 using Agrivision.Backend.Infrastructure.Persistence.Identity.Entities;
@@ -124,6 +125,7 @@ public static class DependencyInjection
 
         services.AddFileService();
 
+        services.AddAutomationRuleExecutionService();
 
         return services;
     }
@@ -541,6 +543,14 @@ public static class DependencyInjection
     private static IServiceCollection AddFileService(this IServiceCollection services)
     {
         services.AddScoped<IFileService, FileService>();
+
+        return services;
+    }
+    
+    private static IServiceCollection AddAutomationRuleExecutionService(this IServiceCollection services)
+    {
+        services.AddSingleton<AutomationRuleExecutionService>();
+        services.AddHostedService(provider => provider.GetRequiredService<AutomationRuleExecutionService>());
 
         return services;
     }

@@ -5,10 +5,10 @@ namespace Agrivision.Backend.Application.Repositories.Core;
 public interface IAutomationRuleRepository
 {
     // get by farmId 
-    Task<IReadOnlyList<AutomationRule>> GetByFarmIdAsync(Guid farmId, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<AutomationRule>> FindByFarmIdAsync(Guid farmId, CancellationToken cancellationToken = default);
 
     // get by id
-    Task<AutomationRule?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
+    Task<AutomationRule?> FindByIdAsync(Guid id, CancellationToken cancellationToken = default);
     
     // add
     Task AddAsync(AutomationRule rule, CancellationToken cancellationToken = default);

@@ -4,6 +4,7 @@ using System.Text.Json;
 using Agrivision.Backend.Domain.Entities.Core;
 using Agrivision.Backend.Domain.Enums.Core;
 using Agrivision.Backend.Domain.Models;
+using Agrivision.Backend.Infrastructure.Cache;
 using Agrivision.Backend.Infrastructure.Services.IoT;
 using Agrivision.Backend.Infrastructure.Persistence.Core;
 using Microsoft.AspNetCore.Http;
@@ -109,6 +110,12 @@ public class SensorUnitDeviceWebSocketHandler(IWebSocketConnectionManager connec
 
             if (result.MessageType == WebSocketMessageType.Text)
             {
+                if (result.Count == 0)
+                {
+                    logger.LogWarning("Received empty message from device {DeviceId}. Ignoring.", deviceId);
+                    continue;
+                }
+                
                 var json = Encoding.UTF8.GetString(buffer, 0, result.Count);
 
                 try
@@ -157,14 +164,18 @@ public class SensorUnitDeviceWebSocketHandler(IWebSocketConnectionManager connec
                                         case SensorType.Moisture:
                                             if (float.TryParse(payload.Readings?.Moisture, out var moistureVal))
                                             {
+                                                float normalized = 100f * (2550f - moistureVal) / (2550f - 700f);
+                                                
                                                 readingsToSave.Add(new SensorReading
                                                 {
                                                     SensorConfigurationId = config.Id,
                                                     TimeStamp = DateTime.UtcNow,
-                                                    Value = (moistureVal / 2550) * 100,
+                                                    Value = normalized,
                                                     Unit = "%",
                                                     Type = SensorType.Moisture
                                                 });
+                                                
+                                                LiveSensorCache.Update(device.Id, SensorType.Moisture, normalized);
                                             }
 
                                             break;
@@ -180,8 +191,12 @@ public class SensorUnitDeviceWebSocketHandler(IWebSocketConnectionManager connec
                                                     Unit = "°C",
                                                     Type = SensorType.Temperature
                                                 });
+                                                
+                                                LiveSensorCache.Update(device.Id, SensorType.Temperature, tempVal);
                                             }
 
+                                            break;
+                                        case SensorType.Humidity:
                                             if (float.TryParse(payload.Readings?.Humidity, out var humidityVal))
                                             {
                                                 readingsToSave.Add(new SensorReading
@@ -192,6 +207,8 @@ public class SensorUnitDeviceWebSocketHandler(IWebSocketConnectionManager connec
                                                     Unit = "%",
                                                     Type = SensorType.Humidity
                                                 });
+                                                
+                                                LiveSensorCache.Update(device.Id, SensorType.Humidity, humidityVal);
                                             }
 
                                             break;

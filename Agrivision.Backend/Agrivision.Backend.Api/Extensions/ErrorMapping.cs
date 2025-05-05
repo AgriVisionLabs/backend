@@ -55,6 +55,7 @@ public static class ErrorMapping
         "SensorUnitErrors.SensorUnitNotFound" => StatusCodes.Status404NotFound,
         "SensorUnitErrors.NoUnitAssigned" => StatusCodes.Status404NotFound,
         "AutomationRuleErrors.DuplicateNameInFarm" => StatusCodes.Status409Conflict,
+        "AutomationRuleErrors.AutomationRuleNotFound" => StatusCodes.Status404NotFound,
         _ => StatusCodes.Status400BadRequest // Default case
     };
 }

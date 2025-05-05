@@ -9,7 +9,7 @@ public class AddSensorUnitRequestHandler : AbstractValidator<AddSensorUnitReques
     {
         RuleFor(u => u.SerialNumber)
             .NotEmpty()
-            .Length(15);
+            .Length(10, 25);
 
         RuleFor(u => u.Name)
             .NotEmpty()

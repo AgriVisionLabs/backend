@@ -9,7 +9,7 @@ public class AddIrrigationUnitRequestValidator : AbstractValidator<AddIrrigation
     {
         RuleFor(u => u.SerialNumber)
             .NotEmpty()
-            .Length(17);
+            .Length(10, 25);
 
         RuleFor(u => u.Name)
             .NotEmpty()

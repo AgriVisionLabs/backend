@@ -49,6 +49,7 @@ public class AddAutomationRuleCommandHandler(IFieldRepository fieldRepository, I
         {
             Id = Guid.NewGuid(),
             Name = request.Name,
+            FarmId = request.FarmId,
             IsEnabled = true,
             Type = request.Type,
             MinimumThresholdValue = request.MinThresholdValue,

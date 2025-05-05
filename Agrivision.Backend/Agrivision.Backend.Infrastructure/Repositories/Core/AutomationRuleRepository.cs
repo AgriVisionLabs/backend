@@ -7,7 +7,7 @@ namespace Agrivision.Backend.Infrastructure.Repositories.Core;
 
 public class AutomationRuleRepository(CoreDbContext coreDbContext) : IAutomationRuleRepository
 {
-    public async Task<IReadOnlyList<AutomationRule>> GetByFarmIdAsync(Guid farmId, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<AutomationRule>> FindByFarmIdAsync(Guid farmId, CancellationToken cancellationToken = default)
     {
         return await coreDbContext.AutomationRules
             .Include(r => r.SensorUnit)
@@ -17,7 +17,7 @@ public class AutomationRuleRepository(CoreDbContext coreDbContext) : IAutomation
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<AutomationRule?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<AutomationRule?> FindByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         return await coreDbContext.AutomationRules
             .Include(r => r.SensorUnit)

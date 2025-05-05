@@ -4,9 +4,9 @@ using FluentValidation;
 
 namespace Agrivision.Backend.Application.Features.AutomationRules.Validators;
 
-public class AddAutomationRuleRequestValidator : AbstractValidator<AddAutomationRuleRequest>
+public class UpdateAutomationRuleRequestValidator : AbstractValidator<UpdateAutomationRuleRequest>
 {
-    public AddAutomationRuleRequestValidator()
+    public UpdateAutomationRuleRequestValidator()
     {
         RuleFor(x => x.Name)
             .NotEmpty().WithMessage("Rule name is required.");
@@ -18,7 +18,7 @@ public class AddAutomationRuleRequestValidator : AbstractValidator<AddAutomation
         {
             RuleFor(x => x.TargetSensorType)
                 .NotNull().WithMessage("Target sensor type is required for threshold-based rules.");
-            
+
             RuleFor(x => x.MinThresholdValue)
                 .NotNull().WithMessage("Min threshold value is required for threshold-based rules.");
 
@@ -45,13 +45,13 @@ public class AddAutomationRuleRequestValidator : AbstractValidator<AddAutomation
 
             RuleFor(x => x.TargetSensorType)
                 .Null().WithMessage("Target sensor type must be null for scheduled rules.");
-            
+
             RuleFor(x => x.MinThresholdValue)
                 .Null().WithMessage("Min threshold value must be null for scheduled rules.");
 
             RuleFor(x => x.MaxThresholdValue)
                 .Null().WithMessage("Max threshold value must be null for scheduled rules.");
-            
+
             RuleFor(x => x)
                 .Must(x => x.StartTime <= x.EndTime)
                 .WithMessage("Start time must be before or equal to end time.")

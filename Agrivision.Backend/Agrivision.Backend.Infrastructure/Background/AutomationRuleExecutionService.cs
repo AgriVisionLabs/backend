@@ -130,7 +130,7 @@ public class AutomationRuleExecutionService(IServiceScopeFactory scopeFactory, I
         var db = scope.ServiceProvider.GetRequiredService<CoreDbContext>();
         var communicator = scope.ServiceProvider.GetRequiredService<IWebSocketDeviceCommunicator>();
 
-        var now = DateTime.UtcNow;
+        var now = DateTime.UtcNow.AddHours(3);
         var nowTime = TimeOnly.FromDateTime(now);
         var todayBit = (DaysOfWeek)(1 << (int)now.DayOfWeek);
 

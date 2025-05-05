@@ -7,15 +7,33 @@ public class CropTypeConfigurations : IEntityTypeConfiguration<CropType>
 {
     public void Configure(EntityTypeBuilder<CropType> builder)
     {
-        builder.Property(C => C.Name)
-           .IsRequired();
-           
+        builder.ToTable("CropTypes");
 
-        builder.Property(C => C.SupportsDiseaseDetection)
-           .IsRequired();
+        builder.HasKey(c => c.Id);
 
-        builder.HasIndex(C => C.Name)
-          .IsUnique();
+        builder.Property(c => c.Id)
+            .ValueGeneratedOnAdd(); 
+
+        builder.Property(c => c.Name)
+            .IsRequired()
+            .HasMaxLength(100);
+
+        builder.HasIndex(c => c.Name)
+            .IsUnique()
+            .HasFilter("[IsDeleted] = 0");
+
+        builder.Property(c => c.SupportsDiseaseDetection)
+            .IsRequired();
+
+        builder.HasMany(c => c.Fields)
+            .WithOne(f => f.CropType)
+            .HasForeignKey(f => f.CropTypeId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasMany(c => c.Diseases)
+            .WithOne(d => d.CropType)
+            .HasForeignKey(d => d.CropTypeId)
+            .OnDelete(DeleteBehavior.Cascade); 
 
     }
 }

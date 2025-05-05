@@ -1,9 +1,8 @@
-﻿
-using Agrivision.Backend.Domain.Entities.Shared;
+﻿using Agrivision.Backend.Domain.Entities.Shared;
 using Agrivision.Backend.Domain.Enums.Core;
 
 namespace Agrivision.Backend.Domain.Entities.Core;
-public class CropType:AuditableEntity
+public class CropType : AuditableEntity
 {
     public Guid Id { get; set; }
     public CropTypes Name { get; set; }   

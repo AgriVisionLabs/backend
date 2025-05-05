@@ -7,15 +7,33 @@ public class DiseaseDetectionConfigurations : IEntityTypeConfiguration<DiseaseDe
 {
     public void Configure(EntityTypeBuilder<DiseaseDetection> builder)
     {
-        builder.Property(DD => DD.Status)
-           .IsRequired();
+        builder.ToTable("DiseaseDetections");
 
-        builder.Property(DD => DD.CreatedById)
-           .IsRequired();
+        builder.HasKey(dd => dd.Id);
 
-        builder.Property(DD => DD.CreatedOn)
-           .IsRequired();
+        builder.Property(dd => dd.Id)
+            .ValueGeneratedOnAdd();
 
-        
+        builder.Property(dd => dd.Status)
+            .IsRequired();
+
+        builder.Property(dd => dd.ImagePath)
+            .IsRequired()
+            .HasMaxLength(500);
+
+        builder.HasOne(dd => dd.Farm)
+            .WithMany(f => f.DiseaseDetections)
+            .HasForeignKey(dd => dd.FarmId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasOne(dd => dd.Field)
+            .WithMany(f => f.DiseaseDetections)
+            .HasForeignKey(dd => dd.FieldId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasOne(dd => dd.Disease)
+            .WithMany(d => d.DiseaseDetections)
+            .HasForeignKey(dd => dd.DiseaseId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

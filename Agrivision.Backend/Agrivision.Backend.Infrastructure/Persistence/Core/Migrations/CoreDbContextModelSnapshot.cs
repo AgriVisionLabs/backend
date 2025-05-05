@@ -141,7 +141,7 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
                     b.HasIndex("Name")
                         .IsUnique();
 
-                    b.ToTable("CropTypes");
+                    b.ToTable("CropTypes", (string)null);
                 });
 
             modelBuilder.Entity("Agrivision.Backend.Domain.Entities.Core.Disease", b =>
@@ -192,7 +192,7 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
 
                     b.HasIndex("CropTypeId");
 
-                    b.ToTable("Diseases");
+                    b.ToTable("Diseases", (string)null);
                 });
 
             modelBuilder.Entity("Agrivision.Backend.Domain.Entities.Core.DiseaseDetection", b =>
@@ -247,7 +247,7 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
 
                     b.HasIndex("FieldId");
 
-                    b.ToTable("DiseaseDetections");
+                    b.ToTable("DiseaseDetections", (string)null);
                 });
 
             modelBuilder.Entity("Agrivision.Backend.Domain.Entities.Core.Farm", b =>

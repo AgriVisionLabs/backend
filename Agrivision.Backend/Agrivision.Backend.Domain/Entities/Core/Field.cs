@@ -20,5 +20,6 @@ public class Field : AuditableEntity
     public ICollection<IrrigationUnit> IrrigationUnits { get; set; } = new List<IrrigationUnit>();
     public ICollection<SensorUnit> SensorUnits { get; set; } = new List<SensorUnit>();
     public ICollection<DiseaseDetection> DiseaseDetection { get; set; } = [];
+    public ICollection<DiseaseDetection> DiseaseDetections { get; set; } = new List<DiseaseDetection>();
 
 }

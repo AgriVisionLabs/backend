@@ -130,7 +130,8 @@ public class AutomationRuleExecutionService(IServiceScopeFactory scopeFactory, I
 
         var now = DateTime.UtcNow.AddHours(3);
         var nowTime = TimeOnly.FromDateTime(now);
-        var todayBit = (DaysOfWeek)(1 << (int)now.DayOfWeek);
+        var correctedIndex = ((int)now.DayOfWeek - 1 + 7) % 7;
+        var todayBit = (DaysOfWeek)(1 << correctedIndex);
 
         var tolerance = TimeSpan.FromSeconds(20);
 

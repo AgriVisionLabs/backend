@@ -72,7 +72,7 @@ public class AddSensorUnitCommandHandler(ISensorUnitRepository sensorUnitReposit
         
         // map to response
         var response = new SensorUnitResponse
-        (sensorUnit.Id, sensorUnit.FarmId, sensorUnit.FieldId, field.Name, sensorUnit.Name, sensorUnit.InstallationDate, sensorUnit.Status, null, null, null, device.MacAddress, device.SerialNumber, device.FirmwareVersion, sensorUnit.CreatedById, sensorUnit.CreatedBy, sensorUnit.CreatedOn, 0, 0, 0, sensorUnit.BatteryLevel);
+        (sensorUnit.Id, sensorUnit.FarmId, sensorUnit.FieldId, field.Name, sensorUnit.Name, device.IsOnline, sensorUnit.InstallationDate, sensorUnit.Status, null, null, null, device.MacAddress, device.SerialNumber, device.FirmwareVersion, sensorUnit.CreatedById, sensorUnit.CreatedBy, sensorUnit.CreatedOn, 0, 0, 0, sensorUnit.BatteryLevel);
 
         return Result.Success(response);
     }

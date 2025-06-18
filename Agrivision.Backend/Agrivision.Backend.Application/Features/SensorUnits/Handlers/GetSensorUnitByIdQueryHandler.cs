@@ -58,7 +58,7 @@ public class GetSensorUnitByIdQueryHandler(ISensorUnitRepository sensorUnitRepos
         
         // map to response 
         var response = new SensorUnitResponse
-            (sensorUnit.Id, sensorUnit.FarmId, sensorUnit.FieldId, field.Name, sensorUnit.Name, sensorUnit.InstallationDate, sensorUnit.Status, sensorUnit.LastMaintenance, sensorUnit.NextMaintenance, sensorUnit.IpAddress, sensorUnit.Device.MacAddress, sensorUnit.Device.SerialNumber, sensorUnit.Device.FirmwareVersion, sensorUnit.CreatedById, sensorUnit.CreatedBy, sensorUnit.CreatedOn, moisture, temperature, humidity, sensorUnit.BatteryLevel);
+            (sensorUnit.Id, sensorUnit.FarmId, sensorUnit.FieldId, field.Name, sensorUnit.Name, sensorUnit.IsOnline, sensorUnit.InstallationDate, sensorUnit.Status, sensorUnit.LastMaintenance, sensorUnit.NextMaintenance, sensorUnit.IpAddress, sensorUnit.Device.MacAddress, sensorUnit.Device.SerialNumber, sensorUnit.Device.FirmwareVersion, sensorUnit.CreatedById, sensorUnit.CreatedBy, sensorUnit.CreatedOn, moisture, temperature, humidity, sensorUnit.BatteryLevel);
 
         return Result.Success(response);
     }

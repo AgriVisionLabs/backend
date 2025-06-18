@@ -47,6 +47,7 @@ public class GetIrrigationUnitsByFarmIdQueryHandler(IFarmRepository farmReposito
                 unit.FieldId,
                 unit.Field.Name,
                 unit.Name,
+                unit.IsOnline,
                 unit.IsOn,
                 unit.InstallationDate,
                 unit.Status,

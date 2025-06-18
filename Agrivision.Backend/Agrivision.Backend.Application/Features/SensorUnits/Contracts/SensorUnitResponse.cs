@@ -9,6 +9,7 @@ public record SensorUnitResponse
     Guid FieldId,
     string FieldName,
     string Name,
+    bool IsOnline,
     DateTime InstallationDate,
     UnitStatus Status,
     DateTime? LastMaintenance,

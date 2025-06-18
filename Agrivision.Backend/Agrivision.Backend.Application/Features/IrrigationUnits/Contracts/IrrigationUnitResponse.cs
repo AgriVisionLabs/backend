@@ -9,6 +9,7 @@ public record IrrigationUnitResponse
     Guid FieldId,
     string FieldName,
     string Name,
+    bool IsOnline,
     bool IsOn,
     DateTime InstallationDate,
     UnitStatus Status,

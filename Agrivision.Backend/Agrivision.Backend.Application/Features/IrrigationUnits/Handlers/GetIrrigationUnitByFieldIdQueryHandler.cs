@@ -43,7 +43,7 @@ public class GetIrrigationUnitByFieldIdQueryHandler(IFieldRepository fieldReposi
         }
         
         // map to response
-        var response = new IrrigationUnitResponse(unit.Id, unit.FarmId, unit.FieldId, field.Name, unit.Name, unit.IsOn,
+        var response = new IrrigationUnitResponse(unit.Id, unit.FarmId, unit.FieldId, field.Name, unit.Name, unit.IsOnline, unit.IsOn,
             unit.InstallationDate, unit.Status, unit.LastMaintenance, unit.NextMaintenance, unit.IpAddress,
             unit.Device.MacAddress, unit.Device.SerialNumber,unit.Device.FirmwareVersion, unit.CreatedById, unit.CreatedBy, duration, unit.UpdatedOn ?? unit.CreatedOn);
 

@@ -61,6 +61,15 @@ public class TaskItemRepository(CoreDbContext coreDbContext) : ITaskItemReposito
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<IReadOnlyList<TaskItem>> GetAllByUserIdAndFarmIdAsync(string userId, Guid farmId, CancellationToken cancellationToken = default)
+    {
+        return await coreDbContext.TaskItems
+            .Include(task => task.Field)
+            .ThenInclude(field => field.Farm)
+            .Where(task => task.Field.FarmId == farmId && !task.IsDeleted && (task.AssignedToId == userId || task.ClaimedById == userId || task.ClaimedById == null))
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task<TaskItem?> FindByIdAsync(Guid taskItemId, CancellationToken cancellationToken = default)
     {
         return await coreDbContext.TaskItems

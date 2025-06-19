@@ -21,6 +21,9 @@ public interface ITaskItemRepository
     
     // get due by field
     Task<IReadOnlyList<TaskItem>> GetAllDueByFieldIdAsync(Guid fieldId, CancellationToken cancellationToken = default);
+    
+    // get all by user id
+    Task<IReadOnlyList<TaskItem>> GetAllByUserIdAndFarmIdAsync(string userId, Guid farmId, CancellationToken cancellationToken = default);
 
     // find by Id
     Task<TaskItem?> FindByIdAsync(Guid taskItemId, CancellationToken cancellationToken = default);

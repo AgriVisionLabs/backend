@@ -182,5 +182,13 @@ public class UserRepository(UserManager<ApplicationUser> userManager) : IUserRep
         throw new Exception("Can't use ResetPasswordAsync with non ApplicationUser type objects");
 
     }
+    
+    public async Task<List<IApplicationUser>> FindByIdsAsync(IEnumerable<string> userIds, CancellationToken cancellationToken = default)
+    {
+        return await userManager.Users
+            .Where(u => userIds.Contains(u.Id))
+            .Cast<IApplicationUser>()
+            .ToListAsync(cancellationToken);
+    }
 
 }

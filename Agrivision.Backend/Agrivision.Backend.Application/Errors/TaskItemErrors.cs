@@ -19,4 +19,8 @@ public static class TaskItemErrors
     public static readonly Error DuplicateTitle = new(
         "TaskItemErrors.DuplicateTitle",
         "Duplicate task title exists in the field for an incompleted task.");
+    
+    public static readonly Error TaskItemNotFound = new(
+        "TaskItemErrors.TaskItemNotFound",
+        "Task not found.");
 }

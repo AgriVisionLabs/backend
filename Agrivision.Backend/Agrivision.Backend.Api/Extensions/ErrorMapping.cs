@@ -60,6 +60,7 @@ public static class ErrorMapping
         "TaskItemErrors.CannotAssignTaskToSelf" => StatusCodes.Status403Forbidden,
         "TaskItemErrors.CannotAssignTaskToExpert" => StatusCodes.Status403Forbidden,
         "TaskItemErrors.DuplicateTitle" => StatusCodes.Status409Conflict,
+        "TaskItemErrors.TaskItemNotFound" => StatusCodes.Status404NotFound,
         _ => StatusCodes.Status400BadRequest // Default case
     };
 }

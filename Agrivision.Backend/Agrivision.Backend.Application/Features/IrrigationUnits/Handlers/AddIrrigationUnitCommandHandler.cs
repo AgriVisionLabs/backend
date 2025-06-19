@@ -24,7 +24,7 @@ public class AddIrrigationUnitCommandHandler(IIrrigationUnitRepository irrigatio
         
         // check if user has permission to access the farm
         var farmUserRole =
-            await farmUserRoleRepository.GetByUserAndFarmAsync(request.FarmId, request.RequesterId, cancellationToken);
+            await farmUserRoleRepository.FindByUserIdAndFarmIdAsync(request.RequesterId, request.FarmId, cancellationToken);
         if (farmUserRole is null)
             return Result.Failure<IrrigationUnitResponse>(FieldErrors.UnauthorizedAction);
         

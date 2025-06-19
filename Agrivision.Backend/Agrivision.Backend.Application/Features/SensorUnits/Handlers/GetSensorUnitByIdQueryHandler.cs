@@ -23,7 +23,7 @@ public class GetSensorUnitByIdQueryHandler(ISensorUnitRepository sensorUnitRepos
         
         // check if the user has access to the farm
         var farmUserRole =
-            await farmUserRoleRepository.GetByUserAndFarmAsync(request.FarmId, request.RequesterId, cancellationToken);
+            await farmUserRoleRepository.FindByUserIdAndFarmIdAsync(request.RequesterId, request.FarmId, cancellationToken);
         if (farmUserRole is null)
             return Result.Failure<SensorUnitResponse>(FarmErrors.UnauthorizedAction);
         

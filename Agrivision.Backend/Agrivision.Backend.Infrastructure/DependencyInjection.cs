@@ -131,6 +131,8 @@ public static class DependencyInjection
 
         services.AddFarmConnectionTracker();
 
+        services.AddTaskItemRepository();
+
         return services;
     }
 
@@ -562,6 +564,13 @@ public static class DependencyInjection
     private static IServiceCollection AddFarmConnectionTracker(this IServiceCollection services)
     {
         services.AddSingleton<IFarmConnectionTracker, FarmConnectionTracker>();
+
+        return services;
+    }
+
+    private static IServiceCollection AddTaskItemRepository(this IServiceCollection services)
+    {
+        services.AddScoped<ITaskItemRepository, TaskItemRepository>();
 
         return services;
     }

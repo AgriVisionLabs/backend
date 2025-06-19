@@ -56,6 +56,10 @@ public static class ErrorMapping
         "SensorUnitErrors.NoUnitAssigned" => StatusCodes.Status404NotFound,
         "AutomationRuleErrors.DuplicateNameInFarm" => StatusCodes.Status409Conflict,
         "AutomationRuleErrors.AutomationRuleNotFound" => StatusCodes.Status404NotFound,
+        "TaskItemErrors.CannotAssignToElevatedRoles" => StatusCodes.Status403Forbidden,
+        "TaskItemErrors.CannotAssignTaskToSelf" => StatusCodes.Status403Forbidden,
+        "TaskItemErrors.CannotAssignTaskToExpert" => StatusCodes.Status403Forbidden,
+        "TaskItemErrors.DuplicateTitle" => StatusCodes.Status409Conflict,
         _ => StatusCodes.Status400BadRequest // Default case
     };
 }

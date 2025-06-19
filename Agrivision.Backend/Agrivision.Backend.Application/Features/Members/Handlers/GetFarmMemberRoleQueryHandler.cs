@@ -19,13 +19,13 @@ public class GetFarmMemberRoleQueryHandler(IFarmRepository farmRepository, IFarm
         
         // check if the user has access to the farm 
         var farmUserRole =
-            await farmUserRoleRepository.GetByUserAndFarmAsync(request.FarmId, request.RequesterId, cancellationToken);
+            await farmUserRoleRepository.FindByUserIdAndFarmIdAsync(request.RequesterId, request.FarmId, cancellationToken);
         if (farmUserRole is null)
             return Result.Failure<FarmMemberResponse>(FarmErrors.UnauthorizedAction);
         
         // check if the requested member has access
         var memberRole =
-            await farmUserRoleRepository.GetByUserAndFarmAsync(request.FarmId, request.MemberId, cancellationToken);
+            await farmUserRoleRepository.FindByUserIdAndFarmIdAsync(request.MemberId, request.FarmId, cancellationToken);
         if (memberRole is null)
             return Result.Failure<FarmMemberResponse>(FarmUserRoleErrors.UserRoleNotFound);
         

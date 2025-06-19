@@ -28,7 +28,7 @@ public class ToggleIrrigationUnitCommandHandler(IFieldRepository fieldRepository
         
         // check if user has access to the farm
         var farmUserRole =
-            await farmUserRoleRepository.GetByUserAndFarmAsync(request.FarmId, request.RequesterId, cancellationToken);
+            await farmUserRoleRepository.FindByUserIdAndFarmIdAsync(request.RequesterId, request.FarmId, cancellationToken);
         if (farmUserRole is null)
             return Result.Failure<ToggleIrrigationUnitResponse>(FarmErrors.UnauthorizedAction);
         if (farmUserRole.FarmRole.Name == "Expert")

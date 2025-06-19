@@ -24,6 +24,7 @@
       <Folder Include="Features\Invitations\Mappings\" />
       <Folder Include="Features\IrrigationUnits\Mappings\" />
       <Folder Include="Features\Members\Mappings\" />
+      <Folder Include="Features\Tasks\Queries\" />
     </ItemGroup>
 
 </Project>

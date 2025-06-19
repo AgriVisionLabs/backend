@@ -12,13 +12,13 @@ public class UpdateMemberRoleCommandHandler(IFarmUserRoleRepository farmUserRole
     {
         // check if user is member of farm
         var targetRoleAssignment =
-            await farmUserRoleRepository.GetByUserAndFarmAsync(request.FarmId, request.UserId, cancellationToken);
+            await farmUserRoleRepository.FindByUserIdAndFarmIdAsync(request.UserId, request.FarmId, cancellationToken);
         if (targetRoleAssignment is null)
             return Result.Failure(FarmUserRoleErrors.UserRoleNotFound);
         
         // check if requester can change and assign the specified role
         var requesterRole =
-            await farmUserRoleRepository.GetByUserAndFarmAsync(request.FarmId, request.RequesterId, cancellationToken);
+            await farmUserRoleRepository.FindByUserIdAndFarmIdAsync(request.RequesterId, request.FarmId, cancellationToken);
         if(requesterRole is null || (requesterRole.FarmRole.Name != "Owner" && requesterRole.FarmRole.Name != "Manager"))
             return Result.Failure(FarmErrors.UnauthorizedAction);
         

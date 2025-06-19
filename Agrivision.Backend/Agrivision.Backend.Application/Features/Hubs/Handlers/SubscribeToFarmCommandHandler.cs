@@ -12,7 +12,7 @@ public class SubscribeToFarmCommandHandler(IFarmUserRoleRepository farmUserRoleR
     public async Task<Result> Handle(SubscribeToFarmCommand request, CancellationToken cancellationToken)
     {
         var farmUserRole =
-            await farmUserRoleRepository.GetByUserAndFarmAsync(request.FarmId, request.UserId, cancellationToken);
+            await farmUserRoleRepository.FindByUserIdAndFarmIdAsync(request.UserId, request.FarmId, cancellationToken);
         if (farmUserRole is null)
             return Result.Failure(FarmErrors.UnauthorizedAction);
         

@@ -22,7 +22,7 @@ public class AddAutomationRuleCommandHandler(IFieldRepository fieldRepository, I
             return Result.Failure<AutomationRuleResponse>(FarmErrors.UnauthorizedAction);
         
         // check if user has permission to add automation rule
-        var farmUserRole = await farmUserRoleRepository.GetByUserAndFarmAsync(request.FarmId, request.RequesterId, cancellationToken);
+        var farmUserRole = await farmUserRoleRepository.FindByUserIdAndFarmIdAsync(request.RequesterId, request.FarmId, cancellationToken);
         if (farmUserRole is null)
             return Result.Failure<AutomationRuleResponse>(FarmErrors.UnauthorizedAction);
 

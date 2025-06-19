@@ -13,7 +13,7 @@ public class RevokeAccessCommandHandler(IFarmUserRoleRepository farmUserRoleRepo
     {
         // check if the user has access to the farm
         var farmUserRole =
-            await farmUserRoleRepository.GetByUserAndFarmAsync(request.FarmId, request.UserId, cancellationToken);
+            await farmUserRoleRepository.FindByUserIdAndFarmIdAsync(request.UserId, request.FarmId, cancellationToken);
         if (farmUserRole is null)
         {
             logger.LogWarning("User {RequesterId} tried to revoke access for user {UserId} on farm {FarmId}", request.RequesterId, request.UserId, request.FarmId);
@@ -23,7 +23,7 @@ public class RevokeAccessCommandHandler(IFarmUserRoleRepository farmUserRoleRepo
         if (request.RequesterId == request.UserId)
             return Result.Failure(FarmUserRoleErrors.SelfRevokeNotAllowed);
         
-        var requesterRole = await farmUserRoleRepository.GetByUserAndFarmAsync(request.FarmId, request.RequesterId, cancellationToken);
+        var requesterRole = await farmUserRoleRepository.FindByUserIdAndFarmIdAsync(request.RequesterId, request.FarmId, cancellationToken);
         if (requesterRole is null || (requesterRole.FarmRole.Name != "Owner" && requesterRole.FarmRole.Name != "Manager"))
             return Result.Failure(FarmErrors.UnauthorizedAction);
         

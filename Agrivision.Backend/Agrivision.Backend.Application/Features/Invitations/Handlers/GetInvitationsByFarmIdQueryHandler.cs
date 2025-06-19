@@ -19,7 +19,7 @@ public class GetInvitationsByFarmIdQueryHandler(IFarmRepository farmRepository, 
 
         // check if user can see invitations (later) (only owner and manager should be able to check them)
         var userRole =
-            await farmUserRoleRepository.GetByUserAndFarmAsync(request.FarmId, request.RequesterId, cancellationToken);
+            await farmUserRoleRepository.FindByUserIdAndFarmIdAsync(request.RequesterId, request.FarmId, cancellationToken);
         if (userRole is null || (userRole.FarmRole.Name != "Owner" && userRole.FarmRole.Name != "Manager"))
             return Result.Failure<IReadOnlyList<InvitationResponse>>(FarmUserRoleErrors.InsufficientPermissions);
         

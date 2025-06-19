@@ -18,7 +18,7 @@ public class GetFarmByIdQueryHandler(IFarmUserRoleRepository farmUserRoleReposit
         
         // check if user has access to the farm
         var access =
-            await farmUserRoleRepository.GetByUserAndFarmAsync(request.FarmId, request.RequesterId, cancellationToken);
+            await farmUserRoleRepository.FindByUserIdAndFarmIdAsync(request.RequesterId, request.FarmId, cancellationToken);
         if (access is null)
             return Result.Failure<FarmResponse>(FarmErrors.UnauthorizedAction);
 

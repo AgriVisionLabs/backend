@@ -9,7 +9,7 @@ public interface IFarmUserRoleRepository
     Task<List<FarmUserRole>> AdminGetByFarmIdAsync(Guid farmId, CancellationToken cancellationToken = default);
     Task<List<FarmUserRole>> GetByFarmIdAsync(Guid farmId, CancellationToken cancellationToken = default);
     Task<FarmUserRole?> AdminGetByUserAndFarmAsync(Guid farmId, string userId, CancellationToken cancellationToken = default);
-    Task<FarmUserRole?> GetByUserAndFarmAsync(Guid farmId, string userId, CancellationToken cancellationToken = default);
+    Task<FarmUserRole?> FindByUserIdAndFarmIdAsync(string userId, Guid farmId, CancellationToken cancellationToken = default);
     Task AddAsync(FarmUserRole assignment, CancellationToken cancellationToken = default);
     Task AddRangeAsync(IEnumerable<FarmUserRole> assignments, CancellationToken cancellationToken = default);
     Task<bool> AdminExistsAsync(Guid farmId, string userId, CancellationToken cancellationToken = default);

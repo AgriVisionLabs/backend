@@ -18,7 +18,7 @@ public class GetIrrigationUnitsByFarmIdQueryHandler(IFarmRepository farmReposito
         
         // check if the user has access to the farm 
         var farmUserRole =
-            await farmUserRoleRepository.GetByUserAndFarmAsync(farm.Id, request.RequesterId, cancellationToken);
+            await farmUserRoleRepository.FindByUserIdAndFarmIdAsync(request.RequesterId, request.FarmId, cancellationToken);
         if (farmUserRole is null)
             return Result.Failure<IReadOnlyList<IrrigationUnitResponse>>(FarmErrors.UnauthorizedAction);
         

@@ -18,7 +18,7 @@ public class GetAutomationRulesByFarmIdQueryHandler(IFarmRepository farmReposito
         
         // check if user has access 
         var farmUserRole =
-            await farmUserRoleRepository.GetByUserAndFarmAsync(request.FarmId, request.RequesterId, cancellationToken);
+            await farmUserRoleRepository.FindByUserIdAndFarmIdAsync(request.RequesterId, request.FarmId, cancellationToken);
         if (farmUserRole is null)
             return Result.Failure<IReadOnlyList<AutomationRuleResponse>>(FarmErrors.UnauthorizedAction);
         

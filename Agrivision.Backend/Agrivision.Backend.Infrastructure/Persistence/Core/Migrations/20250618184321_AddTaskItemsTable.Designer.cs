@@ -4,6 +4,7 @@ using Agrivision.Backend.Infrastructure.Persistence.Core;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
 {
     [DbContext(typeof(CoreDbContext))]
-    partial class CoreDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250618184321_AddTaskItemsTable")]
+    partial class AddTaskItemsTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1165,14 +1168,9 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
 
                     b.HasIndex("FieldId");
 
-                    b.HasIndex("FieldId", "Title")
-                        .IsUnique()
-                        .HasDatabaseName("IX_TaskItem_FieldId_Title_Unique_Incomplete_NotDeleted")
-                        .HasFilter("[CompletedAt] IS NULL AND [IsDeleted] = 0");
-
                     b.ToTable("TaskItems", t =>
                         {
-                            t.HasCheckConstraint("CK_TaskItem_OnlyOneAssignedOrClaimed", "(([AssignedToId] IS NULL AND [ClaimedById] IS NOT NULL) OR ([AssignedToId] IS NOT NULL AND [ClaimedById] IS NULL) OR ([AssignedToId] IS NULL AND [ClaimedById] IS NULL))");
+                            t.HasCheckConstraint("CK_TaskItem_OnlyOneAssignedOrClaimed", "(([AssignedToId] IS NULL AND [ClaimedById] IS NOT NULL) OR ([AssignedToId] IS NOT NULL AND [ClaimedById] IS NULL))");
                         });
                 });
 

@@ -19,7 +19,7 @@ public class InviteMemberCommandHandler(IUserRepository userRepository, IFarmRep
         await farmInvitationRepository.CleanupExpiredInvitationsAsync(cancellationToken);
         
         // check if user can invite
-        var userRole = await farmUserRoleRepository.GetByUserAndFarmAsync(request.FarmId, request.SenderId, cancellationToken);
+        var userRole = await farmUserRoleRepository.FindByUserIdAndFarmIdAsync(request.SenderId, request.FarmId, cancellationToken);
         if (userRole is null || (userRole.FarmRole.Name != "Owner" && userRole.FarmRole.Name != "Manager"))
             return Result.Failure(FarmUserRoleErrors.InsufficientPermissions);
         

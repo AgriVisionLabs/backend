@@ -21,7 +21,7 @@ public class UpdateAutomationRuleCommandHandler(IFieldRepository fieldRepository
         
         // check if user has access to the field
         var farmUserRole =
-            await farmUserRoleRepository.GetByUserAndFarmAsync(request.FarmId, request.RequesterId, cancellationToken);
+            await farmUserRoleRepository.FindByUserIdAndFarmIdAsync(request.RequesterId, request.FarmId, cancellationToken);
         if (farmUserRole is null)
             return Result.Failure(FarmErrors.UnauthorizedAction);
         

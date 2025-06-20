@@ -8,8 +8,9 @@ public class TaskItem : AuditableEntity
     public Guid Id { get; set; }
     
     public string? AssignedToId { get; set; }
+    public DateTime? AssignedAt { get; set; }
     public string? ClaimedById { get; set; }
-    
+    public DateTime? ClaimedAt { get; set; }
     public string Title { get; set; } = default!;
     public string? Description { get; set; }
     

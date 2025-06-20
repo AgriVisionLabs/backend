@@ -30,10 +30,13 @@ public class GetTaskItemByIdQueryHandler(ITaskItemRepository taskItemRepository,
         
         // get the task 
         var task = await taskItemRepository.FindByIdAsync(request.TaskItemId, cancellationToken);
-        
         if (task is null)
             return Result.Failure<TaskItemResponse>(TaskItemErrors.TaskItemNotFound);
 
+        // check if the task belong to the farm
+        if (task.Field.FarmId != request.FarmId)
+            return Result.Failure<TaskItemResponse>(TaskItemErrors.TaskItemNotFound);
+        
         if (farmUserRole.FarmRole.Name == "Worker")
         {
             var isUnclaimedAndUnassigned = task.ClaimedById is null && task.AssignedToId is null;
@@ -62,8 +65,10 @@ public class GetTaskItemByIdQueryHandler(ITaskItemRepository taskItemRepository,
             CreatedAt: task.CreatedOn,
             AssignedToId: task.AssignedToId,
             AssignedTo: task.AssignedToId is not null ? userMap.GetValueOrDefault(task.AssignedToId, "Unknown") : null,
+            AssignedAt: task.AssignedAt,
             ClaimedById: task.ClaimedById,
             ClaimedBy: task.ClaimedById is not null ? userMap.GetValueOrDefault(task.ClaimedById, "Unknown") : null,
+            ClaimedAt: task.ClaimedAt,
             Title: task.Title,
             Description: task.Description,
             DueDate: task.DueDate,

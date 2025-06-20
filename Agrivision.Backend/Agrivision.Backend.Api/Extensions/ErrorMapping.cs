@@ -61,6 +61,7 @@ public static class ErrorMapping
         "TaskItemErrors.CannotAssignTaskToExpert" => StatusCodes.Status403Forbidden,
         "TaskItemErrors.DuplicateTitle" => StatusCodes.Status409Conflict,
         "TaskItemErrors.TaskItemNotFound" => StatusCodes.Status404NotFound,
+        "TaskItemErrors.UnauthorizedAction" => StatusCodes.Status401Unauthorized,
         _ => StatusCodes.Status400BadRequest // Default case
     };
 }

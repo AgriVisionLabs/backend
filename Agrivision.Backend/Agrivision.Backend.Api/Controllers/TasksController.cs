@@ -27,7 +27,7 @@ namespace Agrivision.Backend.Api.Controllers
                 request.Description, request.DueDate, request.ItemPriority);
             var result = await mediator.Send(command, cancellationToken);
 
-            return result.Succeeded ? Ok(result.Value) : result.ToProblem(result.Error.ToStatusCode());
+            return result.Succeeded ? CreatedAtAction(nameof(GetById), new { farmId = result.Value.FarmId, taskId = result.Value.Id }, result.Value) : result.ToProblem(result.Error.ToStatusCode());
         }
 
         [HttpGet("[controller]")]
@@ -67,6 +67,19 @@ namespace Agrivision.Backend.Api.Controllers
             var result = await mediator.Send(query, cancellationToken);
             
             return result.Succeeded ? Ok(result.Value) : result.ToProblem(result.Error.ToStatusCode());
+        }
+
+        [HttpPut("[controller]/{taskId}")]
+        public async Task<IActionResult> UpdateAsync([FromRoute] Guid farmId, [FromRoute] Guid taskId, [FromBody] UpdateTaskItemRequest request, CancellationToken cancellationToken = default)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+                return Result.Failure(TokenErrors.InvalidToken).ToProblem(TokenErrors.InvalidToken.ToStatusCode());
+
+            var command = new UpdateTaskItemCommand(farmId, taskId, userId, request.Title, request.Description, request.AssignedToId, request.DueDate, request.ItemPriority);
+            var result = await mediator.Send(command, cancellationToken);
+
+            return result.Succeeded ? NoContent() : result.ToProblem(result.Error.ToStatusCode());
         }
     }
 }

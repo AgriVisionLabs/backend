@@ -68,6 +68,7 @@ public class AddTaskItemCommandHandler(IFieldRepository fieldRepository, IUserRe
         {
             Id = Guid.NewGuid(),
             AssignedToId = request.AssignedToId,
+            AssignedAt = DateTime.UtcNow,
             CreatedById = request.RequesterId,
             CreatedOn = DateTime.UtcNow,
             Title = request.Title,
@@ -92,8 +93,10 @@ public class AddTaskItemCommandHandler(IFieldRepository fieldRepository, IUserRe
             CreatedAt: task.CreatedOn,
             AssignedToId: task.AssignedToId,
             AssignedTo: assignee != null ? assignee.FirstName + " " + assignee.LastName : null,
+            AssignedAt: task.AssignedAt,
             ClaimedById: task.ClaimedById,
             ClaimedBy: null,
+            ClaimedAt: task.ClaimedAt,
             Title: task.Title,
             Description: task.Description,
             DueDate: task.DueDate,

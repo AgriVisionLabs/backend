@@ -23,4 +23,8 @@ public static class TaskItemErrors
     public static readonly Error TaskItemNotFound = new(
         "TaskItemErrors.TaskItemNotFound",
         "Task not found.");
+    
+    public static readonly Error UnauthorizedAction = new(
+        "TaskItemErrors.UnauthorizedAction",
+        "Unauthorized action.");
 }

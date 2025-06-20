@@ -62,6 +62,10 @@ public static class ErrorMapping
         "TaskItemErrors.DuplicateTitle" => StatusCodes.Status409Conflict,
         "TaskItemErrors.TaskItemNotFound" => StatusCodes.Status404NotFound,
         "TaskItemErrors.UnauthorizedAction" => StatusCodes.Status401Unauthorized,
+        "TaskItemErrors.AlreadyClaimed" => StatusCodes.Status409Conflict,
+        "TaskItemErrors.TaskCannotBeCompletedUnclaimed" => StatusCodes.Status409Conflict,
+        "TaskItemErrors.TaskCannotBeCompletedByAnotherUser" => StatusCodes.Status409Conflict,
+        "TaskItemErrors.TaskAlreadyCompleted" => StatusCodes.Status409Conflict,
         _ => StatusCodes.Status400BadRequest // Default case
     };
 }

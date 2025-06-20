@@ -81,5 +81,44 @@ namespace Agrivision.Backend.Api.Controllers
 
             return result.Succeeded ? NoContent() : result.ToProblem(result.Error.ToStatusCode());
         }
+
+        [HttpDelete("[controller]/{taskId}")]
+        public async Task<IActionResult> RemoveAsync([FromRoute] Guid farmId, [FromRoute] Guid taskId, CancellationToken cancellationToken = default)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+                return Result.Failure(TokenErrors.InvalidToken).ToProblem(TokenErrors.InvalidToken.ToStatusCode());
+
+            var command = new RemoveTaskItemCommand(farmId, taskId, userId);
+            var result = await mediator.Send(command, cancellationToken);
+            
+            return result.Succeeded ? NoContent() : result.ToProblem(result.Error.ToStatusCode());
+        }
+
+        [HttpPost("[controller]/{taskId}/claim")]
+        public async Task<IActionResult> ClaimAsync([FromRoute] Guid farmId, [FromRoute] Guid taskId, CancellationToken cancellationToken)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+                return Result.Failure(TokenErrors.InvalidToken).ToProblem(TokenErrors.InvalidToken.ToStatusCode());
+
+            var command = new ClaimTaskItemCommand(farmId, taskId, userId);
+            var result = await mediator.Send(command, cancellationToken);
+            
+            return result.Succeeded ? NoContent() : result.ToProblem(result.Error.ToStatusCode());
+        }
+        
+        [HttpPost("[controller]/{taskId}/complete")]
+        public async Task<IActionResult> CompleteAsync([FromRoute] Guid farmId, [FromRoute] Guid taskId, CancellationToken cancellationToken)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+                return Result.Failure(TokenErrors.InvalidToken).ToProblem(TokenErrors.InvalidToken.ToStatusCode());
+
+            var command = new CompleteTaskItemCommand(farmId, taskId, userId);
+            var result = await mediator.Send(command, cancellationToken);
+            
+            return result.Succeeded ? NoContent() : result.ToProblem(result.Error.ToStatusCode());
+        }
     }
 }

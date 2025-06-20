@@ -27,4 +27,20 @@ public static class TaskItemErrors
     public static readonly Error UnauthorizedAction = new(
         "TaskItemErrors.UnauthorizedAction",
         "Unauthorized action.");
+        
+    public static readonly Error AlreadyClaimed = new(
+        "TaskItemErrors.AlreadyClaimed",
+        "Task already claimed by another user.");
+    
+    public static readonly Error TaskCannotBeCompletedUnclaimed = new(
+        "TaskItemErrors.TaskCannotBeCompletedUnclaimed",
+        "Unassigned and unclaimed tasks cannot be completed.");
+    
+    public static readonly Error TaskCannotBeCompletedByAnotherUser = new(
+        "TaskItemErrors.TaskCannotBeCompletedByAnotherUser",
+        "Only the assigned or claimed user can complete this task.");
+
+    public static readonly Error TaskAlreadyCompleted = new(
+        "TaskItemErrors.TaskAlreadyCompleted",
+        "This task has already been completed.");
 }

@@ -43,19 +43,6 @@ namespace Agrivision.Backend.Api.Controllers
             return result.Succeeded ? Ok(result.Value) : result.ToProblem(result.Error.ToStatusCode()); 
         }
 
-        [HttpGet("fields/{fieldId}/[controller]")]
-        public async Task<IActionResult> GetAllByFieldIdAsync([FromRoute] Guid farmId, [FromRoute] Guid fieldId, CancellationToken cancellationToken = default)
-        {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrEmpty(userId))
-                return Result.Failure(TokenErrors.InvalidToken).ToProblem(TokenErrors.InvalidToken.ToStatusCode());
-
-            var query = new GetAllTaskItemsByFieldIdQuery(farmId, fieldId, userId);
-            var result = await mediator.Send(query, cancellationToken);
-            
-            return result.Succeeded ? Ok(result.Value) : result.ToProblem(result.Error.ToStatusCode());
-        }
-
         [HttpGet("[controller]/{taskId}")]
         public async Task<IActionResult> GetById([FromRoute] Guid farmId, [FromRoute] Guid taskId, CancellationToken cancellationToken = default)
         {

@@ -13,6 +13,7 @@ public class TaskItemRepository(CoreDbContext coreDbContext) : ITaskItemReposito
             .Include(task => task.Field)
             .ThenInclude(field => field.Farm)
             .Where(task => task.Field.FarmId == farmId && !task.IsDeleted)
+            .OrderBy(task => task.DueDate)
             .ToListAsync(cancellationToken);
     }
 
@@ -67,6 +68,7 @@ public class TaskItemRepository(CoreDbContext coreDbContext) : ITaskItemReposito
             .Include(task => task.Field)
             .ThenInclude(field => field.Farm)
             .Where(task => task.Field.FarmId == farmId && !task.IsDeleted && (task.AssignedToId == userId || task.ClaimedById == userId || task.ClaimedById == null))
+            .OrderBy(task => task.DueDate)
             .ToListAsync(cancellationToken);
     }
 

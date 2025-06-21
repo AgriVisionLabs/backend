@@ -1,4 +1,5 @@
 using Agrivision.Backend.Application.Services.IoT;
+using Agrivision.Backend.Domain.Entities.Core;
 using Agrivision.Backend.Domain.Enums.Core;
 using Agrivision.Backend.Infrastructure.Cache;
 using Agrivision.Backend.Infrastructure.Persistence.Core;
@@ -109,9 +110,43 @@ public class AutomationRuleExecutionService(IServiceScopeFactory scopeFactory, I
             unit.UpdatedOn = now;
 
             if (unit.IsOn)
+            {
                 unit.LastActivation = now;
+
+                var newEvent = new IrrigationEvent
+                {
+                    Id = Guid.NewGuid(),
+                    CreatedById = Guid.Empty.ToString(),
+                    CreatedOn = now,
+                    IrrigationUnitId = unit.Id,
+                    StartTime = now
+                };
+
+                db.IrrigationEvents.Add(newEvent);
+            }
             else
+            {
                 unit.LastDeactivation = now;
+
+                var existingEvent = await db.IrrigationEvents
+                    .Where(e => e.IrrigationUnitId == unit.Id && e.EndTime == null && !e.IsDeleted)
+                    .OrderByDescending(e => e.StartTime)
+                    .FirstOrDefaultAsync();
+
+                if (existingEvent is not null)
+                {
+                    existingEvent.EndTime = now;
+                    db.IrrigationEvents.Update(existingEvent);
+                }
+                else
+                {
+                    logger.LogWarning("⚠️ No active irrigation event found to close for unit {UnitId}", unit.Id);
+                }
+            }
+
+            unit.ToggledById = Guid.Empty.ToString();
+            unit.UpdatedById = Guid.Empty.ToString();
+            unit.UpdatedOn = now;
 
             db.IrrigationUnits.Update(unit);
             await db.SaveChangesAsync();
@@ -170,6 +205,16 @@ public class AutomationRuleExecutionService(IServiceScopeFactory scopeFactory, I
                     unit.UpdatedOn = nowUtc;
                     unit.LastActivation = nowUtc;
 
+                    var newEvent = new IrrigationEvent
+                    {
+                        Id = Guid.NewGuid(),
+                        CreatedById = Guid.Empty.ToString(),
+                        CreatedOn = nowUtc,
+                        IrrigationUnitId = unit.Id,
+                        StartTime = nowUtc
+                    };
+                    db.IrrigationEvents.Add(newEvent);
+
                     await communicator.SendConfirmationAsync(unit.DeviceId, "toggle_pump");
 
                     db.IrrigationUnits.Update(unit);
@@ -190,6 +235,21 @@ public class AutomationRuleExecutionService(IServiceScopeFactory scopeFactory, I
                     unit.UpdatedById = Guid.Empty.ToString();
                     unit.UpdatedOn = nowUtc;
                     unit.LastDeactivation = nowUtc;
+
+                    var existingEvent = await db.IrrigationEvents
+                        .Where(e => e.IrrigationUnitId == unit.Id && e.EndTime == null)
+                        .OrderByDescending(e => e.StartTime)
+                        .FirstOrDefaultAsync();
+
+                    if (existingEvent != null)
+                    {
+                        existingEvent.EndTime = nowUtc;
+                        db.IrrigationEvents.Update(existingEvent);
+                    }
+                    else
+                    {
+                        logger.LogWarning("⚠️ No open irrigation event found for unit {UnitId} to mark as stopped.", unit.Id);
+                    }
 
                     await communicator.SendConfirmationAsync(unit.DeviceId, "toggle_pump");
 

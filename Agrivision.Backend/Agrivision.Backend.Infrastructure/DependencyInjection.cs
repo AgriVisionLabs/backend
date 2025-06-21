@@ -133,6 +133,8 @@ public static class DependencyInjection
 
         services.AddTaskItemRepository();
 
+        services.AddIrrigationEventRepository();
+
         return services;
     }
 
@@ -571,6 +573,13 @@ public static class DependencyInjection
     private static IServiceCollection AddTaskItemRepository(this IServiceCollection services)
     {
         services.AddScoped<ITaskItemRepository, TaskItemRepository>();
+
+        return services;
+    }
+
+    private static IServiceCollection AddIrrigationEventRepository(this IServiceCollection services)
+    {
+        services.AddScoped<IIrrigationEventRepository, IrrigationEventRepository>();
 
         return services;
     }

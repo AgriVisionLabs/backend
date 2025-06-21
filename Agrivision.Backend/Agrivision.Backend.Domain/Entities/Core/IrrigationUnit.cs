@@ -17,7 +17,7 @@ public class IrrigationUnit : AuditableEntity
 
     public string Name { get; set; } = default!;
     public DateTime InstallationDate { get; set; } = DateTime.UtcNow;
-    public UnitStatus Status { get; set; } = UnitStatus.Idle;
+    public UnitStatus Status { get; set; } = UnitStatus.Active;
     public DateTime? LastActivation { get; set; }
     public DateTime? LastDeactivation { get; set; }
     public DateTime? LastMaintenance { get; set; }
@@ -33,5 +33,6 @@ public class IrrigationUnit : AuditableEntity
     public string? IpAddress { get; set; }
     public string? Notes { get; set; }
 
-    public ICollection<SensorConfiguration> SensorConfigurations { get; set; } = new List<SensorConfiguration>();
+    public ICollection<IrrigationEvent> IrrigationEvents { get; set; } = new List<IrrigationEvent>();
+    
 }

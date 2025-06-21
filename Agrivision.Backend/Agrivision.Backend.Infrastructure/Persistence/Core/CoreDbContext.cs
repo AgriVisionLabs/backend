@@ -26,6 +26,7 @@ public class CoreDbContext(DbContextOptions<CoreDbContext> options) : DbContext(
     public DbSet<DiseaseDetection> DiseaseDetections { get; set; }
     public DbSet<CropType> CropTypes { get; set; }
     public DbSet<TaskItem> TaskItems { get; set; }
+    public DbSet<IrrigationEvent> IrrigationEvents { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

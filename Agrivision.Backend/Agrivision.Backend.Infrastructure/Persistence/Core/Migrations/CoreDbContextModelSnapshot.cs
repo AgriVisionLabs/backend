@@ -1218,7 +1218,7 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
                         .HasDatabaseName("IX_TaskItem_FieldId_Title_Unique_Incomplete_NotDeleted")
                         .HasFilter("[CompletedAt] IS NULL AND [IsDeleted] = 0");
 
-                    b.ToTable("TaskItems", t =>
+                    b.ToTable("TaskItems", null, t =>
                         {
                             t.HasCheckConstraint("CK_TaskItem_OnlyOneAssignedOrClaimed", "(([AssignedToId] IS NULL AND [ClaimedById] IS NOT NULL) OR ([AssignedToId] IS NOT NULL AND [ClaimedById] IS NULL) OR ([AssignedToId] IS NULL AND [ClaimedById] IS NULL))");
                         });

@@ -27,4 +27,10 @@ public class IrrigationEventRepository(CoreDbContext coreDbContext) : IIrrigatio
         await coreDbContext.IrrigationEvents.AddAsync(irrigationEvent, cancellationToken);
         await coreDbContext.SaveChangesAsync(cancellationToken);
     }
+
+    public async Task UpdateAsync(IrrigationEvent irrigationEvent, CancellationToken cancellationToken = default)
+    {
+        coreDbContext.IrrigationEvents.Update(irrigationEvent);
+        await coreDbContext.SaveChangesAsync(cancellationToken);
+    }
 }

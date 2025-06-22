@@ -12,4 +12,7 @@ public interface IIrrigationEventRepository
     
     // add
     Task AddAsync(IrrigationEvent irrigationEvent, CancellationToken cancellationToken = default);
+    
+    // update
+    Task UpdateAsync(IrrigationEvent irrigationEvent, CancellationToken cancellationToken = default);
 }

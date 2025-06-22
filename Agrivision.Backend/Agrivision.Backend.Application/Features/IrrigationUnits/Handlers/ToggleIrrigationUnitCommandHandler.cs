@@ -4,11 +4,12 @@ using Agrivision.Backend.Application.Features.IrrigationUnits.Contracts;
 using Agrivision.Backend.Application.Repositories.Core;
 using Agrivision.Backend.Application.Services.IoT;
 using Agrivision.Backend.Domain.Abstractions;
+using Agrivision.Backend.Domain.Entities.Core;
 using MediatR;
 
 namespace Agrivision.Backend.Application.Features.IrrigationUnits.Handlers;
 
-public class ToggleIrrigationUnitCommandHandler(IFieldRepository fieldRepository, IIrrigationUnitRepository irrigationUnitRepository, IFarmUserRoleRepository farmUserRoleRepository, IWebSocketDeviceCommunicator communicator) : IRequestHandler<ToggleIrrigationUnitCommand, Result<ToggleIrrigationUnitResponse>>
+public class ToggleIrrigationUnitCommandHandler(IFieldRepository fieldRepository, IIrrigationUnitRepository irrigationUnitRepository, IFarmUserRoleRepository farmUserRoleRepository, IWebSocketDeviceCommunicator communicator, IIrrigationEventRepository irrigationEventRepository) : IRequestHandler<ToggleIrrigationUnitCommand, Result<ToggleIrrigationUnitResponse>>
 {
     public async Task<Result<ToggleIrrigationUnitResponse>> Handle(ToggleIrrigationUnitCommand request, CancellationToken cancellationToken)
     {
@@ -40,27 +41,47 @@ public class ToggleIrrigationUnitCommandHandler(IFieldRepository fieldRepository
         
         // send toggle command
         var ok = await communicator.SendCommandAsync(unit.DeviceId, "toggle_pump", cancellationToken);
-
         if (!ok)
-            return Result.Failure<ToggleIrrigationUnitResponse>(
-                IrrigationUnitErrors.DeviceUnreachable); 
+            return Result.Failure<ToggleIrrigationUnitResponse>(IrrigationUnitErrors.DeviceUnreachable);
 
-        if (unit.IsOn)
-            unit.LastDeactivation = DateTime.UtcNow;
-        else
-            unit.LastActivation = DateTime.UtcNow;
+        var now = DateTime.UtcNow;
         
+        if (unit.IsOn)
+        {
+            unit.LastDeactivation = now;
+
+            var openEvent = await irrigationEventRepository.FindLastestByIrrigationUnitIdAsync(unit.Id, cancellationToken);
+            if (openEvent is not null && openEvent.EndTime is null)
+            {
+                openEvent.EndTime = now;
+                await irrigationEventRepository.UpdateAsync(openEvent, cancellationToken);
+            }
+        }
+        else
+        {
+            unit.LastActivation = now;
+
+            var newEvent = new IrrigationEvent
+            {
+                Id = Guid.NewGuid(),
+                CreatedById = request.RequesterId,
+                CreatedOn = now,
+                IrrigationUnitId = unit.Id,
+                StartTime = now
+            };
+
+            await irrigationEventRepository.AddAsync(newEvent, cancellationToken);
+        }
+
         unit.IsOn = !unit.IsOn;
         unit.ToggledById = request.RequesterId;
-        unit.UpdatedOn = DateTime.UtcNow;
+        unit.UpdatedOn = now;
         unit.UpdatedById = request.RequesterId;
 
         await irrigationUnitRepository.UpdateAsync(unit, cancellationToken);
-
         await communicator.SendConfirmationAsync(unit.DeviceId, "toggle_pump");
 
         var response = new ToggleIrrigationUnitResponse(unit.IsOn, unit.ToggledById, request.RequesterName);
-
         return Result.Success(response);
     }
 }

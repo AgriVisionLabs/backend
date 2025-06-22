@@ -24,7 +24,7 @@ namespace Agrivision.Backend.Api.Controllers
                 return Result.Failure(TokenErrors.InvalidToken).ToProblem(TokenErrors.InvalidToken.ToStatusCode());
 
             var command = new AddTaskItemCommand(farmId, fieldId, userId, request.AssignedToId, request.Title,
-                request.Description, request.DueDate, request.ItemPriority);
+                request.Description, request.DueDate, request.ItemPriority, request.Category);
             var result = await mediator.Send(command, cancellationToken);
 
             return result.Succeeded ? CreatedAtAction(nameof(GetById), new { farmId = result.Value.FarmId, taskId = result.Value.Id }, result.Value) : result.ToProblem(result.Error.ToStatusCode());
@@ -63,7 +63,7 @@ namespace Agrivision.Backend.Api.Controllers
             if (string.IsNullOrEmpty(userId))
                 return Result.Failure(TokenErrors.InvalidToken).ToProblem(TokenErrors.InvalidToken.ToStatusCode());
 
-            var command = new UpdateTaskItemCommand(farmId, taskId, userId, request.Title, request.Description, request.AssignedToId, request.DueDate, request.ItemPriority);
+            var command = new UpdateTaskItemCommand(farmId, taskId, userId, request.Title, request.Description, request.AssignedToId, request.DueDate, request.ItemPriority, request.Category);
             var result = await mediator.Send(command, cancellationToken);
 
             return result.Succeeded ? NoContent() : result.ToProblem(result.Error.ToStatusCode());

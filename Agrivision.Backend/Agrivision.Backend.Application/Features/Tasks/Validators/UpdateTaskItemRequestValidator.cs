@@ -24,6 +24,11 @@ public class UpdateTaskItemRequestValidator : AbstractValidator<UpdateTaskItemRe
             .WithMessage("Due date must be in the future.");
 
         RuleFor(x => x.ItemPriority)
-            .IsInEnum();
+            .IsInEnum()
+            .WithMessage("Invalid priority value.");
+        
+        RuleFor(request => request.Category)
+            .IsInEnum()
+            .WithMessage("Invalid category value.");
     }
 }

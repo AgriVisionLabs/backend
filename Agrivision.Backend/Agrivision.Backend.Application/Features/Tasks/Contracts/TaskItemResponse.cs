@@ -20,5 +20,6 @@ public record TaskItemResponse
     string? Description,
     DateTime? DueDate,
     DateTime? CompletedAt,
-    TaskItemPriority ItemPriority
+    TaskItemPriority ItemPriority,
+    TaskCategoryType Category
 );

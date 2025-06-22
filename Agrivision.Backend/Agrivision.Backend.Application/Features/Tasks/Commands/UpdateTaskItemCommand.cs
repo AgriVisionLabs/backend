@@ -13,5 +13,6 @@ public record UpdateTaskItemCommand
     string? Description,
     string? AssignedToId,
     DateTime? DueDate,
-    TaskItemPriority ItemPriority
+    TaskItemPriority ItemPriority,
+    TaskCategoryType Category
 ) : IRequest<Result>;

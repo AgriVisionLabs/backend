@@ -75,7 +75,8 @@ public class AddTaskItemCommandHandler(IFieldRepository fieldRepository, IUserRe
             Description = request.Description,
             DueDate = request.DueDate,
             ItemPriority = request.ItemPriority,
-            FieldId = request.FieldId
+            FieldId = request.FieldId,
+            Category = request.Category
         };
 
         await taskItemRepository.AddAsync(task, cancellationToken);
@@ -101,7 +102,8 @@ public class AddTaskItemCommandHandler(IFieldRepository fieldRepository, IUserRe
             Description: task.Description,
             DueDate: task.DueDate,
             CompletedAt: task.CompletedAt,
-            ItemPriority: task.ItemPriority
+            ItemPriority: task.ItemPriority,
+            Category: task.Category
         );
 
         return Result.Success(response);

@@ -20,6 +20,10 @@ public class AddTaskItemRequestValidator : AbstractValidator<AddTaskItemRequest>
         RuleFor(request => request.ItemPriority)
             .IsInEnum()
             .WithMessage("Invalid priority value.");
+        
+        RuleFor(request => request.Category)
+            .IsInEnum()
+            .WithMessage("Invalid category value.");
 
         RuleFor(request => request.DueDate)
             .GreaterThan(DateTime.UtcNow)

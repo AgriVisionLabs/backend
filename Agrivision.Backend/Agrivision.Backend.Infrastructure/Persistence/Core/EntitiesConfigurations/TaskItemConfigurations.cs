@@ -45,6 +45,10 @@ public class TaskItemConfigurations : IEntityTypeConfiguration<TaskItem>
         builder.Property(task => task.ItemPriority)
             .HasConversion<int>()
             .IsRequired();
+        
+        builder.Property(task => task.Category)
+            .HasConversion<int>()
+            .IsRequired();
 
         builder.HasOne(task => task.Field)
             .WithMany(field => field.TaskItems)

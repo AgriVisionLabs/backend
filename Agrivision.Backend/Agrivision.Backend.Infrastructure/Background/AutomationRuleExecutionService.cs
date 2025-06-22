@@ -119,7 +119,8 @@ public class AutomationRuleExecutionService(IServiceScopeFactory scopeFactory, I
                     CreatedById = Guid.Empty.ToString(),
                     CreatedOn = now,
                     IrrigationUnitId = unit.Id,
-                    StartTime = now
+                    StartTime = now,
+                    TriggerMethod = IrrigationTriggerMethod.Threshold
                 };
 
                 db.IrrigationEvents.Add(newEvent);
@@ -211,7 +212,8 @@ public class AutomationRuleExecutionService(IServiceScopeFactory scopeFactory, I
                         CreatedById = Guid.Empty.ToString(),
                         CreatedOn = nowUtc,
                         IrrigationUnitId = unit.Id,
-                        StartTime = nowUtc
+                        StartTime = nowUtc,
+                        TriggerMethod = IrrigationTriggerMethod.Scheduled
                     };
                     db.IrrigationEvents.Add(newEvent);
 

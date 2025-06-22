@@ -5,6 +5,7 @@ using Agrivision.Backend.Application.Repositories.Core;
 using Agrivision.Backend.Application.Services.IoT;
 using Agrivision.Backend.Domain.Abstractions;
 using Agrivision.Backend.Domain.Entities.Core;
+using Agrivision.Backend.Domain.Enums.Core;
 using MediatR;
 
 namespace Agrivision.Backend.Application.Features.IrrigationUnits.Handlers;
@@ -67,7 +68,8 @@ public class ToggleIrrigationUnitCommandHandler(IFieldRepository fieldRepository
                 CreatedById = request.RequesterId,
                 CreatedOn = now,
                 IrrigationUnitId = unit.Id,
-                StartTime = now
+                StartTime = now,
+                TriggerMethod = IrrigationTriggerMethod.Manual
             };
 
             await irrigationEventRepository.AddAsync(newEvent, cancellationToken);

@@ -14,5 +14,6 @@ public record AddTaskItemCommand
     string Title,
     string? Description,
     DateTime? DueDate,
-    TaskItemPriority ItemPriority
+    TaskItemPriority ItemPriority,
+    TaskCategoryType Category
 ) : IRequest<Result<TaskItemResponse>>;

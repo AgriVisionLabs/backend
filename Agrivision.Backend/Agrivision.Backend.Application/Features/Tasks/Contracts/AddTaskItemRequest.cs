@@ -8,5 +8,6 @@ public record AddTaskItemRequest
     string Title,
     string? Description,
     DateTime? DueDate,
-    TaskItemPriority ItemPriority
+    TaskItemPriority ItemPriority,
+    TaskCategoryType Category
 );

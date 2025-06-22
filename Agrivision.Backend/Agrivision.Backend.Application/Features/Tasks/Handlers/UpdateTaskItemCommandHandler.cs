@@ -65,6 +65,7 @@ public class UpdateTaskItemCommandHandler(ITaskItemRepository taskItemRepository
         task.AssignedToId = request.AssignedToId;
         task.DueDate = request.DueDate;
         task.ItemPriority = request.ItemPriority;
+        task.Category = request.Category;
         task.UpdatedById = request.RequesterId;
         task.UpdatedOn = DateTime.UtcNow;
 

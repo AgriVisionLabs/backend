@@ -13,6 +13,7 @@ public class TaskItem : AuditableEntity
     public DateTime? ClaimedAt { get; set; }
     public string Title { get; set; } = default!;
     public string? Description { get; set; }
+    public TaskCategoryType Category { get; set; } = TaskCategoryType.Irrigation;
     
     public DateTime? DueDate { get; set; }
     public DateTime? CompletedAt { get; set; }

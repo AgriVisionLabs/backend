@@ -67,7 +67,8 @@ public class GetAllTaskItemsByFarmIdQueryHandler(ITaskItemRepository taskItemRep
             Description: task.Description,
             DueDate: task.DueDate,
             CompletedAt: task.CompletedAt,
-            ItemPriority: task.ItemPriority
+            ItemPriority: task.ItemPriority,
+            Category: task.Category
         )).ToList();
 
         return Result.Success<IReadOnlyList<TaskItemResponse>>(response);

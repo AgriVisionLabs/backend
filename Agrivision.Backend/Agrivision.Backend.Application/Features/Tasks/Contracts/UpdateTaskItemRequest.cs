@@ -8,5 +8,6 @@ public record UpdateTaskItemRequest
     string? Description,
     string? AssignedToId,
     DateTime? DueDate,
-    TaskItemPriority ItemPriority
+    TaskItemPriority ItemPriority,
+    TaskCategoryType Category
 );

@@ -73,7 +73,8 @@ public class GetTaskItemByIdQueryHandler(ITaskItemRepository taskItemRepository,
             Description: task.Description,
             DueDate: task.DueDate,
             CompletedAt: task.CompletedAt,
-            ItemPriority: task.ItemPriority
+            ItemPriority: task.ItemPriority,
+            Category: task.Category
         );
         
         return Result.Success(response);

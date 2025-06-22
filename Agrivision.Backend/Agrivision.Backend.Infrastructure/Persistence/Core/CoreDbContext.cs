@@ -27,7 +27,9 @@ public class CoreDbContext(DbContextOptions<CoreDbContext> options) : DbContext(
     public DbSet<CropType> CropTypes { get; set; }
     public DbSet<TaskItem> TaskItems { get; set; }
     public DbSet<IrrigationEvent> IrrigationEvents { get; set; }
-
+    public DbSet<InventoryItem> InventoryItems { get; set; }
+    public DbSet<InventoryItemTransaction> InventoryItemTransactions { get; set; }
+    
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfigurationsFromAssembly(

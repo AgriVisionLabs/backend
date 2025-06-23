@@ -135,6 +135,10 @@ public static class DependencyInjection
 
         services.AddIrrigationEventRepository();
 
+        services.AddInventoryItemRepository();
+
+        services.AddInventoryItemTransactionRepository();
+
         return services;
     }
 
@@ -580,6 +584,20 @@ public static class DependencyInjection
     private static IServiceCollection AddIrrigationEventRepository(this IServiceCollection services)
     {
         services.AddScoped<IIrrigationEventRepository, IrrigationEventRepository>();
+
+        return services;
+    }
+
+    private static IServiceCollection AddInventoryItemRepository(this IServiceCollection services)
+    {
+        services.AddScoped<IInventoryItemRepository, InventoryItemRepository>();
+
+        return services;
+    }
+    
+    private static IServiceCollection AddInventoryItemTransactionRepository(this IServiceCollection services)
+    {
+        services.AddScoped<IInventoryItemTransactionRepository, InventoryItemTransactionRepository>();
 
         return services;
     }

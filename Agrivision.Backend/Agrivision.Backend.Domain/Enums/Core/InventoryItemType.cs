@@ -4,5 +4,6 @@ public enum InventoryItemType
 {
     Fertilizer = 0,
     Chemicals = 1,
-    Treatments = 2
+    Treatments = 2,
+    Produce = 3
 }

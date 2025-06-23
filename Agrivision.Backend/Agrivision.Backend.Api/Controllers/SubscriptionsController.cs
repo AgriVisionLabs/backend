@@ -14,7 +14,6 @@ public class SubscriptionsController(IMediator mediator) : ControllerBase
         var command = new CreatePaymentIntentCommand(request.UserId,request.PlanId);
         var result = await mediator.Send(command);
         return result.Succeeded ? Ok(result.Value) : result.ToProblem(result.Error.ToStatusCode());
-
     }
 
     [HttpPost("confirm-subscription")]
@@ -24,10 +23,5 @@ public class SubscriptionsController(IMediator mediator) : ControllerBase
 
         var result = await mediator.Send(command);
         return result.Succeeded ? Ok() : result.ToProblem(result.Error.ToStatusCode());
-
-
-
     }
-
-
 }

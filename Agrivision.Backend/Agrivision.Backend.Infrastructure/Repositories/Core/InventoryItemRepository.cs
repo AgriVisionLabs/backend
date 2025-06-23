@@ -31,4 +31,10 @@ public class InventoryItemRepository(CoreDbContext coreDbContext) : IInventoryIt
         coreDbContext.InventoryItems.Update(item);
         await coreDbContext.SaveChangesAsync(cancellationToken);
     }
+
+    public async Task<bool> ExistsByFarmIdAndItemName(Guid farmId, string itemName, CancellationToken cancellationToken = default)
+    {
+        return await coreDbContext.InventoryItems
+            .AnyAsync(item => item.FarmId == farmId && item.Name == itemName && !item.IsDeleted, cancellationToken);
+    }
 }

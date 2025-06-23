@@ -15,5 +15,7 @@ public interface IInventoryItemRepository
 
     // update
     Task UpdateAsync(InventoryItem item, CancellationToken cancellationToken = default);
-
+    
+    // exists by in farm by name
+    Task<bool> ExistsByFarmIdAndItemName(Guid farmId, string itemName, CancellationToken cancellationToken = default);
 }

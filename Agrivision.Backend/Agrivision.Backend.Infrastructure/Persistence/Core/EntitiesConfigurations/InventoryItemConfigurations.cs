@@ -15,7 +15,7 @@ public class InventoryItemConfigurations : IEntityTypeConfiguration<InventoryIte
         builder.Property(item => item.Id)
             .ValueGeneratedOnAdd();
 
-        builder.Property(item => item.ItemName)
+        builder.Property(item => item.Name)
             .IsRequired()
             .HasMaxLength(100);
 
@@ -47,5 +47,9 @@ public class InventoryItemConfigurations : IEntityTypeConfiguration<InventoryIte
             .WithMany()
             .HasForeignKey(item => item.FieldId)
             .OnDelete(DeleteBehavior.Restrict);
+        
+        builder.HasIndex(item => new { item.FarmId, item.Name })
+            .IsUnique() // farm name is unique per user
+            .HasFilter("[IsDeleted] = 0");
     }
 }

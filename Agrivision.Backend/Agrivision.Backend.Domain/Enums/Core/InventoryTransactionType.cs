@@ -2,8 +2,9 @@ namespace Agrivision.Backend.Domain.Enums.Core;
 
 public enum InventoryTransactionType
 {
-    Usage = 0,
+    InitialStock = 0,
     Restock = 1,
-    Expired = 2,
-    Transfer = 3
+    Usage = 2,
+    Expired = 3,
+    Transfer = 4
 }

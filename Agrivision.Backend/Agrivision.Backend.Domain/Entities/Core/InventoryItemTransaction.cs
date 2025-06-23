@@ -11,5 +11,5 @@ public class InventoryItemTransaction : AuditableEntity
     public InventoryItem InventoryItem { get; set; } = default!;
 
     public float QuantityChanged { get; set; } // positive = added, negative = used
-    public InventoryTransactionType Reason { get; set; } = InventoryTransactionType.Usage;
+    public InventoryTransactionType Reason { get; set; } = InventoryTransactionType.InitialStock;
 }

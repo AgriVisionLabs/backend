@@ -6,4 +6,7 @@ public static class InventoryItemErrors
 {
     public static readonly Error DuplicateName =
         new("InventoryItemErrors.DuplicateName", "Farm already have an inventory item by that name.");
+    
+    public static readonly Error ItemNotFound =
+        new("InventoryItemErrors.ItemNotFound", "No inventory item with the specified id was found.");
 }

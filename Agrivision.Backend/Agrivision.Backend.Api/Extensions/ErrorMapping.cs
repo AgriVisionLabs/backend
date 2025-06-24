@@ -67,6 +67,7 @@ public static class ErrorMapping
         "TaskItemErrors.TaskCannotBeCompletedByAnotherUser" => StatusCodes.Status409Conflict,
         "TaskItemErrors.TaskAlreadyCompleted" => StatusCodes.Status409Conflict,
         "InventoryItemErrors.DuplicateName" => StatusCodes.Status409Conflict,
+        "InventoryItemErrors.ItemNotFound" => StatusCodes.Status404NotFound,
         _ => StatusCodes.Status400BadRequest // Default case
     };
 }

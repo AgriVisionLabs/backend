@@ -28,7 +28,7 @@ public class GetInventoryItemByIdQueryHandler(IFarmRepository farmRepository, II
             return Result.Failure<InventoryItemResponse>(FarmErrors.UnauthorizedAction);
         
         // get items
-        var item = await inventoryItemRepository.GetByIdAsync(request.ItemId, cancellationToken);
+        var item = await inventoryItemRepository.FindByIdAsync(request.ItemId, cancellationToken);
         if (item is null)
             return Result.Failure<InventoryItemResponse>(InventoryItemErrors.ItemNotFound);
         

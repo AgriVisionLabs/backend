@@ -14,7 +14,7 @@ public class InventoryItemRepository(CoreDbContext coreDbContext) : IInventoryIt
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<InventoryItem?> GetByIdAsync(Guid itemId, CancellationToken cancellationToken = default)
+    public async Task<InventoryItem?> FindByIdAsync(Guid itemId, CancellationToken cancellationToken = default)
     {
         return await coreDbContext.InventoryItems
             .FirstOrDefaultAsync(item => item.Id == itemId && !item.IsDeleted, cancellationToken);
@@ -36,5 +36,12 @@ public class InventoryItemRepository(CoreDbContext coreDbContext) : IInventoryIt
     {
         return await coreDbContext.InventoryItems
             .AnyAsync(item => item.FarmId == farmId && item.Name == itemName && !item.IsDeleted, cancellationToken);
+    }
+
+    public async Task<InventoryItem?> FindByFarmIdAndItemNameAsync(Guid farmId, string itemName, CancellationToken cancellationToken = default)
+    {
+        return await coreDbContext.InventoryItems
+            .FirstOrDefaultAsync(item => item.FarmId == farmId && item.Name == itemName && !item.IsDeleted,
+                cancellationToken);
     }
 }

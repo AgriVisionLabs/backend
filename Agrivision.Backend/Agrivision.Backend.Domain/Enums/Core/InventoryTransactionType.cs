@@ -6,5 +6,6 @@ public enum InventoryTransactionType
     Restock = 1,
     Usage = 2,
     Expired = 3,
-    Transfer = 4
+    Transfer = 4,
+    ManualAdjustment = 5
 }

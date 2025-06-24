@@ -1,0 +1,20 @@
+using Agrivision.Backend.Domain.Abstractions;
+using Agrivision.Backend.Domain.Enums.Core;
+using MediatR;
+
+namespace Agrivision.Backend.Application.Features.Inventory.Commands;
+
+public record UpdateInventoryItemCommand
+(
+    Guid FarmId,
+    Guid? FieldId,
+    Guid ItemId,
+    string RequesterId,
+    string Name,
+    InventoryItemType Category,
+    float Quantity,
+    float ThresholdQuantity,
+    float UnitCost,
+    string MeasurementUnit,
+    DateTime? ExpirationDate 
+) : IRequest<Result>;

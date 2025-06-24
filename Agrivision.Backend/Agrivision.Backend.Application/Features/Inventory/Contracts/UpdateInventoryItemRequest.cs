@@ -2,7 +2,7 @@ using Agrivision.Backend.Domain.Enums.Core;
 
 namespace Agrivision.Backend.Application.Features.Inventory.Contracts;
 
-public record AddInventoryItemRequest
+public record UpdateInventoryItemRequest
 (
     Guid? FieldId,
     string Name,
@@ -11,5 +11,5 @@ public record AddInventoryItemRequest
     float ThresholdQuantity,
     float UnitCost,
     string MeasurementUnit,
-    DateTime? ExpirationDate    
+    DateTime? ExpirationDate        
 );

@@ -9,4 +9,7 @@ public static class InventoryItemErrors
     
     public static readonly Error ItemNotFound =
         new("InventoryItemErrors.ItemNotFound", "No inventory item with the specified id was found.");
+    
+    public static readonly Error InsufficientInventoryQuantity =
+        new("InventoryItemErrors.InsufficientInventoryQuantity", "Insufficient inventory quantity to complete the transaction.");
 }

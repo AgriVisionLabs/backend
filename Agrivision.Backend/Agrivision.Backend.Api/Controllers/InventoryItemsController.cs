@@ -18,13 +18,13 @@ namespace Agrivision.Backend.Api.Controllers
     public class InventoryItemsController(IMediator mediator) : ControllerBase
     {
         [HttpPost("[controller]")]
-        public async Task<IActionResult> AddAsync([FromRoute] Guid farmId, [FromQuery] Guid? fieldId, [FromBody] AddInventoryItemRequest request, CancellationToken cancellationToken = default)
+        public async Task<IActionResult> AddAsync([FromRoute] Guid farmId, [FromBody] AddInventoryItemRequest request, CancellationToken cancellationToken = default)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userId))
                 return Result.Failure(TokenErrors.InvalidToken).ToProblem(TokenErrors.InvalidToken.ToStatusCode());
 
-            var command = new AddInventoryItemCommand(farmId, fieldId, userId, request.Name, request.Category,
+            var command = new AddInventoryItemCommand(farmId, request.FieldId, userId, request.Name, request.Category,
                 request.Quantity, request.ThresholdQuantity, request.UnitCost, request.MeasurementUnit, request.ExpirationDate);
             var result = await mediator.Send(command, cancellationToken);
 
@@ -57,5 +57,45 @@ namespace Agrivision.Backend.Api.Controllers
             return result.Succeeded ? Ok(result.Value) : result.ToProblem(result.Error.ToStatusCode());
         }
 
+        [HttpPut("[controller]/{itemId}")]
+        public async Task<IActionResult> UpdateAsync([FromRoute] Guid farmId, [FromRoute] Guid itemId, [FromBody] UpdateInventoryItemRequest request, CancellationToken cancellationToken = default)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+                return Result.Failure(TokenErrors.InvalidToken).ToProblem(TokenErrors.InvalidToken.ToStatusCode());
+
+            var command = new UpdateInventoryItemCommand(farmId, request.FieldId, itemId, userId, request.Name,
+                request.Category, request.Quantity, request.ThresholdQuantity, request.UnitCost,
+                request.MeasurementUnit, request.ExpirationDate);
+            var result = await mediator.Send(command, cancellationToken);
+            
+            return result.Succeeded ? NoContent() : result.ToProblem(result.Error.ToStatusCode()); 
+        }
+
+        [HttpPost("[controller]/{itemId}/log")]
+        public async Task<IActionResult> LogChangeAsync([FromRoute] Guid farmId, [FromRoute] Guid itemId, [FromBody] InventoryItemLogChangeRequest request, CancellationToken cancellationToken = default)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+                return Result.Failure(TokenErrors.InvalidToken).ToProblem(TokenErrors.InvalidToken.ToStatusCode());
+
+            var command = new InventoryItemLogChangeCommand(farmId, itemId, userId, request.Quantity, request.Reason);
+            var result = await mediator.Send(command, cancellationToken);
+            
+            return result.Succeeded ? NoContent() : result.ToProblem(result.Error.ToStatusCode());
+        }
+
+        [HttpDelete("[controller]/{itemId}")]
+        public async Task<IActionResult> RemoveAsync([FromRoute] Guid farmId, [FromRoute] Guid itemId, CancellationToken cancellationToken = default)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+                return Result.Failure(TokenErrors.InvalidToken).ToProblem(TokenErrors.InvalidToken.ToStatusCode());
+
+            var command = new RemoveInventoryItemCommand(farmId, itemId, userId);
+            var result = await mediator.Send(command, cancellationToken);
+            
+            return result.Succeeded ? NoContent() : result.ToProblem(result.Error.ToStatusCode());
+        }
     }
 }

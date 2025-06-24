@@ -8,7 +8,7 @@ public interface IInventoryItemRepository
     Task<IReadOnlyList<InventoryItem>> GetAllByFarmIdAsync(Guid farmId, CancellationToken cancellationToken = default);
 
     // get by id
-    Task<InventoryItem?> GetByIdAsync(Guid itemId, CancellationToken cancellationToken = default);
+    Task<InventoryItem?> FindByIdAsync(Guid itemId, CancellationToken cancellationToken = default);
 
     // add
     Task AddAsync(InventoryItem item, CancellationToken cancellationToken = default);
@@ -18,4 +18,7 @@ public interface IInventoryItemRepository
     
     // exists by in farm by name
     Task<bool> ExistsByFarmIdAndItemName(Guid farmId, string itemName, CancellationToken cancellationToken = default);
+    
+    // get by farm id and name 
+    Task<InventoryItem?> FindByFarmIdAndItemNameAsync(Guid farmId, string itemName, CancellationToken cancellationToken = default);
 }

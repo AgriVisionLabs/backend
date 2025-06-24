@@ -1,5 +1,6 @@
 using Agrivision.Backend.Application.Repositories.Core;
 using Agrivision.Backend.Domain.Entities.Core;
+using Agrivision.Backend.Domain.Enums.Core;
 using Agrivision.Backend.Infrastructure.Persistence.Core;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,7 +12,7 @@ public class InventoryItemTransactionRepository(CoreDbContext coreDbContext) : I
     {
         return await coreDbContext.InventoryItemTransactions
             .Include(transaction => transaction.InventoryItem)
-            .Where(transaction => transaction.InventoryItem.FarmId == farmId && !transaction.IsDeleted)
+            .Where(transaction => transaction.InventoryItem.FarmId == farmId && !transaction.IsDeleted && transaction.Reason != InventoryTransactionType.ManualAdjustment)
             .ToListAsync(cancellationToken);
     }
 
@@ -19,7 +20,7 @@ public class InventoryItemTransactionRepository(CoreDbContext coreDbContext) : I
     {
         return await coreDbContext.InventoryItemTransactions
             .Include(transaction => transaction.InventoryItem)
-            .Where(transaction => transaction.InventoryItemId == itemId && !transaction.IsDeleted)
+            .Where(transaction => transaction.InventoryItemId == itemId && !transaction.IsDeleted && transaction.Reason != InventoryTransactionType.ManualAdjustment)
             .ToListAsync(cancellationToken);
     }
 
@@ -27,7 +28,7 @@ public class InventoryItemTransactionRepository(CoreDbContext coreDbContext) : I
     {
         return await coreDbContext.InventoryItemTransactions
             .Include(transaction => transaction.InventoryItem)
-            .FirstOrDefaultAsync(transaction => transaction.Id == transactionId && !transaction.IsDeleted,
+            .FirstOrDefaultAsync(transaction => transaction.Id == transactionId && !transaction.IsDeleted && transaction.Reason != InventoryTransactionType.ManualAdjustment,
                 cancellationToken);
     }
 

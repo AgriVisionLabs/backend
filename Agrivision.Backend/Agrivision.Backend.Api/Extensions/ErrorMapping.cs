@@ -68,6 +68,7 @@ public static class ErrorMapping
         "TaskItemErrors.TaskAlreadyCompleted" => StatusCodes.Status409Conflict,
         "InventoryItemErrors.DuplicateName" => StatusCodes.Status409Conflict,
         "InventoryItemErrors.ItemNotFound" => StatusCodes.Status404NotFound,
+        "InventoryItemErrors.InsufficientInventoryQuantity" => StatusCodes.Status400BadRequest,
         _ => StatusCodes.Status400BadRequest // Default case
     };
 }

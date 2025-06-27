@@ -133,6 +133,8 @@ public static class DependencyInjection
 
         services.AddInventoryItemTransactionRepository();
 
+        services.AddPlantedCropRepository();
+
         return services;
     }
 
@@ -574,6 +576,13 @@ public static class DependencyInjection
     private static IServiceCollection AddInventoryItemTransactionRepository(this IServiceCollection services)
     {
         services.AddScoped<IInventoryItemTransactionRepository, InventoryItemTransactionRepository>();
+
+        return services;
+    }
+    
+    private static IServiceCollection AddPlantedCropRepository(this IServiceCollection services)
+    {
+        services.AddScoped<IPlantedCropRepository, PlantedCropRepository>();
 
         return services;
     }

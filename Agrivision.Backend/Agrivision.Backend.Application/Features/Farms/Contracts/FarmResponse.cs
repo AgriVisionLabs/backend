@@ -8,7 +8,7 @@ public record FarmResponse
     string Name,
     double Area,
     string Location,
-    SoilTypes SoilType,
+    SoilType SoilType,
     int FieldsNo,
     string RoleName,
     string OwnerId,

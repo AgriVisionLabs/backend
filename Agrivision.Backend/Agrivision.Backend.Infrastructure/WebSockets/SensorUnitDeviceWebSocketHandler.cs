@@ -260,7 +260,7 @@ public class SensorUnitDeviceWebSocketHandler(IWebSocketConnectionManager connec
                                 }
                                 else
                                 {
-                                    logger.LogWarning("No valid readings parsed for device {DeviceId}", deviceId);
+                                    logger.LogInformation("No valid readings parsed for device {DeviceId}", deviceId);
                                 }
                             }
                         }

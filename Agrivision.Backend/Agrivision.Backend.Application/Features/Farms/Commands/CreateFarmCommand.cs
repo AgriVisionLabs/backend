@@ -10,6 +10,6 @@ public record CreateFarmCommand
     string Name,
     double Area,
     string Location,
-    SoilTypes SoilType,
+    SoilType SoilType,
     string CreatedById
 ) : IRequest<Result<FarmResponse>>;

@@ -23,6 +23,10 @@ public class CropConfigurations : IEntityTypeConfiguration<Crop>
         builder.Property(c => c.CropType)
             .HasConversion<int>()
             .IsRequired();
+        
+        builder.Property(c => c.SoilType)
+            .HasConversion<int>()
+            .IsRequired();
 
         builder.Property(c => c.Description)
             .HasMaxLength(500);

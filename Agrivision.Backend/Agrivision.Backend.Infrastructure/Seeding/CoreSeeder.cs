@@ -77,7 +77,7 @@ public static class CoreSeeder
                 Name = "Giga Farm",
                 Area = 16.25,
                 Location = "Greenland",
-                SoilType = SoilTypes.Clay,
+                SoilType = SoilType.Clay,
                 CreatedById = adminUser.Id,
                 FieldsNo = 2
             };
@@ -332,360 +332,57 @@ public static class CoreSeeder
         var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
         var options = serviceProvider.GetRequiredService<IOptions<AdminSettings>>();
         var logger = serviceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("CropSeeder");
-        
-        
+
         var adminSettings = options.Value;
 
-        if (await coreDbContext.Crops.AnyAsync())
-        {
-            logger.LogInformation("Crops already seeded.");
-            return;
-        }
-            
         try
         {
             var adminUser = await userManager.FindByEmailAsync(adminSettings.Email);
             if (adminUser == null)
-                throw new Exception("Couldn't find admin user.");
+                throw new Exception("Admin user not found.");
 
             if (await coreDbContext.Crops.AnyAsync())
             {
                 logger.LogInformation("Crops already seeded.");
                 return;
             }
+
             var now = DateTime.UtcNow;
+
             var crops = new List<Crop>
             {
-                new Crop
-                {
-                    Name = "Apple",
-                    CropType = CropType.Apple,
-                    Description = "Apples are cultivated in Egypt's cooler regions, requiring specific chilling hours for optimal fruiting.",
-                    GrowthDurationDays = 180,
-                    SupportsDiseaseDetection = true,
-                    PlantingMonths = new List<int> { 1, 2, 11, 12 },
-                    CreatedById = adminUser.Id,
-                    CreatedOn = now
-                },
-                new Crop
-                {
-                    Name = "Bell Pepper",
-                    CropType = CropType.BellPepper,
-                    Description = "Bell peppers thrive in warm climates and are commonly grown in Egypt during the warmer months.",
-                    GrowthDurationDays = 90,
-                    SupportsDiseaseDetection = true,
-                    PlantingMonths = new List<int> { 3, 4, 5 },
-                    CreatedById = adminUser.Id,
-                    CreatedOn = now
-                },
-                new Crop
-                {
-                    Name = "Blueberry",
-                    CropType = CropType.Blueberry,
-                    Description = "Blueberries have been successfully cultivated in Egypt, with harvests typically occurring from January to May.",
-                    GrowthDurationDays = 120,
-                    SupportsDiseaseDetection = true,
-                    PlantingMonths = new List<int> { 6 },
-                    CreatedById = adminUser.Id,
-                    CreatedOn = now
-                },
-                new Crop
-                {
-                    Name = "Cherry",
-                    CropType = CropType.Cherry,
-                    Description = "Cherries require a dormant season and are best planted between November and March in Egypt.",
-                    GrowthDurationDays = 90,
-                    SupportsDiseaseDetection = true,
-                    PlantingMonths = new List<int> { 11, 12, 1, 2, 3 },
-                    CreatedById = adminUser.Id,
-                    CreatedOn = now
-                },
-                new Crop
-                {
-                    Name = "Corn",
-                    CropType = CropType.Corn,
-                    Description = "Corn is a staple crop in Egypt, typically planted in the spring and harvested in the summer.",
-                    GrowthDurationDays = 120,
-                    SupportsDiseaseDetection = true,
-                    PlantingMonths = new List<int> { 3, 4, 5 },
-                    CreatedById = adminUser.Id,
-                    CreatedOn = now
-                },
-                new Crop
-                {
-                    Name = "Grape",
-                    CropType = CropType.Grape,
-                    Description = "Grapes are widely cultivated in Egypt, with planting best done in late winter to early spring.",
-                    GrowthDurationDays = 150,
-                    SupportsDiseaseDetection = true,
-                    PlantingMonths = new List<int> { 2, 3 },
-                    CreatedById = adminUser.Id,
-                    CreatedOn = now
-                },
-                new Crop
-                {
-                    Name = "Orange",
-                    CropType = CropType.Orange,
-                    Description = "Oranges are a major citrus crop in Egypt, with planting typically in the spring.",
-                    GrowthDurationDays = 240,
-                    SupportsDiseaseDetection = true,
-                    PlantingMonths = new List<int> { 3, 4 },
-                    CreatedById = adminUser.Id,
-                    CreatedOn = now
-                },
-                new Crop
-                {
-                    Name = "Peach",
-                    CropType = CropType.Peach,
-                    Description = "Peaches require chilling hours and are best planted in late winter in Egypt.",
-                    GrowthDurationDays = 120,
-                    SupportsDiseaseDetection = true,
-                    PlantingMonths = new List<int> { 1, 2 },
-                    CreatedById = adminUser.Id,
-                    CreatedOn = now
-                },
-                new Crop
-                {
-                    Name = "Potato",
-                    CropType = CropType.Potato,
-                    Description = "Potatoes are commonly grown in Egypt during the cooler months.",
-                    GrowthDurationDays = 90,
-                    SupportsDiseaseDetection = true,
-                    PlantingMonths = new List<int> { 10, 11, 12 },
-                    CreatedById = adminUser.Id,
-                    CreatedOn = now
-                },
-                new Crop
-                {
-                    Name = "Raspberry",
-                    CropType = CropType.Raspberry,
-                    Description = "Raspberries are less common in Egypt but can be grown in cooler regions.",
-                    GrowthDurationDays = 120,
-                    SupportsDiseaseDetection = true,
-                    PlantingMonths = new List<int> { 1, 2 },
-                    CreatedById = adminUser.Id,
-                    CreatedOn = now
-                },
-                new Crop
-                {
-                    Name = "Soybean",
-                    CropType = CropType.Soybean,
-                    Description = "Soybeans are grown in Egypt's Nile Delta region, typically planted in the spring.",
-                    GrowthDurationDays = 100,
-                    SupportsDiseaseDetection = true,
-                    PlantingMonths = new List<int> { 4, 5 },
-                    CreatedById = adminUser.Id,
-                    CreatedOn = now
-                },
-                new Crop
-                {
-                    Name = "Squash",
-                    CropType = CropType.Squash,
-                    Description = "Squash is a warm-season crop in Egypt, planted in the spring and summer.",
-                    GrowthDurationDays = 70,
-                    SupportsDiseaseDetection = true,
-                    PlantingMonths = new List<int> { 3, 4, 5, 6 },
-                    CreatedById = adminUser.Id,
-                    CreatedOn = now
-                },
-                new Crop
-                {
-                    Name = "Strawberry",
-                    CropType = CropType.Strawberry,
-                    Description = "Strawberries are grown in Egypt during the cooler months, with planting in the fall.",
-                    GrowthDurationDays = 90,
-                    SupportsDiseaseDetection = true,
-                    PlantingMonths = new List<int> { 10, 11 },
-                    CreatedById = adminUser.Id,
-                    CreatedOn = now
-                },
-                new Crop
-                {
-                    Name = "Tomato",
-                    CropType = CropType.Tomato,
-                    Description = "Tomatoes are a major crop in Egypt, grown year-round in various regions.",
-                    GrowthDurationDays = 90,
-                    SupportsDiseaseDetection = true,
-                    PlantingMonths = new List<int> { 2, 3, 4, 5, 9, 10 },
-                    CreatedById = adminUser.Id,
-                    CreatedOn = now
-                },
-                new Crop
-                {
-                    Name = "Carrot",
-                    CropType = CropType.Carrot,
-                    Description = "Carrots are grown in Egypt during the cooler months, with planting in the fall.",
-                    GrowthDurationDays = 75,
-                    SupportsDiseaseDetection = false,
-                    PlantingMonths = new List<int> { 10, 11 },
-                    CreatedById = adminUser.Id,
-                    CreatedOn = now
-                },
-                new Crop
-                {
-                    Name = "Cucumber",
-                    CropType = CropType.Cucumber,
-                    Description = "Cucumbers are a warm-season crop in Egypt, planted in the spring and summer.",
-                    GrowthDurationDays = 60,
-                    SupportsDiseaseDetection = false,
-                    PlantingMonths = new List<int> { 3, 4, 5, 6 },
-                    CreatedById = adminUser.Id,
-                    CreatedOn = now
-                },
-                new Crop
-                {
-                    Name = "Garlic",
-                    CropType = CropType.Garlic,
-                    Description = "Garlic is planted in Egypt during the cooler months, typically in the fall.",
-                    GrowthDurationDays = 150,
-                    SupportsDiseaseDetection = false,
-                    PlantingMonths = new List<int> { 10, 11 },
-                    CreatedById = adminUser.Id,
-                    CreatedOn = now
-                },
-                new Crop
-                {
-                    Name = "Lettuce",
-                    CropType = CropType.Lettuce,
-                    Description = "Lettuce is a cool-season crop in Egypt, grown during the winter months.",
-                    GrowthDurationDays = 60,
-                    SupportsDiseaseDetection = false,
-                    PlantingMonths = new List<int> { 11, 12, 1 },
-                    CreatedById = adminUser.Id,
-                    CreatedOn = now
-                },
-                new Crop
-                {
-                    Name = "Onion",
-                    CropType = CropType.Onion,
-                    Description = "Onions are planted in Egypt during the cooler months, with planting in the fall.",
-                    GrowthDurationDays = 150,
-                    SupportsDiseaseDetection = false,
-                    PlantingMonths = new List<int> { 10, 11 },
-                    CreatedById = adminUser.Id,
-                    CreatedOn = now
-                },
-                new Crop
-                {
-                    Name = "Spinach",
-                    CropType = CropType.Spinach,
-                    Description = "Spinach is a cool-season crop in Egypt, grown during the winter months.",
-                    GrowthDurationDays = 45,
-                    SupportsDiseaseDetection = false,
-                    PlantingMonths = new List<int> { 11, 12, 1 },
-                    CreatedById = adminUser.Id,
-                    CreatedOn = now
-                },
-                new Crop
-                {
-                    Name = "Sweet Potato",
-                    CropType = CropType.SweetPotato,
-                    Description = "Sweet potatoes are a warm-season crop in Egypt, planted in the spring.",
-                    GrowthDurationDays = 120,
-                    SupportsDiseaseDetection = false,
-                    PlantingMonths = new List<int> { 3, 4 },
-                    CreatedById = adminUser.Id,
-                    CreatedOn = now
-                },
-                new Crop
-                {
-                    Name = "Wheat",
-                    CropType = CropType.Wheat,
-                    Description = "Wheat is a major cereal crop in Egypt, planted in the winter.",
-                    GrowthDurationDays = 150,
-                    SupportsDiseaseDetection = false,
-                    PlantingMonths = new List<int> { 11, 12 },
-                    CreatedById = adminUser.Id,
-                    CreatedOn = now
-                },
-                new Crop
-                {
-                    Name = "Rice",
-                    CropType = CropType.Rice,
-                    Description = "Rice is grown in Egypt's Nile Delta region, planted in the summer.",
-                    GrowthDurationDays = 150,
-                    SupportsDiseaseDetection = false,
-                    PlantingMonths = new List<int> { 5, 6 },
-                    CreatedById = adminUser.Id,
-                    CreatedOn = now
-                },
-                new Crop
-                {
-                    Name = "Banana",
-                    CropType = CropType.Banana,
-                    Description = "Bananas are grown in Egypt's warmer regions, planted year-round.",
-                    GrowthDurationDays = 270,
-                    SupportsDiseaseDetection = false,
-                    PlantingMonths = new List<int> { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 },
-                    CreatedById = adminUser.Id,
-                    CreatedOn = now
-                },
-                new Crop
-                {
-                    Name = "Mango",
-                    CropType = CropType.Mango,
-                    Description = "Mangoes are a major fruit crop in Egypt, planted in the spring.",
-                    GrowthDurationDays = 150,
-                    SupportsDiseaseDetection = false,
-                    PlantingMonths = new List<int> { 3, 4 },
-                    CreatedById = adminUser.Id,
-                    CreatedOn = now
-                },
-                new Crop
-                {
-                    Name = "Cabbage",
-                    CropType = CropType.Cabbage,
-                    Description = "Cabbage is a cool-season crop in Egypt, grown during the winter months.",
-                    GrowthDurationDays = 90,
-                    SupportsDiseaseDetection = false,
-                    PlantingMonths = new List<int> { 11, 12, 1 },
-                    CreatedById = adminUser.Id,
-                    CreatedOn = now
-                },
-                new Crop
-                {
-                    Name = "Broccoli",
-                    CropType = CropType.Broccoli,
-                    Description = "Broccoli is a cool-season crop in Egypt, grown during the winter months.",
-                    GrowthDurationDays = 90,
-                    SupportsDiseaseDetection = false,
-                    PlantingMonths = new List<int> { 11, 12, 1 },
-                    CreatedById = adminUser.Id,
-                    CreatedOn = now
-                },
-                new Crop
-                {
-                    Name = "Beans",
-                    CropType = CropType.Beans,
-                    Description = "Beans are widely grown in Egypt during spring and early summer, valued for their high protein content.",
-                    GrowthDurationDays = 80,
-                    SupportsDiseaseDetection = false,
-                    PlantingMonths = new List<int> { 3, 4, 5 },
-                    CreatedById = adminUser.Id,
-                    CreatedOn = now
-                },
-                new Crop
-                {
-                    Name = "Sesame",
-                    CropType = CropType.Sesame,
-                    Description = "Sesame is a drought-tolerant crop grown in Egypt's hot summer climate.",
-                    GrowthDurationDays = 120,
-                    SupportsDiseaseDetection = false,
-                    PlantingMonths = new List<int> { 5, 6 },
-                    CreatedById = adminUser.Id,
-                    CreatedOn = now
-                },
-                new Crop
-                {
-                    Name = "Peas",
-                    CropType = CropType.Peas,
-                    Description = "Peas are cool-season legumes grown in Egypt during winter and early spring.",
-                    GrowthDurationDays = 75,
-                    SupportsDiseaseDetection = false,
-                    PlantingMonths = new List<int> { 10, 11, 12 },
-                    CreatedById = adminUser.Id,
-                    CreatedOn = now
-                }
+                new Crop { Name = "Apple", CropType = CropType.Apple, Description = "Apples require a period of cold dormancy and are best suited for temperate climates.", GrowthDurationDays = 180, SupportsDiseaseDetection = true, PlantingMonths = new List<int> { 1, 2, 11, 12 }, SoilType = SoilType.Loamy, CreatedById = adminUser.Id, CreatedOn = now },
+                new Crop { Name = "Bell Pepper", CropType = CropType.BellPepper, Description = "Bell peppers thrive in warm conditions and well-drained soils.", GrowthDurationDays = 90, SupportsDiseaseDetection = true, PlantingMonths = new List<int> { 3, 4, 5 }, SoilType = SoilType.Loamy, CreatedById = adminUser.Id, CreatedOn = now },
+                new Crop { Name = "Blueberry", CropType = CropType.Blueberry, Description = "Blueberries prefer acidic, well-drained soil and moderate climates.", GrowthDurationDays = 120, SupportsDiseaseDetection = true, PlantingMonths = new List<int> { 6 }, SoilType = SoilType.Sandy, CreatedById = adminUser.Id, CreatedOn = now },
+                new Crop { Name = "Cherry", CropType = CropType.Cherry, Description = "Cherries require a dormant season and grow well in temperate zones.", GrowthDurationDays = 90, SupportsDiseaseDetection = true, PlantingMonths = new List<int> { 11, 12, 1, 2, 3 }, SoilType = SoilType.Loamy, CreatedById = adminUser.Id, CreatedOn = now },
+                new Crop { Name = "Corn", CropType = CropType.Corn, Description = "Corn is a warm-season cereal crop requiring full sun and fertile soils.", GrowthDurationDays = 120, SupportsDiseaseDetection = true, PlantingMonths = new List<int> { 3, 4, 5 }, SoilType = SoilType.Loamy, CreatedById = adminUser.Id, CreatedOn = now },
+                new Crop { Name = "Grape", CropType = CropType.Grape, Description = "Grapes thrive in full sun and well-drained soils with moderate fertility.", GrowthDurationDays = 150, SupportsDiseaseDetection = true, PlantingMonths = new List<int> { 2, 3 }, SoilType = SoilType.Loamy, CreatedById = adminUser.Id, CreatedOn = now },
+                new Crop { Name = "Orange", CropType = CropType.Orange, Description = "Oranges grow best in subtropical climates with well-drained soils.", GrowthDurationDays = 240, SupportsDiseaseDetection = true, PlantingMonths = new List<int> { 3, 4 }, SoilType = SoilType.Sandy, CreatedById = adminUser.Id, CreatedOn = now },
+                new Crop { Name = "Peach", CropType = CropType.Peach, Description = "Peaches require chilling periods and well-drained, fertile soils.", GrowthDurationDays = 120, SupportsDiseaseDetection = true, PlantingMonths = new List<int> { 1, 2 }, SoilType = SoilType.Loamy, CreatedById = adminUser.Id, CreatedOn = now },
+                new Crop { Name = "Potato", CropType = CropType.Potato, Description = "Potatoes prefer cool weather and loose, well-drained soils.", GrowthDurationDays = 90, SupportsDiseaseDetection = true, PlantingMonths = new List<int> { 10, 11, 12 }, SoilType = SoilType.Sandy, CreatedById = adminUser.Id, CreatedOn = now },
+                new Crop { Name = "Raspberry", CropType = CropType.Raspberry, Description = "Raspberries grow in cool climates and prefer well-drained loamy soils.", GrowthDurationDays = 120, SupportsDiseaseDetection = true, PlantingMonths = new List<int> { 1, 2 }, SoilType = SoilType.Loamy, CreatedById = adminUser.Id, CreatedOn = now },
+                new Crop { Name = "Soybean", CropType = CropType.Soybean, Description = "Soybeans are leguminous crops suited to warm climates and fertile soils.", GrowthDurationDays = 100, SupportsDiseaseDetection = true, PlantingMonths = new List<int> { 4, 5 }, SoilType = SoilType.Loamy, CreatedById = adminUser.Id, CreatedOn = now },
+                new Crop { Name = "Squash", CropType = CropType.Squash, Description = "Squash grows best in warm weather and well-drained soils.", GrowthDurationDays = 70, SupportsDiseaseDetection = true, PlantingMonths = new List<int> { 3, 4, 5, 6 }, SoilType = SoilType.Sandy, CreatedById = adminUser.Id, CreatedOn = now },
+                new Crop { Name = "Strawberry", CropType = CropType.Strawberry, Description = "Strawberries require cool temperatures and well-aerated soil.", GrowthDurationDays = 90, SupportsDiseaseDetection = true, PlantingMonths = new List<int> { 10, 11 }, SoilType = SoilType.Loamy, CreatedById = adminUser.Id, CreatedOn = now },
+                new Crop { Name = "Tomato", CropType = CropType.Tomato, Description = "Tomatoes thrive in warm climates and fertile, well-drained soils.", GrowthDurationDays = 90, SupportsDiseaseDetection = true, PlantingMonths = new List<int> { 2, 3, 4, 5, 9, 10 }, SoilType = SoilType.Loamy, CreatedById = adminUser.Id, CreatedOn = now },
+
+                // Crops without disease detection
+                new Crop { Name = "Carrot", CropType = CropType.Carrot, Description = "Carrots grow well in cool conditions and deep, loose soil.", GrowthDurationDays = 75, SupportsDiseaseDetection = false, PlantingMonths = new List<int> { 10, 11 }, SoilType = SoilType.Sandy, CreatedById = adminUser.Id, CreatedOn = now },
+                new Crop { Name = "Cucumber", CropType = CropType.Cucumber, Description = "Cucumbers prefer warm climates and moist, well-drained soil.", GrowthDurationDays = 60, SupportsDiseaseDetection = false, PlantingMonths = new List<int> { 3, 4, 5, 6 }, SoilType = SoilType.Loamy, CreatedById = adminUser.Id, CreatedOn = now },
+                new Crop { Name = "Garlic", CropType = CropType.Garlic, Description = "Garlic grows best in loose, well-drained soil with cool temperatures.", GrowthDurationDays = 150, SupportsDiseaseDetection = false, PlantingMonths = new List<int> { 10, 11 }, SoilType = SoilType.Loamy, CreatedById = adminUser.Id, CreatedOn = now },
+                new Crop { Name = "Lettuce", CropType = CropType.Lettuce, Description = "Lettuce thrives in cool seasons and fertile, well-drained soils.", GrowthDurationDays = 60, SupportsDiseaseDetection = false, PlantingMonths = new List<int> { 11, 12, 1 }, SoilType = SoilType.Loamy, CreatedById = adminUser.Id, CreatedOn = now },
+                new Crop { Name = "Onion", CropType = CropType.Onion, Description = "Onions are cool-season crops preferring fertile, well-drained soil.", GrowthDurationDays = 150, SupportsDiseaseDetection = false, PlantingMonths = new List<int> { 10, 11 }, SoilType = SoilType.Loamy, CreatedById = adminUser.Id, CreatedOn = now },
+                new Crop { Name = "Spinach", CropType = CropType.Spinach, Description = "Spinach prefers cool weather and moist, nutrient-rich soils.", GrowthDurationDays = 45, SupportsDiseaseDetection = false, PlantingMonths = new List<int> { 11, 12, 1 }, SoilType = SoilType.Loamy, CreatedById = adminUser.Id, CreatedOn = now },
+                new Crop { Name = "Sweet Potato", CropType = CropType.SweetPotato, Description = "Sweet potatoes grow best in warm climates and sandy soils.", GrowthDurationDays = 120, SupportsDiseaseDetection = false, PlantingMonths = new List<int> { 3, 4 }, SoilType = SoilType.Sandy, CreatedById = adminUser.Id, CreatedOn = now },
+                new Crop { Name = "Wheat", CropType = CropType.Wheat, Description = "Wheat grows in cooler weather and prefers fertile loamy soil.", GrowthDurationDays = 150, SupportsDiseaseDetection = false, PlantingMonths = new List<int> { 11, 12 }, SoilType = SoilType.Loamy, CreatedById = adminUser.Id, CreatedOn = now },
+                new Crop { Name = "Rice", CropType = CropType.Rice, Description = "Rice requires flooded fields or high-moisture clay soils.", GrowthDurationDays = 150, SupportsDiseaseDetection = false, PlantingMonths = new List<int> { 5, 6 }, SoilType = SoilType.Clay, CreatedById = adminUser.Id, CreatedOn = now },
+                new Crop { Name = "Banana", CropType = CropType.Banana, Description = "Bananas grow year-round in tropical climates with moist, rich soil.", GrowthDurationDays = 270, SupportsDiseaseDetection = false, PlantingMonths = Enumerable.Range(1, 12).ToList(), SoilType = SoilType.Loamy, CreatedById = adminUser.Id, CreatedOn = now },
+                new Crop { Name = "Mango", CropType = CropType.Mango, Description = "Mangoes prefer tropical to subtropical climates and well-drained soil.", GrowthDurationDays = 150, SupportsDiseaseDetection = false, PlantingMonths = new List<int> { 3, 4 }, SoilType = SoilType.Sandy, CreatedById = adminUser.Id, CreatedOn = now },
+                new Crop { Name = "Cabbage", CropType = CropType.Cabbage, Description = "Cabbage is a cool-season crop growing in fertile, moist soils.", GrowthDurationDays = 90, SupportsDiseaseDetection = false, PlantingMonths = new List<int> { 11, 12, 1 }, SoilType = SoilType.Loamy, CreatedById = adminUser.Id, CreatedOn = now },
+                new Crop { Name = "Broccoli", CropType = CropType.Broccoli, Description = "Broccoli grows in cool climates and nutrient-rich, moist soils.", GrowthDurationDays = 90, SupportsDiseaseDetection = false, PlantingMonths = new List<int> { 11, 12, 1 }, SoilType = SoilType.Loamy, CreatedById = adminUser.Id, CreatedOn = now },
+                new Crop { Name = "Beans", CropType = CropType.Beans, Description = "Beans are protein-rich legumes that grow in well-drained fertile soils.", GrowthDurationDays = 80, SupportsDiseaseDetection = false, PlantingMonths = new List<int> { 3, 4, 5 }, SoilType = SoilType.Loamy, CreatedById = adminUser.Id, CreatedOn = now },
+                new Crop { Name = "Sesame", CropType = CropType.Sesame, Description = "Sesame is drought-tolerant and prefers hot climates with sandy soil.", GrowthDurationDays = 120, SupportsDiseaseDetection = false, PlantingMonths = new List<int> { 5, 6 }, SoilType = SoilType.Sandy, CreatedById = adminUser.Id, CreatedOn = now },
+                new Crop { Name = "Peas", CropType = CropType.Peas, Description = "Peas are cool-season legumes that grow well in fertile, loamy soils.", GrowthDurationDays = 75, SupportsDiseaseDetection = false, PlantingMonths = new List<int> { 10, 11, 12 }, SoilType = SoilType.Loamy, CreatedById = adminUser.Id, CreatedOn = now }
             };
 
             await coreDbContext.Crops.AddRangeAsync(crops);
@@ -696,6 +393,101 @@ public static class CoreSeeder
         catch (Exception ex)
         {
             logger.LogError(ex, "Failed to seed crops.");
+        }
+    }
+    
+    public static async Task SeedCropDiseasesAsync(IServiceProvider serviceProvider)
+    {
+        var coreDbContext = serviceProvider.GetRequiredService<CoreDbContext>();
+        var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+        var options = serviceProvider.GetRequiredService<IOptions<AdminSettings>>();
+        var logger = serviceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("DiseaseSeeder");
+
+        var adminSettings = options.Value;
+
+        try
+        {
+            var adminUser = await userManager.FindByEmailAsync(adminSettings.Email);
+            if (adminUser == null)
+                throw new Exception("Admin user not found.");
+
+            if (await coreDbContext.Diseases.AnyAsync())
+            {
+                logger.LogInformation("Diseases already seeded.");
+                return;
+            }
+
+            var crops = await coreDbContext.Crops.ToListAsync();
+            var cropDict = crops.ToDictionary(c => c.CropType.ToString(), c => c);
+
+            var diseaseData = new List<(string CropType, string DiseaseName, List<string> Treatments)>
+            {
+                ("Apple", "Apple Scab", new List<string> { "Myclobutanil", "Captan" }),
+                ("Apple", "Black Rot", new List<string> { "Copper-based fungicides", "Fluopyram" }),
+                ("Apple", "Cedar Apple Rust", new List<string> { "Sulfur", "Myclobutanil" }),
+
+                ("Cherry", "Powdery Mildew", new List<string> { "Sulfur", "Potassium bicarbonate" }),
+
+                ("Corn", "Cercospora Leaf Spot", new List<string> { "Azoxystrobin", "Propiconazole" }),
+                ("Corn", "Common Rust", new List<string> { "Trifloxystrobin", "Pyraclostrobin" }),
+                ("Corn", "Northern Leaf Blight", new List<string> { "Azoxystrobin", "Propiconazole" }),
+
+                ("Grape", "Black Rot", new List<string> { "Myclobutanil", "Fluopyram" }),
+                ("Grape", "Esca (Black Measles)", new List<string> { "Trichoderma spp.", "Thiophanate-methyl" }), // Replaced sodium arsenite
+                ("Grape", "Leaf Blight", new List<string> { "Copper-based fungicides", "Azoxystrobin" }),
+
+                ("Orange", "Huanglongbing (Citrus Greening)", new List<string> { "Imidacloprid", "Thiamethoxam" }),
+
+                ("Peach", "Bacterial Spot", new List<string> { "Copper hydroxide", "Kasugamycin" }), // Oxytetracycline minimized due to AMR concerns
+
+                ("Pepper", "Bacterial Spot", new List<string> { "Copper hydroxide", "Zinc oxide" }),
+
+                ("Potato", "Early Blight", new List<string> { "Chlorothalonil", "Mancozeb" }),
+                ("Potato", "Late Blight", new List<string> { "Cymoxanil", "Mandipropamid" }), // Replacing Metalaxyl
+
+                ("Squash", "Powdery Mildew", new List<string> { "Sulfur", "Potassium bicarbonate" }),
+
+                ("Strawberry", "Leaf Scorch", new List<string> { "Captan", "Cyprodinil" }), // Safer alternative to Thiram
+
+                ("Tomato", "Bacterial Spot", new List<string> { "Copper hydroxide", "Kasugamycin" }), // Replacing Streptomycin
+                ("Tomato", "Early Blight", new List<string> { "Chlorothalonil", "Mancozeb" }),
+                ("Tomato", "Late Blight", new List<string> { "Mandipropamid", "Cymoxanil" }),
+                ("Tomato", "Leaf Mold", new List<string> { "Chlorothalonil", "Tebuconazole" }),
+                ("Tomato", "Septoria Leaf Spot", new List<string> { "Chlorothalonil", "Azoxystrobin" }),
+                ("Tomato", "Spider Mites", new List<string> { "Abamectin", "Spiromesifen" }),
+                ("Tomato", "Target Spot", new List<string> { "Azoxystrobin", "Chlorothalonil" }),
+                ("Tomato", "Tomato Yellow Leaf Curl Virus", new List<string> { "Imidacloprid", "Acetamiprid" }),
+                ("Tomato", "Tomato Mosaic Virus", new List<string> { "Thermal therapy", "Cross-protection" })
+            };
+
+            var diseases = new List<CropDisease>();
+
+            foreach (var (cropType, diseaseName, treatments) in diseaseData)
+            {
+                if (!cropDict.TryGetValue(cropType, out var crop))
+                {
+                    logger.LogWarning($"Crop '{cropType}' not found. Skipping disease '{diseaseName}'.");
+                    continue;
+                }
+
+                diseases.Add(new CropDisease
+                {
+                    Name = diseaseName,
+                    Treatments = treatments,
+                    CropId = crop.Id,
+                    CreatedById = adminUser.Id,
+                    CreatedOn = DateTime.UtcNow
+                });
+            }
+
+            await coreDbContext.Diseases.AddRangeAsync(diseases);
+            await coreDbContext.SaveChangesAsync();
+
+            logger.LogInformation("Seeded {Count} diseases into the database.", diseases.Count);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to seed diseases.");
         }
     }
         

@@ -12,6 +12,8 @@ public class Crop : AuditableEntity
     public int GrowthDurationDays { get; set; }
     public bool SupportsDiseaseDetection { get; set; }
     public List<int> PlantingMonths { get; set; } = new();
+    public SoilType SoilType { get; set; }
 
     public ICollection<PlantedCrop> PlantedCrops { get; set; } = new List<PlantedCrop>();
+    public ICollection<CropDisease> CropDiseases { get; set; } = new List<CropDisease>();
 }

@@ -9,7 +9,7 @@ public class Farm : AuditableEntity
     public string Name { get; set; }
     public double Area { get; set; }
     public string Location { get; set; }
-    public SoilTypes SoilType { get; set; }
+    public SoilType SoilType { get; set; }
     public int FieldsNo { get; set; }
     
     // navigational properties

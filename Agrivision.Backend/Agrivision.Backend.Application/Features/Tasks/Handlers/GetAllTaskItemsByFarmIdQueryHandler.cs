@@ -54,6 +54,7 @@ public class GetAllTaskItemsByFarmIdQueryHandler(ITaskItemRepository taskItemRep
             Id: task.Id,
             FarmId: farm.Id,
             FieldId: task.FieldId,
+            FieldName: task.Field.Name,
             CreatedById: task.CreatedById,
             CreatedBy: userMap.GetValueOrDefault(task.CreatedById, "Unknown"),
             CreatedAt: task.CreatedOn,

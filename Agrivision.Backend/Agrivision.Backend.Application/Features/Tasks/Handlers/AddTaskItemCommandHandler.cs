@@ -89,6 +89,7 @@ public class AddTaskItemCommandHandler(IFieldRepository fieldRepository, IUserRe
             Id: task.Id,
             FarmId: request.FarmId,
             FieldId: task.FieldId,
+            FieldName: field.Name,
             CreatedById: task.CreatedById,
             CreatedBy: requester!.FirstName + " " + requester.LastName,
             CreatedAt: task.CreatedOn,

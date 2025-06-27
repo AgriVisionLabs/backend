@@ -7,5 +7,5 @@ public record CreateFarmRequest
     string Name,
     double Area,
     string Location,
-    SoilTypes SoilType
+    SoilType SoilType
 );

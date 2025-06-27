@@ -10,6 +10,6 @@ public record UpdateFarmCommand
     string Name,
     double Area,
     string Location,
-    SoilTypes SoilType,
+    SoilType SoilType,
     string UpdatedById
 ) : IRequest<Result>;

@@ -36,6 +36,7 @@ using (var scope = app.Services.CreateScope())
     await CoreSeeder.SeedDemoFarmAsync(scope.ServiceProvider);
     await CoreSeeder.SeedDevicesAsync(scope.ServiceProvider);
     await CoreSeeder.SeedCropsAsync(scope.ServiceProvider);
+    await CoreSeeder.SeedCropDiseasesAsync(scope.ServiceProvider);
 }
 
 // Configure the HTTP request pipeline.

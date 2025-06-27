@@ -1,6 +1,6 @@
 namespace Agrivision.Backend.Domain.Enums.Core;
 
-public enum SoilTypes
+public enum SoilType
 {
     Sandy,
     Clay,

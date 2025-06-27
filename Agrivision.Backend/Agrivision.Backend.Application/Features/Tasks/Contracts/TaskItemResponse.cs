@@ -7,6 +7,7 @@ public record TaskItemResponse
     Guid Id,
     Guid FarmId,
     Guid FieldId,
+    string FieldName,
     string CreatedById,
     string CreatedBy,
     DateTime CreatedAt,

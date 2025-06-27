@@ -27,7 +27,7 @@ public class InviteMemberCommandHandler(IUserRepository userRepository, IFarmRep
         var isEmail = request.Recipient.Contains('@');
         
         // verify that user isn't inviting himself
-        if (isEmail && request.Recipient == request.SenderEmail)
+        if (isEmail && request.Recipient == request.SenderEmail) 
             return Result.Failure(FarmInvitationErrors.SelfInvitation);
         
         // check if the user exists

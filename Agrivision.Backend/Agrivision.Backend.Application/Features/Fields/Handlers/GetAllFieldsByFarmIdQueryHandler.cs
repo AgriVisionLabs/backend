@@ -26,7 +26,7 @@ public class GetAllFieldsByFarmIdQueryHandler(IFieldRepository fieldRepository, 
         
         //map to response
         var response = fields.Select(field =>
-            new FieldResponse(field.Id, field.Name, field.Area, field.IsActive, field.FarmId,field.CropType.Name)).ToList();
+            new FieldResponse(field.Id, field.Name, field.Area, field.IsActive, field.FarmId)).ToList();
 
         return Result.Success(response);
     }

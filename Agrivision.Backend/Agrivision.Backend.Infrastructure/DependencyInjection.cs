@@ -115,12 +115,6 @@ public static class DependencyInjection
 
         services.AddAutomationRuleRepository();
 
-        services.AddCropRepository();
-
-        services.AddDiseaseRepository();
-
-        services.AddDiseaseDetectionRepository();
-
         services.MapDetectionModelSettings(config);
 
         services.AddDiseaseDetectionService();
@@ -520,25 +514,7 @@ public static class DependencyInjection
 
         return services;
     }
-   
-    private static IServiceCollection AddCropRepository(this IServiceCollection services)
-    {
-        services.AddScoped<ICropRepository, CropRepository>();
-
-        return services;
-    }
-    private static IServiceCollection AddDiseaseRepository(this IServiceCollection services)
-    {
-        services.AddScoped<IDiseaseRepository, DiseaseRepository>();
-
-        return services;
-    }
-    private static IServiceCollection AddDiseaseDetectionRepository(this IServiceCollection services)
-    {
-        services.AddScoped<IDiseaseDetectionRepository, DiseaseDetectionRepository>();
-
-        return services;
-    }
+    
     private static IServiceCollection MapDetectionModelSettings(this IServiceCollection services, IConfiguration configuration)
     {
         services.Configure<DetectionModelSettings>(configuration.GetSection(nameof(DetectionModelSettings)));

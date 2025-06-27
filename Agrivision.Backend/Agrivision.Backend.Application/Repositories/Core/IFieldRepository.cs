@@ -8,6 +8,7 @@ public interface IFieldRepository
     Task<List<Field>> GetAllByFarmIdAsync(Guid farmId, CancellationToken cancellationToken = default);
     Task<Field?> AdminFindByIdWithFarmAsync(Guid id, CancellationToken cancellationToken = default);
     Task<Field?> FindByIdWithFarmAsync(Guid id, CancellationToken cancellationToken = default);
+    Task<Field?> FindByIdWithAllAsync(Guid id, CancellationToken cancellationToken = default);
     Task<Field?> AdminFindByIdAsync(Guid id, CancellationToken cancellationToken = default);
     Task<Field?> FindByIdAsync(Guid id, CancellationToken cancellationToken = default);
     Task<List<Field>> AdminFindByNameAndFarmIdAsync(string name, Guid farmId, CancellationToken cancellationToken = default);

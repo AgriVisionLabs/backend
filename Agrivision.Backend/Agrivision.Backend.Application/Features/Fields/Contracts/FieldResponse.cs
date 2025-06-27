@@ -8,6 +8,5 @@ public record FieldResponse
     string Name,
     double Area,
     bool IsActive,
-    Guid FarmId,
-    CropTypes Crop
+    Guid FarmId
 );

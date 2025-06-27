@@ -44,7 +44,27 @@ public class FarmRepository(CoreDbContext coreDbContext) : IFarmRepository
 
         return test;
     }
-    
+
+    public async Task<Farm?> FindByIdWithAllAsync(Guid farmId, CancellationToken cancellationToken)
+    {
+        var farm = await coreDbContext.Farms
+            .Include(f => f.Fields)
+                .ThenInclude(field => field.IrrigationUnit)
+                .ThenInclude(iu => iu.Device)
+            .Include(f => f.Fields)
+                .ThenInclude(field => field.SensorUnits)
+                .ThenInclude(su => su.Device)
+            .Include(f => f.Fields)
+                .ThenInclude(field => field.TaskItems)
+            .Include(f => f.FarmUserRoles)
+            .Include(f => f.FarmInvitations)
+            .Include(f => f.AutomationRules)
+            .Include(f => f.InventoryItems)
+            .FirstOrDefaultAsync(f => f.Id == farmId && !f.IsDeleted, cancellationToken);
+
+        return farm;
+    }
+
     public async Task<Farm?> AdminFindByIdWithFieldsAsync(Guid farmId, CancellationToken cancellationToken)
     {
         return await coreDbContext.Farms

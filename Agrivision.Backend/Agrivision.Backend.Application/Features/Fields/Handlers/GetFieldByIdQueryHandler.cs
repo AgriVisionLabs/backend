@@ -22,7 +22,7 @@ public class GetFieldByIdQueryHandler(IFieldRepository fieldRepository, IFarmUse
             return Result.Failure<FieldResponse>(FarmErrors.UnauthorizedAction);
         
         // map to a response
-        var response = new FieldResponse(field.Id, field.Name, field.Area, field.IsActive, field.FarmId,field.CropType.Name);
+        var response = new FieldResponse(field.Id, field.Name, field.Area, field.IsActive, field.FarmId);
 
         return Result.Success(response);
     }

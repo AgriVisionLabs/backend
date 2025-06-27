@@ -22,13 +22,12 @@ public class CoreDbContext(DbContextOptions<CoreDbContext> options) : DbContext(
     public DbSet<SensorConfiguration> SensorConfigurations { get; set; }
     public DbSet<SensorReading> SensorReadings { get; set; }
     public DbSet<AutomationRule> AutomationRules { get; set; }
-    public DbSet<Disease> Diseases { get; set; }
-    public DbSet<DiseaseDetection> DiseaseDetections { get; set; }
-    public DbSet<CropType> CropTypes { get; set; }
     public DbSet<TaskItem> TaskItems { get; set; }
     public DbSet<IrrigationEvent> IrrigationEvents { get; set; }
     public DbSet<InventoryItem> InventoryItems { get; set; }
     public DbSet<InventoryItemTransaction> InventoryItemTransactions { get; set; }
+    public DbSet<Crop> Crops { get; set; }
+    public DbSet<PlantedCrop> PlantedCrops { get; set; }
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

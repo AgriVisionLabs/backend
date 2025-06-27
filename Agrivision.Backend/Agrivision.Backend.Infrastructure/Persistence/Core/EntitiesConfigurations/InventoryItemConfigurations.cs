@@ -39,14 +39,14 @@ public class InventoryItemConfigurations : IEntityTypeConfiguration<InventoryIte
         builder.Property(item => item.ExpirationDate);
 
         builder.HasOne(item => item.Farm)
-            .WithMany()
+            .WithMany(farm => farm.InventoryItems)
             .HasForeignKey(item => item.FarmId)
             .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasOne(item => item.Field)
-            .WithMany()
+            .WithMany(field => field.InventoryItems)
             .HasForeignKey(item => item.FieldId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.SetNull);
         
         builder.HasIndex(item => new { item.FarmId, item.Name })
             .IsUnique() // farm name is unique per user

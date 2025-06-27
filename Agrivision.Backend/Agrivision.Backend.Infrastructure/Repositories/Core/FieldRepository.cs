@@ -17,7 +17,6 @@ public class FieldRepository(CoreDbContext coreDbContext) : IFieldRepository
     public async Task<List<Field>> GetAllByFarmIdAsync(Guid farmId, CancellationToken cancellationToken = default)
     {
         return await coreDbContext.Fields
-            .Include(field => field.CropType)
             .Where(field => field.FarmId == farmId && !field.IsDeleted)
             .ToListAsync(cancellationToken);
     }
@@ -35,7 +34,20 @@ public class FieldRepository(CoreDbContext coreDbContext) : IFieldRepository
             .Include(field => field.Farm)
             .FirstOrDefaultAsync(field => field.Id == id && !field.IsDeleted, cancellationToken);
     }
-    
+
+    public async Task<Field?> FindByIdWithAllAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        return await coreDbContext.Fields
+            .Include(field => field.Farm)
+            .Include(field => field.IrrigationUnit)
+                .ThenInclude(iu => iu.Device)
+            .Include(field => field.SensorUnits)
+                .ThenInclude(su => su.Device)
+            .Include(field => field.TaskItems)
+            .Include(field => field.InventoryItems)
+            .FirstOrDefaultAsync(field => field.Id == id && !field.IsDeleted, cancellationToken);
+    }
+
     public async Task<Field?> AdminFindByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         return await coreDbContext.Fields
@@ -45,7 +57,6 @@ public class FieldRepository(CoreDbContext coreDbContext) : IFieldRepository
     public async Task<Field?> FindByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         return await coreDbContext.Fields
-            .Include(field => field.CropType)
             .FirstOrDefaultAsync(field => field.Id == id && !field.IsDeleted, cancellationToken);
     }
 

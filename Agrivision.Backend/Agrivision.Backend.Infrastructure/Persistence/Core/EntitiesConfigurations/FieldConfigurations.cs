@@ -44,10 +44,5 @@ public class FieldConfigurations : IEntityTypeConfiguration<Field>
             .WithOne(su => su.Field)
             .HasForeignKey(su => su.FieldId)
             .OnDelete(DeleteBehavior.Restrict);
-        
-        builder.HasMany(f => f.DiseaseDetections)
-            .WithOne(d => d.Field)
-            .HasForeignKey(d => d.FieldId)
-            .OnDelete(DeleteBehavior.Restrict);
     }
 }

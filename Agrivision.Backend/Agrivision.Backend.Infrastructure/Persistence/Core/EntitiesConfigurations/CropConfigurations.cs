@@ -52,5 +52,8 @@ public class CropConfigurations : IEntityTypeConfiguration<Crop>
                     c => c.ToList()
                 )
             );
+        
+        builder.HasIndex(c => c.CropType)
+            .IsUnique();
     }
 }

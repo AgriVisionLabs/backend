@@ -37,7 +37,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
 
-
 namespace Agrivision.Backend.Infrastructure;
 
 public static class DependencyInjection
@@ -134,6 +133,8 @@ public static class DependencyInjection
         services.AddInventoryItemTransactionRepository();
 
         services.AddPlantedCropRepository();
+
+        services.AddCropRepository();
 
         return services;
     }
@@ -583,6 +584,13 @@ public static class DependencyInjection
     private static IServiceCollection AddPlantedCropRepository(this IServiceCollection services)
     {
         services.AddScoped<IPlantedCropRepository, PlantedCropRepository>();
+
+        return services;
+    }
+    
+    private static IServiceCollection AddCropRepository(this IServiceCollection services)
+    {
+        services.AddScoped<ICropRepository, CropRepository>();
 
         return services;
     }

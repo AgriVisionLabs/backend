@@ -8,8 +8,7 @@ public class PlantedCrop : AuditableEntity
     public DateTime PlantingDate { get; set; }
     public DateTime? ExpectedHarvestDate { get; set; }
     public DateTime? ActualHarvestDate { get; set; }
-    public double? EstimatedYield { get; set; }
-    public double? ActualYield { get; set; }
+    public double? Yield { get; set; }
 
     public Guid CropId { get; set; }
     public Crop Crop { get; set; } = default!;

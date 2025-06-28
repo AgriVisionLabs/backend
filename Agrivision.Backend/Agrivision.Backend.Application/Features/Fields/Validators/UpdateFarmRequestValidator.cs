@@ -15,5 +15,8 @@ public class UpdateFarmRequestValidator : AbstractValidator<UpdateFieldRequest>
             .NotEmpty()
             .GreaterThanOrEqualTo(0.25)
             .WithMessage("The farm area must be at least 0.25 acres.");
+        
+        RuleFor(request => request.CropType)
+            .IsInEnum();
     }
 }

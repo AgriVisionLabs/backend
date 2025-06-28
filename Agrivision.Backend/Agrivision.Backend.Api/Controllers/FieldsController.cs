@@ -49,7 +49,7 @@ namespace Agrivision.Backend.Api.Controllers
             if (string.IsNullOrEmpty(userId))
                 return Result.Failure(TokenErrors.InvalidToken).ToProblem(TokenErrors.InvalidToken.ToStatusCode());
 
-            var command = new CreateFieldCommand(request.Name, request.Area, farmId, userId);
+            var command = new CreateFieldCommand(request.Name, request.Area, farmId, userId, request.CropType);
             var result = await mediator.Send(command, cancellationToken);
 
             return result.Succeeded ? CreatedAtAction(nameof(GetById), new { farmId, fieldId = result.Value.Id }, result.Value) : result.ToProblem(result.Error.ToStatusCode());
@@ -63,7 +63,7 @@ namespace Agrivision.Backend.Api.Controllers
             if (string.IsNullOrEmpty(userId))
                 return Result.Failure(TokenErrors.InvalidToken).ToProblem(TokenErrors.InvalidToken.ToStatusCode());
 
-            var command = new UpdateFieldCommand(farmId, fieldId, request.Name, request.Area, userId);
+            var command = new UpdateFieldCommand(farmId, fieldId, request.Name, request.Area, userId, request.CropType);
             var result = await mediator.Send(command, cancellationToken);
 
             return result.Succeeded ? NoContent() : result.ToProblem(result.Error.ToStatusCode());

@@ -18,10 +18,7 @@ public class PlantedCropConfigurations : IEntityTypeConfiguration<PlantedCrop>
         builder.Property(pc => pc.PlantingDate)
             .IsRequired();
 
-        builder.Property(pc => pc.EstimatedYield)
-            .HasPrecision(18, 2);
-
-        builder.Property(pc => pc.ActualYield)
+        builder.Property(pc => pc.Yield)
             .HasPrecision(18, 2);
         
         builder.HasOne(pc => pc.Crop)

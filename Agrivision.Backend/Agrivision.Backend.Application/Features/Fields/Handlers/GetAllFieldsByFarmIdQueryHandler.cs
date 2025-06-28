@@ -7,7 +7,7 @@ using MediatR;
 
 namespace Agrivision.Backend.Application.Features.Fields.Handlers;
 
-public class GetAllFieldsByFarmIdQueryHandler(IFieldRepository fieldRepository, IFarmRepository farmRepository, IFarmUserRoleRepository farmUserRoleRepository) : IRequestHandler<GetAllFieldsByFarmIdQuery, Result<List<FieldResponse>>>
+public class GetAllFieldsByFarmIdQueryHandler(IFieldRepository fieldRepository, IFarmRepository farmRepository, IFarmUserRoleRepository farmUserRoleRepository, IPlantedCropRepository plantedCropRepository) : IRequestHandler<GetAllFieldsByFarmIdQuery, Result<List<FieldResponse>>>
 {
     public async Task<Result<List<FieldResponse>>> Handle(GetAllFieldsByFarmIdQuery request, CancellationToken cancellationToken)
     {
@@ -24,9 +24,37 @@ public class GetAllFieldsByFarmIdQueryHandler(IFieldRepository fieldRepository, 
         // get all fields
         var fields = await fieldRepository.GetAllByFarmIdAsync(farm!.Id, cancellationToken);
         
-        //map to response
-        var response = fields.Select(field =>
-            new FieldResponse(field.Id, field.Name, field.Area, field.IsActive, field.FarmId)).ToList();
+        // map to response
+        var response = new List<FieldResponse>();
+
+        foreach (var field in fields)
+        {
+            var plantedCrop = await plantedCropRepository.FindLatestByFieldId(field.Id, cancellationToken);
+
+            // calculate progress if planted crop & growth duration available
+            int? progress = null;
+            if (plantedCrop is not null && plantedCrop.Crop.GrowthDurationDays > 0)
+            {
+                var daysPassed = (DateTime.UtcNow - plantedCrop.PlantingDate).TotalDays;
+                var rawProgress = (daysPassed / plantedCrop.Crop.GrowthDurationDays) * 100;
+                progress = (int)Math.Clamp(rawProgress, 0, 100);
+            }
+
+            response.Add(new FieldResponse(
+                field.Id,
+                field.Name,
+                field.Area,
+                field.IsActive,
+                field.FarmId,
+                plantedCrop?.Crop?.CropType,
+                plantedCrop?.Crop?.Name,
+                plantedCrop?.Crop?.Description,
+                plantedCrop?.Crop?.SupportsDiseaseDetection,
+                plantedCrop?.PlantingDate,
+                progress,
+                plantedCrop?.ExpectedHarvestDate
+            ));
+        }
 
         return Result.Success(response);
     }

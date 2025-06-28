@@ -3,11 +3,12 @@ using Agrivision.Backend.Application.Features.Fields.Commands;
 using Agrivision.Backend.Application.Features.Fields.Contracts;
 using Agrivision.Backend.Application.Repositories.Core;
 using Agrivision.Backend.Domain.Abstractions;
+using Agrivision.Backend.Domain.Entities.Core;
 using MediatR;
 
 namespace Agrivision.Backend.Application.Features.Fields.Handlers;
 
-public class CreateFieldCommandHandler (IFieldRepository fieldRepository, IFarmRepository farmRepository) : IRequestHandler<CreateFieldCommand, Result<FieldResponse>>
+public class CreateFieldCommandHandler (IFieldRepository fieldRepository, IFarmRepository farmRepository, ICropRepository cropRepository, IPlantedCropRepository plantedCropRepository) : IRequestHandler<CreateFieldCommand, Result<FieldResponse>>
 {
     public async Task<Result<FieldResponse>> Handle(CreateFieldCommand request, CancellationToken cancellationToken)
     {
@@ -34,10 +35,9 @@ public class CreateFieldCommandHandler (IFieldRepository fieldRepository, IFarmR
         // check if field area is appropriate
         if (usedArea + request.Area > farm.Area)
             return Result.Failure<FieldResponse>(FieldErrors.InvalidFieldArea);
-
-
+        
         // map to field
-        var field = new Domain.Entities.Core.Field
+        var field = new Field
         {
             Id = Guid.NewGuid(),
             Name = request.Name,
@@ -48,6 +48,27 @@ public class CreateFieldCommandHandler (IFieldRepository fieldRepository, IFarmR
             CreatedById = request.CreatedById,
             IsDeleted = false
         };
+        
+        // check if specified a crop
+        Domain.Entities.Core.Crop? crop = null;
+        PlantedCrop? plantedCrop = null;
+        if (request.CropType is not null)
+        {
+            crop = await cropRepository.FindByCropTypeAsync(request.CropType.Value, cancellationToken);
+            if (crop is null)
+                return Result.Failure<FieldResponse>(CropErrors.CropNotFound);
+
+            plantedCrop = new PlantedCrop
+            {
+                Id = Guid.NewGuid(),
+                PlantingDate = DateTime.UtcNow,
+                ExpectedHarvestDate = DateTime.UtcNow.AddDays(crop.GrowthDurationDays),
+                CropId = crop.Id,
+                FieldId = field.Id,
+                CreatedById = request.CreatedById,
+                CreatedOn = DateTime.UtcNow
+            };
+        }
 
         farm.FieldsNo++;
 
@@ -55,6 +76,9 @@ public class CreateFieldCommandHandler (IFieldRepository fieldRepository, IFarmR
 
         await fieldRepository.AddAsync(field, cancellationToken);
 
-        return Result.Success(new FieldResponse(field.Id, field.Name, field.Area, field.IsActive, field.FarmId));
+        if (plantedCrop is not null)
+            await plantedCropRepository.AddAsync(plantedCrop, cancellationToken);
+
+        return Result.Success(new FieldResponse(field.Id, field.Name, field.Area, field.IsActive, field.FarmId, crop?.CropType, crop?.Name, crop?.Description, crop?.SupportsDiseaseDetection, plantedCrop?.PlantingDate, 0, plantedCrop?.ExpectedHarvestDate));
     }
 }

@@ -2,7 +2,6 @@ using System.Text;
 using Agrivision.Backend.Application.Auth;
 using Agrivision.Backend.Application.Repositories.Core;
 using Agrivision.Backend.Application.Repositories.Identity;
-using Agrivision.Backend.Application.Services.DetectionModel;
 using Agrivision.Backend.Application.Services.Email;
 using Agrivision.Backend.Application.Services.FileManagement;
 using Agrivision.Backend.Application.Services.Hubs;
@@ -18,7 +17,6 @@ using Agrivision.Backend.Infrastructure.Persistence.Identity;
 using Agrivision.Backend.Infrastructure.Persistence.Identity.Entities;
 using Agrivision.Backend.Infrastructure.Repositories.Core;
 using Agrivision.Backend.Infrastructure.Repositories.Identity;
-using Agrivision.Backend.Infrastructure.Services.DetectionModel;
 using Agrivision.Backend.Infrastructure.Services.FileManagement;
 using Agrivision.Backend.Infrastructure.Services.Email;
 using Agrivision.Backend.Infrastructure.Services.Hubs;
@@ -115,9 +113,7 @@ public static class DependencyInjection
         services.AddAutomationRuleRepository();
 
         services.MapDetectionModelSettings(config);
-
-        services.AddDiseaseDetectionService();
-
+        
         services.AddFileService();
 
         services.AddAutomationRuleExecutionService();
@@ -524,13 +520,7 @@ public static class DependencyInjection
 
         return services;
     }
-
-    private static IServiceCollection AddDiseaseDetectionService(this IServiceCollection services)
-    {
-        services.AddScoped<IDiseaseDetectionService, DiseaseDetectionService>();
-
-        return services;
-    }
+    
     private static IServiceCollection AddFileService(this IServiceCollection services)
     {
         services.AddScoped<IFileService, FileService>();

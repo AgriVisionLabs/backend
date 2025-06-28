@@ -15,4 +15,7 @@ public interface IPlantedCropRepository
 
     // update
     Task UpdateAsync(PlantedCrop plantedCrop, CancellationToken cancellationToken = default);
+    
+    // find latest by field id 
+    Task<PlantedCrop?> FindLatestByFieldId(Guid fieldId, CancellationToken cancellationToken = default);
 }

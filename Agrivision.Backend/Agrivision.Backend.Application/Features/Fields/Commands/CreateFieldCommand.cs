@@ -10,5 +10,6 @@ public record CreateFieldCommand
     string Name,
     double Area,
     Guid FarmId,
-    string CreatedById
+    string CreatedById,
+    CropType? CropType
 ) : IRequest<Result<FieldResponse>>;

@@ -10,5 +10,6 @@ public record UpdateFieldCommand
     Guid FieldId,
     string Name,
     double Area,
-    string UpdatedById
+    string UpdatedById,
+    CropType? CropType
 ) : IRequest<Result>;

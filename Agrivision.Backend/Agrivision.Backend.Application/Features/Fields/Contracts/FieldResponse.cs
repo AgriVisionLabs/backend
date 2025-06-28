@@ -8,5 +8,12 @@ public record FieldResponse
     string Name,
     double Area,
     bool IsActive,
-    Guid FarmId
+    Guid FarmId,
+    CropType? CropType,
+    string? CropName,
+    string? Description,
+    bool? SupportsDiseaseDetection,
+    DateTime? PlantingDate,
+    int? Progress,
+    DateTime? ExpectedHarvestDate
 );

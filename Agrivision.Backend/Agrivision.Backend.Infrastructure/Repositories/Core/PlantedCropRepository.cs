@@ -10,6 +10,7 @@ public class PlantedCropRepository(CoreDbContext coreDbContext) : IPlantedCropRe
     public async Task<IReadOnlyList<PlantedCrop>> GetAllByFieldIdAsync(Guid fieldId, CancellationToken cancellationToken = default)
     {
         return await coreDbContext.PlantedCrops
+            .Include(p => p.Crop)
             .Where(p => p.FieldId == fieldId && !p.IsDeleted)
             .ToListAsync(cancellationToken);
     }
@@ -17,6 +18,7 @@ public class PlantedCropRepository(CoreDbContext coreDbContext) : IPlantedCropRe
     public async Task<PlantedCrop?> FindByIdAsync(Guid plantedCropId, CancellationToken cancellationToken = default)
     {
         return await coreDbContext.PlantedCrops
+            .Include(p => p.Crop)
             .FirstOrDefaultAsync(p => p.Id == plantedCropId && !p.IsDeleted, cancellationToken);
     }
 
@@ -30,5 +32,14 @@ public class PlantedCropRepository(CoreDbContext coreDbContext) : IPlantedCropRe
     {
         coreDbContext.PlantedCrops.Update(plantedCrop);
         await coreDbContext.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task<PlantedCrop?> FindLatestByFieldId(Guid fieldId, CancellationToken cancellationToken = default)
+    {
+        return await coreDbContext.PlantedCrops
+            .Include(p => p.Crop)
+            .Where(pc => pc.FieldId == fieldId && !pc.IsDeleted)
+            .OrderByDescending(pc => pc.PlantingDate)
+            .FirstOrDefaultAsync(cancellationToken);
     }
 }

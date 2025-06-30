@@ -5,9 +5,5 @@ using MediatR;
 namespace Agrivision.Backend.Application.Features.Subscription.Commands;
 public record ConfirmSubscriptionCommand
     (
-
-    string UserId,
-    Guid PlanId,
-    string PaymentIntentId
-
+    string SessionId
     ) : IRequest<Result>;

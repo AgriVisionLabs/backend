@@ -1,4 +1,5 @@
 ﻿
+using Agrivision.Backend.Application.Auth;
 using Agrivision.Backend.Application.Errors;
 using Agrivision.Backend.Application.Features.Subscription.Commands;
 using Agrivision.Backend.Application.Repositories.Core;
@@ -14,6 +15,7 @@ using Microsoft.Extensions.Logging;
 namespace Agrivision.Backend.Application.Features.Subscription.Handlers;
 public class ConfirmSubscriptionHandler(IUserRepository userRepository,
                                         ISubscriptionPlanRepository planRepository,
+                                        IUserContext userContext,
                                         IUserSubscriptionRepository userSubscriptionRepository,
                                         ILogger<ConfirmSubscriptionHandler> logger,
                                         IStripeService stripeService
@@ -22,51 +24,58 @@ public class ConfirmSubscriptionHandler(IUserRepository userRepository,
 
     public async Task<Result> Handle(ConfirmSubscriptionCommand request, CancellationToken cancellationToken)
     {
-        var user = await userRepository.FindByIdAsync(request.UserId);
+        var userEmail = await stripeService.GetCustomerEmailAsync(request.SessionId);
+        var user = await userRepository.FindByEmailAsync(userEmail);
         if (user == null)
         {
-            logger.LogWarning("User not found: {UserId}", request.UserId);
+            logger.LogWarning("User not found: {userEmail}", userEmail);
             return Result.Failure(UserErrors.UserNotFound);
         }
 
-        var plan = await planRepository.GetByIdAsync(request.PlanId, cancellationToken);
+        var planId = await stripeService.GetPlanIdAsync(request.SessionId);
+        
+        var plan = await planRepository.GetByIdAsync(planId??Guid.Empty, cancellationToken);
         if (plan == null || !plan.IsActive)
         {
-            logger.LogWarning("Invalid or inactive plan: {PlanId}", request.PlanId);
+            logger.LogWarning("Invalid or inactive plan: {PlanId}", planId);
             return Result.Failure(SubscriptionPlanErrors.InvalidPlan);
         }
 
-        var existingSubscription = await userSubscriptionRepository.GetByUserIdAsync(request.UserId, cancellationToken);
+        var existingSubscription = await userSubscriptionRepository.GetByUserIdAsync(user.Id, cancellationToken);
         if (existingSubscription != null && existingSubscription.Status == UserSubscriptionStatus.Active)
         {
-            logger.LogWarning("User {UserId} already has an active subscription.", request.UserId);
+            logger.LogWarning("User {UserId} already has an active subscription.", user.Id);
             return Result.Failure(SubscriptionPlanErrors.AleardyActivated);
         }
 
         try
         {
-        
-            var stripeSubscriptionId = await stripeService.CreateSubscriptionAfterPaymentAsync(request.PaymentIntentId, plan);
+
+           
+
+            var stripeSubscriptionId =await stripeService.GetSubscriptionIdAsync(request.SessionId);
+
             var userSubscription = new UserSubscription
             {
-                UserId = request.UserId,
+                UserId = user.Id,
                 SubscriptionPlanId = plan.Id,
                 StartDate = DateTime.UtcNow,
                 EndDate = DateTime.UtcNow.AddMonths(1),
                 Status = UserSubscriptionStatus.Active,
                 PaymentStatus = PaymentStatus.Paid,
-                StripeSubscriptionId = stripeSubscriptionId
+                StripeSubscriptionId = stripeSubscriptionId!,
+                CreatedById= user.Id
             };
 
             await userSubscriptionRepository.AddAsync(userSubscription, cancellationToken);
-            logger.LogInformation("User {UserId} subscribed to plan {PlanId} after payment confirmation", request.UserId, request.PlanId);
+            logger.LogInformation("User {UserId} subscribed to plan {PlanId} after payment confirmation", user.Id, planId);
 
             return Result.Success();
 
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Failed to confirm subscription for user {UserId} and plan {PlanId}", request.UserId, request.PlanId);
+            logger.LogError(ex, "Failed to confirm subscription for user {UserId} and plan {PlanId}", user.Id, planId);
             return Result.Failure(SubscriptionPlanErrors.FailedToSubscripe);
         }
     }

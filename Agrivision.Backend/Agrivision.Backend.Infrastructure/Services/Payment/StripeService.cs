@@ -1,82 +1,107 @@
 ﻿using Agrivision.Backend.Application.Services.Payment;
 using Agrivision.Backend.Domain.Entities.Core;
+using Agrivision.Backend.Infrastructure.Settings;
+using Microsoft.Extensions.Options;
 using Stripe;
+using Stripe.Checkout;
 
 namespace Agrivision.Backend.Infrastructure.Services.Payment;
-public class StripeService(): IStripeService
+public class StripeService : IStripeService
 {
-    public async Task<string> CreatePaymentIntentAsync(string email, SubscriptionPlan plan)
+    private readonly StripeClient _client;
+    private readonly StripeSettings _stripeSettings;
+
+    public StripeService(IOptions<StripeSettings> stripeSettings)
     {
-        // Create customer in Stripe
-        var customerService = new CustomerService();
-        var customer = await customerService.CreateAsync(new Stripe.CustomerCreateOptions
-        {
-            Email = email
-        });
-
-        // Create a Payment Intent
-        var paymentIntentService = new PaymentIntentService();
-        var paymentIntent = await paymentIntentService.CreateAsync(new PaymentIntentCreateOptions
-        {
-            Amount = (long)(plan.Price * 100), // Convert to cents (e.g., 499.9 EGP = 49990)
-            Currency = plan.Currency.ToLower(), // "egp"
-            Customer = customer.Id,
-            AutomaticPaymentMethods = new PaymentIntentAutomaticPaymentMethodsOptions
-            {
-                Enabled = true
-            },
-            Metadata = new Dictionary<string, string>
-            {
-                { "plan_id", plan.Id.ToString() }
-            }
-        });
-
-        return paymentIntent.ClientSecret; // Return client secret for frontend confirmation
+        StripeConfiguration.ApiKey = stripeSettings.Value.SecretKey;
+        _client = new StripeClient(stripeSettings.Value.SecretKey);
+        _stripeSettings = stripeSettings.Value;
     }
-
-    public async Task<string> CreateSubscriptionAfterPaymentAsync(string paymentIntentId, SubscriptionPlan plan)
+    public async Task<string> CreateSubscriptionCheckoutSessionAsync(string email, SubscriptionPlan plan)
     {
 
-        // Verify Payment Intent status
-        var paymentIntentService = new PaymentIntentService();
-        var paymentIntent = await paymentIntentService.GetAsync(paymentIntentId);
-        if (paymentIntent.Status != "succeeded")
+        // Create Checkout Session in subscription mode
+        var options = new SessionCreateOptions
         {
-            throw new Exception("Payment Intent not successful.");
-        }
-
-
-        // Create subscription in Stripe
-        var subscriptionService = new SubscriptionService();
-        var subscription = await subscriptionService.CreateAsync(new SubscriptionCreateOptions
-        {
-            Customer = paymentIntent.CustomerId,
-            Items = new List<SubscriptionItemOptions>
+            CustomerEmail = email,
+            PaymentMethodTypes = new List<string> { "card" },
+            Mode = "subscription",
+            LineItems = new List<SessionLineItemOptions>
             {
-                new SubscriptionItemOptions
+                new SessionLineItemOptions
                 {
-                    PriceData = new SubscriptionItemPriceDataOptions
+                    PriceData = new SessionLineItemPriceDataOptions
                     {
                         Currency = plan.Currency.ToLower(),
-                        Product = "prod_agri_plan", // Create a product in Stripe Dashboard
-                        UnitAmount = (long)(plan.Price * 100), // Convert to cents
-                        Recurring = new SubscriptionItemPriceDataRecurringOptions
+                        Product =plan.ProductId, 
+                        UnitAmount = (long)(plan.Price * 100),
+                        Recurring = new SessionLineItemPriceDataRecurringOptions
                         {
                             Interval = "month"
                         }
-                    }
+                    },
+                    Quantity = 1
                 }
             },
-            PaymentBehavior = "allow_incomplete",
-            PaymentSettings = new SubscriptionPaymentSettingsOptions
+            Metadata = new Dictionary<string, string>
             {
-                PaymentMethodTypes = ["card"]
-            }
-        });
+                   { "PlanId", plan.Id.ToString() }
+            },
+            SuccessUrl = $"{_stripeSettings.SuccessUrl}?session_id={{CHECKOUT_SESSION_ID}}",
+            CancelUrl = "https://.sssm/payment/cancel"
+        };
 
-        return subscription.Id;
+        var service = new SessionService();
+        var session = await service.CreateAsync(options);
+        return session.Url; // Return this URL to frontend to redirect the user
+    }
+    public async Task<string> GetCustomerEmailAsync(string sessionId)
+    {
+        var service = new global::Stripe.Checkout.SessionService(_client);
+
+        var session = await service.GetAsync(sessionId);
+
+        if (session is null)
+            throw new Exception("Can not find CheckOut session with given Id.");
+
+        if (!string.IsNullOrEmpty(session.CustomerEmail))
+        {
+            return session.CustomerEmail;
+        }
+        throw new Exception("No email found for this session.");
 
 
+    }
+    public async Task<string?> GetSubscriptionIdAsync(string sessionId)
+    {
+        var service = new global::Stripe.Checkout.SessionService(_client);
+
+        var session = await service.GetAsync(sessionId);
+
+        if (session is null)
+            throw new Exception("Can not find CheckOut session with given Id.");
+
+        var subscriptionId = session.SubscriptionId;
+
+
+
+        return (subscriptionId);
+    }
+    public async Task<Guid?> GetPlanIdAsync(string sessionId)
+    {
+        var service = new global::Stripe.Checkout.SessionService(_client);
+
+        var session = await service.GetAsync(sessionId);
+
+        if (session is null)
+            throw new Exception("Can not find CheckOut session with given Id.");
+
+        Guid? planId = session.Metadata.TryGetValue("PlanId", out var planIdValue)
+                      && Guid.TryParse(planIdValue, out var parsedGuid)
+                      ? parsedGuid
+                      : null;
+
+        return planId;
     }
 
 

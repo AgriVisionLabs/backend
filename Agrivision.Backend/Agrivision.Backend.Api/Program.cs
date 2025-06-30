@@ -19,8 +19,8 @@ builder.Host.AddSerilog();
 var app = builder.Build();
 
 // seed the database(s)
-// using (var scope = app.Services.CreateScope())
-// {
+ using (var scope = app.Services.CreateScope())
+ {
 //     // seed identity
 //     var identityDbContext = scope.ServiceProvider.GetRequiredService<ApplicationUserDbContext>();
 //     identityDbContext.Database.Migrate();
@@ -29,15 +29,15 @@ var app = builder.Build();
 //     await IdentitySeeder.SeedGlobalRolePermissionAsync(scope.ServiceProvider);
 //  
 //     // seed core
-//     var coreDbContext = scope.ServiceProvider.GetRequiredService<CoreDbContext>();
-//     coreDbContext.Database.Migrate();
-//     await CoreSeeder.SeedRolesAsync(scope.ServiceProvider);
-//     await CoreSeeder.SeedCoreRolePermissionAsync(scope.ServiceProvider);
-//     await CoreSeeder.SeedDemoFarmAsync(scope.ServiceProvider);
-//     await CoreSeeder.SeedDevicesAsync(scope.ServiceProvider);
-//     await CoreSeeder.SeedCropsAsync(scope.ServiceProvider);
-//     await CoreSeeder.SeedCropDiseasesAsync(scope.ServiceProvider);
-// }
+     var coreDbContext = scope.ServiceProvider.GetRequiredService<CoreDbContext>();
+     coreDbContext.Database.Migrate();
+     await CoreSeeder.SeedRolesAsync(scope.ServiceProvider);
+     await CoreSeeder.SeedCoreRolePermissionAsync(scope.ServiceProvider);
+     await CoreSeeder.SeedDemoFarmAsync(scope.ServiceProvider);
+     await CoreSeeder.SeedDevicesAsync(scope.ServiceProvider);
+     await CoreSeeder.SeedCropsAsync(scope.ServiceProvider);
+     await CoreSeeder.SeedCropDiseasesAsync(scope.ServiceProvider);
+ }
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment() || builder.Configuration.GetValue<bool>("ApiDocumentation:Enabled")) 

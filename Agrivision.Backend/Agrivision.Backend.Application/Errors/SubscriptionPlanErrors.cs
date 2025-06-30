@@ -14,5 +14,7 @@ public static class SubscriptionPlanErrors
     public static readonly Error FailedToSubscripe =
     new("Plan.FailedToSubscripe", "Failed to confirm subscription. Please try again.");
 
+    public static readonly Error FailedToPay =
+    new("Plan.FailedToPay", "the payment prossess is incomplete.");
 
 }

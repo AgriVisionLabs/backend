@@ -3,9 +3,9 @@ using Agrivision.Backend.Application.Features.Subscription.Contracts;
 using FluentValidation;
 
 namespace Agrivision.Backend.Application.Features.Subscription.Validators;
-public class CreatePaymentIntentRequestValidator : AbstractValidator<CreatePaymentIntentRequest>
+public class CreateSubscriptionRequestValidator : AbstractValidator<CreateSubscriptionRequest>
 {
-    public CreatePaymentIntentRequestValidator()
+    public CreateSubscriptionRequestValidator()
     {
         RuleFor(request => request.UserId)
             .NotEmpty();

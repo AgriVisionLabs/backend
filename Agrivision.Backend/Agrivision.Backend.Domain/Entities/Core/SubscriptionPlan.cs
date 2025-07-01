@@ -12,4 +12,5 @@ public class SubscriptionPlan:AuditableEntity
     public int MaxFields { get; set; } 
     public bool UnlimitedAiFeatureUsage { get; set; } 
     public bool IsActive { get; set; } = true;
+    public string ProductId { get; set; } = string.Empty;
 }

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
 {
     [DbContext(typeof(CoreDbContext))]
-    [Migration("20250626134132_AddCropsAndPlantedCrops")]
-    partial class AddCropsAndPlantedCrops
+    [Migration("20250629053011_FirstMig")]
+    partial class FirstMig
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -150,6 +150,9 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
+                    b.Property<int>("SoilType")
+                        .HasColumnType("int");
+
                     b.Property<bool>("SupportsDiseaseDetection")
                         .HasColumnType("bit");
 
@@ -161,7 +164,58 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CropType")
+                        .IsUnique();
+
                     b.ToTable("Crops", (string)null);
+                });
+
+            modelBuilder.Entity("Agrivision.Backend.Domain.Entities.Core.CropDisease", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CreatedById")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("CropId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("DeletedById")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("DeletedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Treatments")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("UpdatedById")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("UpdatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CropId");
+
+                    b.ToTable("CropDiseases", (string)null);
                 });
 
             modelBuilder.Entity("Agrivision.Backend.Domain.Entities.Core.Farm", b =>
@@ -1204,6 +1258,10 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<string>("ProductId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<bool>("UnlimitedAiFeatureUsage")
                         .HasColumnType("bit");
 
@@ -1386,6 +1444,17 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
                     b.Navigation("IrrigationUnit");
 
                     b.Navigation("SensorUnit");
+                });
+
+            modelBuilder.Entity("Agrivision.Backend.Domain.Entities.Core.CropDisease", b =>
+                {
+                    b.HasOne("Agrivision.Backend.Domain.Entities.Core.Crop", "Crop")
+                        .WithMany("CropDiseases")
+                        .HasForeignKey("CropId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Crop");
                 });
 
             modelBuilder.Entity("Agrivision.Backend.Domain.Entities.Core.FarmInvitation", b =>
@@ -1607,6 +1676,8 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
 
             modelBuilder.Entity("Agrivision.Backend.Domain.Entities.Core.Crop", b =>
                 {
+                    b.Navigation("CropDiseases");
+
                     b.Navigation("PlantedCrops");
                 });
 

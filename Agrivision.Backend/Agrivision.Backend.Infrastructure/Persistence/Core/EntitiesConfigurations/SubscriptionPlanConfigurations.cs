@@ -36,5 +36,8 @@ public class SubscriptionPlanConfigurations : IEntityTypeConfiguration<Subscript
 
         builder.Property(sp => sp.IsActive)
            .IsRequired();
+
+        builder.Property(sp => sp.ProductId)
+           .IsRequired();
     }
 }

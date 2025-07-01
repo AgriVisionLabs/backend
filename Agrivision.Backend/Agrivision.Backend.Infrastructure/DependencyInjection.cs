@@ -140,6 +140,10 @@ public static class DependencyInjection
 
         services.AddFileUploadService();
 
+        services.MapStripeSettings(config);
+
+        services.AddUserContext();
+
         return services;
     }
 
@@ -619,4 +623,17 @@ public static class DependencyInjection
 
         return services;
     }
+    private static IServiceCollection MapStripeSettings(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.Configure<StripeSettings>(configuration.GetSection(nameof(StripeSettings)));
+
+        return services;
+    }
+    private static IServiceCollection AddUserContext(this IServiceCollection services)
+    {
+        services.AddScoped<IUserContext, UserContext>();
+
+        return services;
+    }
+
 }

@@ -1,7 +1,7 @@
 ﻿
 
 namespace Agrivision.Backend.Application.Features.Subscription.Contracts;
-public record CreatePaymentIntentRequest
+public record CreateSubscriptionRequest
 (
     string UserId,
     Guid PlanId

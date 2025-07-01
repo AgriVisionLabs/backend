@@ -57,6 +57,7 @@ public class FieldRepository(CoreDbContext coreDbContext) : IFieldRepository
     public async Task<Field?> FindByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         return await coreDbContext.Fields
+            .Include(f => f.PlantedCrop)
             .FirstOrDefaultAsync(field => field.Id == id && !field.IsDeleted, cancellationToken);
     }
 

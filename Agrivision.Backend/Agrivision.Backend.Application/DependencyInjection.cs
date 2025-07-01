@@ -52,6 +52,11 @@ public static class DependencyInjection
             .ValidateDataAnnotations()
             .ValidateOnStart();
         
+        services.AddOptions<ServerSettings>()
+            .BindConfiguration(ServerSettings.SectionName)
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+        
         return services;
     }
 

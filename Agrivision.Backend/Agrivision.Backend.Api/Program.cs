@@ -6,6 +6,7 @@ using Agrivision.Backend.Infrastructure.Persistence.Identity;
 using Agrivision.Backend.Infrastructure.Seeding;
 using Agrivision.Backend.Infrastructure.WebSockets;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 using Scalar.AspNetCore;
 using Serilog;
 
@@ -19,25 +20,25 @@ builder.Host.AddSerilog();
 var app = builder.Build();
 
 // seed the database(s)
-// using (var scope = app.Services.CreateScope())
-// {
-//     // seed identity
-//     var identityDbContext = scope.ServiceProvider.GetRequiredService<ApplicationUserDbContext>();
-//     identityDbContext.Database.Migrate();
-//     await IdentitySeeder.SeedGlobalRolesAsync(scope.ServiceProvider);
-//     await IdentitySeeder.SeedAdminUserAsync(scope.ServiceProvider);
-//     await IdentitySeeder.SeedGlobalRolePermissionAsync(scope.ServiceProvider);
-//  
-//     // seed core
-//     var coreDbContext = scope.ServiceProvider.GetRequiredService<CoreDbContext>();
-//     coreDbContext.Database.Migrate();
-//     await CoreSeeder.SeedRolesAsync(scope.ServiceProvider);
-//     await CoreSeeder.SeedCoreRolePermissionAsync(scope.ServiceProvider);
-//     await CoreSeeder.SeedDemoFarmAsync(scope.ServiceProvider);
-//     await CoreSeeder.SeedDevicesAsync(scope.ServiceProvider);
-//     await CoreSeeder.SeedCropsAsync(scope.ServiceProvider);
-//     await CoreSeeder.SeedCropDiseasesAsync(scope.ServiceProvider);
-// }
+using (var scope = app.Services.CreateScope())
+{
+    // seed identity
+    var identityDbContext = scope.ServiceProvider.GetRequiredService<ApplicationUserDbContext>();
+    identityDbContext.Database.Migrate();
+    await IdentitySeeder.SeedGlobalRolesAsync(scope.ServiceProvider);
+    await IdentitySeeder.SeedAdminUserAsync(scope.ServiceProvider);
+    await IdentitySeeder.SeedGlobalRolePermissionAsync(scope.ServiceProvider);
+ 
+    // seed core
+    var coreDbContext = scope.ServiceProvider.GetRequiredService<CoreDbContext>();
+    coreDbContext.Database.Migrate();
+    await CoreSeeder.SeedRolesAsync(scope.ServiceProvider);
+    await CoreSeeder.SeedCoreRolePermissionAsync(scope.ServiceProvider);
+    await CoreSeeder.SeedDemoFarmAsync(scope.ServiceProvider);
+    await CoreSeeder.SeedDevicesAsync(scope.ServiceProvider);
+    await CoreSeeder.SeedCropsAsync(scope.ServiceProvider);
+    await CoreSeeder.SeedCropDiseasesAsync(scope.ServiceProvider);
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment() || builder.Configuration.GetValue<bool>("ApiDocumentation:Enabled")) 
@@ -69,7 +70,14 @@ app.UseSerilogRequestLogging();
 
 app.UseHttpsRedirection();
 
-app.UseCors("AllowAny");
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(
+        Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads")),
+    RequestPath = "/uploads"
+});
+
+app.UseCors("AllowSpecificOrigin");
 
 app.UseAuthentication();
 

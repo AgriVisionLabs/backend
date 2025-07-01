@@ -15,4 +15,6 @@ public class PlantedCrop : AuditableEntity
 
     public Guid FieldId { get; set; }
     public Field Field { get; set; } = default!;
+
+    public ICollection<DiseaseDetection> DiseaseDetections = new List<DiseaseDetection>();
 }

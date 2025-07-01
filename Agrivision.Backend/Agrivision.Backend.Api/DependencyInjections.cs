@@ -32,13 +32,16 @@ public static class DependencyInjections
     private static IServiceCollection AddCors(this IServiceCollection services)
     {
         services.AddCors(options =>
-            options.AddPolicy("AllowAny", builder =>
-                builder.AllowAnyMethod()
+        {
+            options.AddPolicy("AllowSpecificOrigin", builder =>
+            {
+                builder.WithOrigins("http://localhost:5173", "https://www.agrivisionlabs.tech", "https://agrivisionlabs.tech", "https://agrivision-web.vercel.app") 
                     .AllowAnyHeader()
-                    .AllowAnyOrigin()
-            )
-        );
-
+                    .AllowAnyMethod()
+                    .AllowCredentials();
+            });
+        });
+        
         return services;
     }
     
@@ -55,5 +58,7 @@ public static class DependencyInjections
 
         return services;
     }
+    
+    
 
 }

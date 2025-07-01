@@ -18,6 +18,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <Folder Include="Features\DiseaseDetection\Queries\" />
       <Folder Include="Features\FarmRoles\Commands\" />
       <Folder Include="Features\FarmRoles\Mappings\" />
       <Folder Include="Features\FarmRoles\Validators\" />

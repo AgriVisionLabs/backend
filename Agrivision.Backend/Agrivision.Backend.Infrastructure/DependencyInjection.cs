@@ -2,8 +2,9 @@ using System.Text;
 using Agrivision.Backend.Application.Auth;
 using Agrivision.Backend.Application.Repositories.Core;
 using Agrivision.Backend.Application.Repositories.Identity;
+using Agrivision.Backend.Application.Services.DiseaseDetection;
 using Agrivision.Backend.Application.Services.Email;
-using Agrivision.Backend.Application.Services.FileManagement;
+using Agrivision.Backend.Application.Services.Files;
 using Agrivision.Backend.Application.Services.Hubs;
 using Agrivision.Backend.Application.Services.InvitationTokenGenerator;
 using Agrivision.Backend.Application.Services.IoT;
@@ -17,8 +18,9 @@ using Agrivision.Backend.Infrastructure.Persistence.Identity;
 using Agrivision.Backend.Infrastructure.Persistence.Identity.Entities;
 using Agrivision.Backend.Infrastructure.Repositories.Core;
 using Agrivision.Backend.Infrastructure.Repositories.Identity;
-using Agrivision.Backend.Infrastructure.Services.FileManagement;
+using Agrivision.Backend.Infrastructure.Services.DiseaseDetection;
 using Agrivision.Backend.Infrastructure.Services.Email;
+using Agrivision.Backend.Infrastructure.Services.Files;
 using Agrivision.Backend.Infrastructure.Services.Hubs;
 using Agrivision.Backend.Infrastructure.Services.InvitationTokenGenerator;
 using Agrivision.Backend.Infrastructure.Services.IoT;
@@ -111,11 +113,7 @@ public static class DependencyInjection
         services.AddSensorReadingRepository();
 
         services.AddAutomationRuleRepository();
-
-        services.MapDetectionModelSettings(config);
         
-        services.AddFileService();
-
         services.AddAutomationRuleExecutionService();
 
         services.AddFarmConnectionTracker();
@@ -131,6 +129,16 @@ public static class DependencyInjection
         services.AddPlantedCropRepository();
 
         services.AddCropRepository();
+
+        services.AddDiseaseDetectionRepository();
+
+        services.AddCropDiseaseRepository();
+
+        services.MapDiseaseDetectionSettings(config);
+
+        services.AddDiseaseDetectionService();
+
+        services.AddFileUploadService();
 
         return services;
     }
@@ -389,6 +397,11 @@ public static class DependencyInjection
             .Validate(otp => otp.Verification.MaxAttempts > 0 && otp.PasswordReset.MaxAttempts > 0 && otp.TwoFactor.MaxAttempts > 0, "OTP configuration must be valid.")
             .ValidateOnStart();
         
+        services.AddOptions<DiseaseDetectionSettings>()
+            .BindConfiguration(DiseaseDetectionSettings.SectionName)
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+        
         return services;
     }
 
@@ -514,20 +527,6 @@ public static class DependencyInjection
         return services;
     }
     
-    private static IServiceCollection MapDetectionModelSettings(this IServiceCollection services, IConfiguration configuration)
-    {
-        services.Configure<DetectionModelSettings>(configuration.GetSection(nameof(DetectionModelSettings)));
-
-        return services;
-    }
-    
-    private static IServiceCollection AddFileService(this IServiceCollection services)
-    {
-        services.AddScoped<IFileService, FileService>();
-
-        return services;
-    }
-    
     private static IServiceCollection AddAutomationRuleExecutionService(this IServiceCollection services)
     {
         services.AddSingleton<AutomationRuleExecutionService>();
@@ -581,6 +580,42 @@ public static class DependencyInjection
     private static IServiceCollection AddCropRepository(this IServiceCollection services)
     {
         services.AddScoped<ICropRepository, CropRepository>();
+
+        return services;
+    }
+    
+    private static IServiceCollection AddDiseaseDetectionRepository(this IServiceCollection services)
+    {
+        services.AddScoped<IDiseaseDetectionRepository, DiseaseDetectionRepository>();
+
+        return services;
+    }
+    
+    private static IServiceCollection AddCropDiseaseRepository(this IServiceCollection services)
+    {
+        services.AddScoped<ICropDiseaseRepository, CropDiseaseRepository>();
+
+        return services;
+    }
+    
+    private static IServiceCollection MapDiseaseDetectionSettings(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.Configure<DiseaseDetectionSettings>(configuration.GetSection(nameof(DiseaseDetectionSettings)));
+
+        return services;
+    }
+    
+    private static IServiceCollection AddDiseaseDetectionService(this IServiceCollection services)
+    {
+        services.AddScoped<IDiseaseDetectionService, DiseaseDetectionService>();
+        services.AddHttpClient<IDiseaseDetectionService, DiseaseDetectionService>();
+
+        return services;
+    }
+    
+    private static IServiceCollection AddFileUploadService(this IServiceCollection services)
+    {
+        services.AddScoped<IFileUploadService, FileUploadService>();
 
         return services;
     }

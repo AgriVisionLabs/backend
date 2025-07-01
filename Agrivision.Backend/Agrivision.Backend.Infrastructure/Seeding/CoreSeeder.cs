@@ -411,7 +411,7 @@ public static class CoreSeeder
             if (adminUser == null)
                 throw new Exception("Admin user not found.");
 
-            if (await coreDbContext.Diseases.AnyAsync())
+            if (await coreDbContext.CropDiseases.AnyAsync())
             {
                 logger.LogInformation("Diseases already seeded.");
                 return;
@@ -423,39 +423,39 @@ public static class CoreSeeder
             var diseaseData = new List<(string CropType, string DiseaseName, List<string> Treatments)>
             {
                 ("Apple", "Apple Scab", new List<string> { "Myclobutanil", "Captan" }),
-                ("Apple", "Black Rot", new List<string> { "Copper-based fungicides", "Fluopyram" }),
-                ("Apple", "Cedar Apple Rust", new List<string> { "Sulfur", "Myclobutanil" }),
+                ("Apple", "Apple Black Rot", new List<string> { "Copper-based fungicides", "Fluopyram" }),
+                ("Apple", "Apple Cedar Apple Rust", new List<string> { "Sulfur", "Myclobutanil" }),
 
-                ("Cherry", "Powdery Mildew", new List<string> { "Sulfur", "Potassium bicarbonate" }),
+                ("Cherry", "Cherry Powdery Mildew", new List<string> { "Sulfur", "Potassium bicarbonate" }),
 
-                ("Corn", "Cercospora Leaf Spot", new List<string> { "Azoxystrobin", "Propiconazole" }),
-                ("Corn", "Common Rust", new List<string> { "Trifloxystrobin", "Pyraclostrobin" }),
-                ("Corn", "Northern Leaf Blight", new List<string> { "Azoxystrobin", "Propiconazole" }),
+                ("Corn", "Corn Cercospora Leaf Spot", new List<string> { "Azoxystrobin", "Propiconazole" }),
+                ("Corn", "Corn Common Rust", new List<string> { "Trifloxystrobin", "Pyraclostrobin" }),
+                ("Corn", "Corn Northern Leaf Blight", new List<string> { "Azoxystrobin", "Propiconazole" }),
 
-                ("Grape", "Black Rot", new List<string> { "Myclobutanil", "Fluopyram" }),
-                ("Grape", "Esca (Black Measles)", new List<string> { "Trichoderma spp.", "Thiophanate-methyl" }), // Replaced sodium arsenite
-                ("Grape", "Leaf Blight", new List<string> { "Copper-based fungicides", "Azoxystrobin" }),
+                ("Grape", "Grape Black Rot", new List<string> { "Myclobutanil", "Fluopyram" }),
+                ("Grape", "Grape Esca (Black Measles)", new List<string> { "Trichoderma spp.", "Thiophanate-methyl" }),
+                ("Grape", "Grape Leaf Blight", new List<string> { "Copper-based fungicides", "Azoxystrobin" }),
 
-                ("Orange", "Huanglongbing (Citrus Greening)", new List<string> { "Imidacloprid", "Thiamethoxam" }),
+                ("Orange", "Orange Huanglongbing (Citrus Greening)", new List<string> { "Imidacloprid", "Thiamethoxam" }),
 
-                ("Peach", "Bacterial Spot", new List<string> { "Copper hydroxide", "Kasugamycin" }), // Oxytetracycline minimized due to AMR concerns
+                ("Peach", "Peach Bacterial Spot", new List<string> { "Copper hydroxide", "Kasugamycin" }),
 
-                ("Pepper", "Bacterial Spot", new List<string> { "Copper hydroxide", "Zinc oxide" }),
+                ("Pepper", "Pepper Bacterial Spot", new List<string> { "Copper hydroxide", "Zinc oxide" }),
 
-                ("Potato", "Early Blight", new List<string> { "Chlorothalonil", "Mancozeb" }),
-                ("Potato", "Late Blight", new List<string> { "Cymoxanil", "Mandipropamid" }), // Replacing Metalaxyl
+                ("Potato", "Potato Early Blight", new List<string> { "Chlorothalonil", "Mancozeb" }),
+                ("Potato", "Potato Late Blight", new List<string> { "Cymoxanil", "Mandipropamid" }),
 
-                ("Squash", "Powdery Mildew", new List<string> { "Sulfur", "Potassium bicarbonate" }),
+                ("Squash", "Squash Powdery Mildew", new List<string> { "Sulfur", "Potassium bicarbonate" }),
 
-                ("Strawberry", "Leaf Scorch", new List<string> { "Captan", "Cyprodinil" }), // Safer alternative to Thiram
+                ("Strawberry", "Strawberry Leaf Scorch", new List<string> { "Captan", "Cyprodinil" }),
 
-                ("Tomato", "Bacterial Spot", new List<string> { "Copper hydroxide", "Kasugamycin" }), // Replacing Streptomycin
-                ("Tomato", "Early Blight", new List<string> { "Chlorothalonil", "Mancozeb" }),
-                ("Tomato", "Late Blight", new List<string> { "Mandipropamid", "Cymoxanil" }),
-                ("Tomato", "Leaf Mold", new List<string> { "Chlorothalonil", "Tebuconazole" }),
-                ("Tomato", "Septoria Leaf Spot", new List<string> { "Chlorothalonil", "Azoxystrobin" }),
-                ("Tomato", "Spider Mites", new List<string> { "Abamectin", "Spiromesifen" }),
-                ("Tomato", "Target Spot", new List<string> { "Azoxystrobin", "Chlorothalonil" }),
+                ("Tomato", "Tomato Bacterial Spot", new List<string> { "Copper hydroxide", "Kasugamycin" }),
+                ("Tomato", "Tomato Early Blight", new List<string> { "Chlorothalonil", "Mancozeb" }),
+                ("Tomato", "Tomato Late Blight", new List<string> { "Mandipropamid", "Cymoxanil" }),
+                ("Tomato", "Tomato Leaf Mold", new List<string> { "Chlorothalonil", "Tebuconazole" }),
+                ("Tomato", "Tomato Septoria Leaf Spot", new List<string> { "Chlorothalonil", "Azoxystrobin" }),
+                ("Tomato", "Tomato Spider Mites", new List<string> { "Abamectin", "Spiromesifen" }),
+                ("Tomato", "Tomato Target Spot", new List<string> { "Azoxystrobin", "Chlorothalonil" }),
                 ("Tomato", "Tomato Yellow Leaf Curl Virus", new List<string> { "Imidacloprid", "Acetamiprid" }),
                 ("Tomato", "Tomato Mosaic Virus", new List<string> { "Thermal therapy", "Cross-protection" })
             };
@@ -480,7 +480,7 @@ public static class CoreSeeder
                 });
             }
 
-            await coreDbContext.Diseases.AddRangeAsync(diseases);
+            await coreDbContext.CropDiseases.AddRangeAsync(diseases);
             await coreDbContext.SaveChangesAsync();
 
             logger.LogInformation("Seeded {Count} diseases into the database.", diseases.Count);

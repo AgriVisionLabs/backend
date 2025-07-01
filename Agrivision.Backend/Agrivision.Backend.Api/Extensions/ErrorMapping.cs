@@ -69,6 +69,9 @@ public static class ErrorMapping
         "InventoryItemErrors.DuplicateName" => StatusCodes.Status409Conflict,
         "InventoryItemErrors.ItemNotFound" => StatusCodes.Status404NotFound,
         "InventoryItemErrors.InsufficientInventoryQuantity" => StatusCodes.Status400BadRequest,
+        "CropDisease.NotFound" => StatusCodes.Status404NotFound,
+        "DiseaseDetection.EmptyField" => StatusCodes.Status403Forbidden,
+        "DiseaseDetection.UnsupportedCrop" => StatusCodes.Status403Forbidden,
         _ => StatusCodes.Status400BadRequest // Default case
     };
 }

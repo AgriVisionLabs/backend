@@ -28,7 +28,9 @@ public class CoreDbContext(DbContextOptions<CoreDbContext> options) : DbContext(
     public DbSet<InventoryItemTransaction> InventoryItemTransactions { get; set; }
     public DbSet<Crop> Crops { get; set; }
     public DbSet<PlantedCrop> PlantedCrops { get; set; }
-    public DbSet<CropDisease> Diseases { get; set; }
+    public DbSet<CropDisease> CropDiseases { get; set; }
+    
+    public DbSet<DiseaseDetection> DiseaseDetections { get; set; }
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

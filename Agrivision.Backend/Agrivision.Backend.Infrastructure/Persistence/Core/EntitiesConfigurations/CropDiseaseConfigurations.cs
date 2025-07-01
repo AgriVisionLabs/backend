@@ -38,5 +38,8 @@ public class CropDiseaseConfigurations : IEntityTypeConfiguration<CropDisease>
             .WithMany(c => c.CropDiseases)
             .HasForeignKey(d => d.CropId)
             .OnDelete(DeleteBehavior.Restrict);
+        
+        builder.HasIndex(d => d.Name)
+            .IsUnique();
     }
 }

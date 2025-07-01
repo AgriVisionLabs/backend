@@ -55,5 +55,8 @@ public class CropConfigurations : IEntityTypeConfiguration<Crop>
         
         builder.HasIndex(c => c.CropType)
             .IsUnique();
+        
+        builder.HasIndex(c => c.Name)
+            .IsUnique();
     }
 }

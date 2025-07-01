@@ -4,6 +4,7 @@ using Agrivision.Backend.Infrastructure.Persistence.Core;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
 {
     [DbContext(typeof(CoreDbContext))]
-    partial class CoreDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250629113635_AddDiseaseDetection")]
+    partial class AddDiseaseDetection
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -164,9 +167,6 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
                     b.HasIndex("CropType")
                         .IsUnique();
 
-                    b.HasIndex("Name")
-                        .IsUnique();
-
                     b.ToTable("Crops", (string)null);
                 });
 
@@ -214,9 +214,6 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("CropId");
-
-                    b.HasIndex("Name")
-                        .IsUnique();
 
                     b.ToTable("CropDiseases", (string)null);
                 });

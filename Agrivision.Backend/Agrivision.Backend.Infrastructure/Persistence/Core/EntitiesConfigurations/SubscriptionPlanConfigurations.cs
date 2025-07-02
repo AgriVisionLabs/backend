@@ -16,6 +16,7 @@ public class SubscriptionPlanConfigurations : IEntityTypeConfiguration<Subscript
             .ValueGeneratedOnAdd();
 
         builder.Property(sp => sp.Name)
+            .HasMaxLength(100)
             .IsRequired();
 
         builder.Property(sp => sp.Price)
@@ -39,5 +40,9 @@ public class SubscriptionPlanConfigurations : IEntityTypeConfiguration<Subscript
 
         builder.Property(sp => sp.ProductId)
            .IsRequired();
+
+        builder.HasIndex(sp => sp.Name)
+            .IsUnique()
+            .HasFilter("[IsDeleted] = 0");
     }
 }

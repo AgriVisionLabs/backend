@@ -11,6 +11,7 @@ public class DiseaseDetectionRepository(CoreDbContext coreDbContext) : IDiseaseD
     {
         return await coreDbContext.DiseaseDetections
             .Include(dd => dd.CropDisease)
+            .ThenInclude(pc => pc.Crop)
             .Include(dd => dd.PlantedCrop)
             .ThenInclude(pc => pc.Field)
             .ThenInclude(f => f.Farm)

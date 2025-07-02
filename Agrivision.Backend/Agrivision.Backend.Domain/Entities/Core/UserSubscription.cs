@@ -1,9 +1,9 @@
-﻿
-using Agrivision.Backend.Domain.Entities.Shared;
+﻿using Agrivision.Backend.Domain.Entities.Shared;
 using Agrivision.Backend.Domain.Enums.Core;
 
 namespace Agrivision.Backend.Domain.Entities.Core;
-public class UserSubscription:AuditableEntity
+
+public class UserSubscription : AuditableEntity
 {
     public Guid Id { get; set; }
     public string UserId { get; set; } = string.Empty; 

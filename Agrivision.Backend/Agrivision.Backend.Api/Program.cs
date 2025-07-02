@@ -38,6 +38,7 @@ using (var scope = app.Services.CreateScope())
     await CoreSeeder.SeedDevicesAsync(scope.ServiceProvider);
     await CoreSeeder.SeedCropsAsync(scope.ServiceProvider);
     await CoreSeeder.SeedCropDiseasesAsync(scope.ServiceProvider);
+    await CoreSeeder.SeedSubscriptionPlansAsync(scope.ServiceProvider);
 }
 
 // Configure the HTTP request pipeline.
@@ -70,12 +71,7 @@ app.UseSerilogRequestLogging();
 
 app.UseHttpsRedirection();
 
-app.UseStaticFiles(new StaticFileOptions
-{
-    FileProvider = new PhysicalFileProvider(
-        Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads")),
-    RequestPath = "/uploads"
-});
+app.UseStaticFiles();
 
 app.UseCors("AllowSpecificOrigin");
 

@@ -31,7 +31,7 @@ public class FileUploadService(IWebHostEnvironment environment, ILogger<FileUplo
         
         logger.LogCritical(filePath);
 
-        await using (var stream = new FileStream(filePath, FileMode.Create))
+        using (var stream = new FileStream(filePath, FileMode.Create))
         {
             await file.CopyToAsync(stream);
         }

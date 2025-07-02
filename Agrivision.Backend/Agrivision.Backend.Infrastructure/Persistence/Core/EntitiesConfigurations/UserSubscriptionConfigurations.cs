@@ -28,5 +28,9 @@ public class UserSubscriptionConfigurations : IEntityTypeConfiguration<UserSubsc
         builder.Property(us => us.EndDate)
             .IsRequired();
 
+        builder.HasOne(us => us.SubscriptionPlan)
+            .WithMany()
+            .HasForeignKey(us => us.SubscriptionPlanId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

@@ -77,6 +77,7 @@ public class ToggleIrrigationUnitCommandHandler(IFieldRepository fieldRepository
 
         unit.IsOn = !unit.IsOn;
         unit.ToggledById = request.RequesterId;
+        unit.Status = UnitStatus.Active;
         unit.UpdatedOn = now;
         unit.UpdatedById = request.RequesterId;
 

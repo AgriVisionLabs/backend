@@ -15,4 +15,9 @@ public static class DiseaseDetectionErrors
         "DiseaseDetection.ConfidenceLabelMismatch",
         "Confidence label mismatch."
     );
+    
+    public static readonly Error PredictionFailed = new(
+        "DiseaseDetection.PredictionFailed",
+        "Disease detection prediction failed. Please try again later."
+    );
 }

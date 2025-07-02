@@ -490,5 +490,126 @@ public static class CoreSeeder
             logger.LogError(ex, "Failed to seed diseases.");
         }
     }
-        
+    
+    public static async Task SeedSubscriptionPlansAsync(IServiceProvider serviceProvider)
+    {
+        var coreDbContext = serviceProvider.GetRequiredService<CoreDbContext>();
+        var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+        var options = serviceProvider.GetRequiredService<IOptions<AdminSettings>>();
+        var logger = serviceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("CoreSeeder");
+
+        var adminSettings = options.Value;
+
+        try
+        {
+            var adminUser = await userManager.FindByEmailAsync(adminSettings.Email);
+            if (adminUser == null)
+            {
+                logger.LogError("Couldn't find admin user.");
+                throw new Exception("Admin user not found.");
+            }
+
+            var predefinedPlans = new List<SubscriptionPlan>
+            {
+                new()
+                {
+                    Name = "Basic",
+                    Price = 0.00m,
+                    Currency = "AED",
+                    MaxFarms = 1,
+                    MaxFields = 3,
+                    UnlimitedAiFeatureUsage = false,
+                    IsActive = true,
+                    ProductId = "",
+                    CreatedById = adminUser.Id,
+                    CreatedOn = DateTime.UtcNow
+                },
+                new()
+                {
+                    Name = "Advanced",
+                    Price = 30m,
+                    Currency = "AED",
+                    MaxFarms = 3,
+                    MaxFields = 5,
+                    UnlimitedAiFeatureUsage = true,
+                    IsActive = true,
+                    ProductId = "prod_SXXYKmbxoJ5L1t",
+                    CreatedById = adminUser.Id,
+                    CreatedOn = DateTime.UtcNow
+                },
+                new()
+                {
+                    Name = "Custom",
+                    Price = 0.00m,
+                    Currency = "AED",
+                    MaxFarms = int.MaxValue,
+                    MaxFields = int.MaxValue,
+                    UnlimitedAiFeatureUsage = true,
+                    IsActive = true,
+                    ProductId = "",
+                    CreatedById = adminUser.Id,
+                    CreatedOn = DateTime.UtcNow
+                }
+            };
+
+            SubscriptionPlan? customPlan = null;
+
+            foreach (var plan in predefinedPlans)
+            {
+                var exists = await coreDbContext.SubscriptionPlans
+                    .AnyAsync(p => p.Name == plan.Name || (!string.IsNullOrEmpty(plan.ProductId) && p.ProductId == plan.ProductId));
+
+                if (exists)
+                {
+                    logger.LogInformation("Subscription plan already exists: {PlanName}", plan.Name);
+                    if (plan.Name == "Custom")
+                    {
+                        customPlan = await coreDbContext.SubscriptionPlans.FirstOrDefaultAsync(p => p.Name == "Custom");
+                    }
+                    continue;
+                }
+
+                await coreDbContext.SubscriptionPlans.AddAsync(plan);
+                logger.LogInformation("Seeded subscription plan: {PlanName}", plan.Name);
+
+                if (plan.Name == "Custom")
+                {
+                    customPlan = plan;
+                }
+            }
+
+            await coreDbContext.SaveChangesAsync();
+
+            // Assign admin to "Custom" subscription plan if not already assigned
+            if (customPlan != null)
+            {
+                bool adminHasCustomSubscription = await coreDbContext.UserSubscriptions
+                    .AnyAsync(us => us.UserId == adminUser.Id && us.SubscriptionPlanId == customPlan.Id);
+
+                if (!adminHasCustomSubscription)
+                {
+                    var userSubscription = new UserSubscription
+                    {
+                        UserId = adminUser.Id,
+                        SubscriptionPlanId = customPlan.Id,
+                        StartDate = DateTime.UtcNow,
+                        EndDate = DateTime.UtcNow.AddYears(100),
+                        Status = UserSubscriptionStatus.Active,
+                        PaymentStatus = PaymentStatus.Paid,
+                        StripeSubscriptionId = string.Empty,
+                        CreatedById = adminUser.Id,
+                        CreatedOn = DateTime.UtcNow
+                    };
+
+                    await coreDbContext.UserSubscriptions.AddAsync(userSubscription);
+                    logger.LogInformation("Assigned admin user to Custom plan.");
+                    await coreDbContext.SaveChangesAsync();
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to seed subscription plans.");
+        }
+    }
 }

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
 {
     [DbContext(typeof(CoreDbContext))]
-    [Migration("20250630063930_addIndex")]
-    partial class addIndex
+    [Migration("20250701114640_Update")]
+    partial class Update
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -1312,6 +1312,10 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
                     b.Property<decimal>("Price")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("ProductId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("UnlimitedAiFeatureUsage")
                         .HasColumnType("bit");

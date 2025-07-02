@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
 {
     [DbContext(typeof(CoreDbContext))]
-    [Migration("20250629113635_AddDiseaseDetection")]
-    partial class AddDiseaseDetection
+    [Migration("20250702065556_UpdateUserSubAndSubPlan")]
+    partial class UpdateUserSubAndSubPlan
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -167,6 +167,9 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
                     b.HasIndex("CropType")
                         .IsUnique();
 
+                    b.HasIndex("Name")
+                        .IsUnique();
+
                     b.ToTable("Crops", (string)null);
                 });
 
@@ -214,6 +217,9 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("CropId");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
 
                     b.ToTable("CropDiseases", (string)null);
                 });
@@ -1301,11 +1307,16 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<decimal>("Price")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("ProductId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("UnlimitedAiFeatureUsage")
                         .HasColumnType("bit");
@@ -1317,6 +1328,10 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique()
+                        .HasFilter("[IsDeleted] = 0");
 
                     b.ToTable("SubscriptionPlans", (string)null);
                 });
@@ -1732,7 +1747,7 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
                     b.HasOne("Agrivision.Backend.Domain.Entities.Core.SubscriptionPlan", "SubscriptionPlan")
                         .WithMany()
                         .HasForeignKey("SubscriptionPlanId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("SubscriptionPlan");

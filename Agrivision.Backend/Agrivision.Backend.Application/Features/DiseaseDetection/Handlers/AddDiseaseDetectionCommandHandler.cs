@@ -7,12 +7,13 @@ using Agrivision.Backend.Application.Services.DiseaseDetection;
 using Agrivision.Backend.Application.Services.Files;
 using Agrivision.Backend.Application.Settings;
 using Agrivision.Backend.Domain.Abstractions;
+using Agrivision.Backend.Domain.Models;
 using MediatR;
 using Microsoft.Extensions.Options;
 
 namespace Agrivision.Backend.Application.Features.DiseaseDetection.Handlers;
 
-public class AddDiseaseDetectionCommandHandler(IFieldRepository fieldRepository, IFarmUserRoleRepository farmUserRoleRepository, IUserRepository userRepository, IFileUploadService fileUploadService, IDiseaseDetectionService diseaseDetectionService, ICropDiseaseRepository cropDiseaseRepository, ICropRepository cropRepository, IOptions<ServerSettings> serverSettings) : IRequestHandler<AddDiseaseDetectionCommand, Result<DiseaseDetectionResponse>>
+public class AddDiseaseDetectionCommandHandler(IFieldRepository fieldRepository, IFarmUserRoleRepository farmUserRoleRepository, IUserRepository userRepository, IFileUploadService fileUploadService, IDiseaseDetectionService diseaseDetectionService, ICropDiseaseRepository cropDiseaseRepository, ICropRepository cropRepository, IOptions<ServerSettings> serverSettings, IDiseaseDetectionRepository diseaseDetectionRepository) : IRequestHandler<AddDiseaseDetectionCommand, Result<DiseaseDetectionResponse>>
 {
     public async Task<Result<DiseaseDetectionResponse>> Handle(AddDiseaseDetectionCommand request, CancellationToken cancellationToken)
     {
@@ -54,6 +55,8 @@ public class AddDiseaseDetectionCommandHandler(IFieldRepository fieldRepository,
 
         // disease detection
         var prediction = await diseaseDetectionService.PredictImageAsync(filename);
+        if (prediction is null)
+            return Result.Failure<DiseaseDetectionResponse>(DiseaseDetectionErrors.PredictionFailed);
         
         // find the crop disease with the highest confidence
         var cropDisease = await cropDiseaseRepository.FindByNameAsync(prediction.Label, cancellationToken);
@@ -87,12 +90,17 @@ public class AddDiseaseDetectionCommandHandler(IFieldRepository fieldRepository,
             CreatedById = request.ReqeusterId,
             CreatedOn = DateTime.UtcNow
         };
+
+        await diseaseDetectionRepository.AddAsync(diseaseDetection, cancellationToken);
         
         var isHealthy = prediction.Label.ToLower().Contains("healthy");
 
         // map 
         var response = new DiseaseDetectionResponse(
             Id: diseaseDetection.Id,
+            FarmId: field.FarmId,
+            FieldId: field.Id,
+            CropName: crop.Name,
             DiseaseName: cropDisease.Name,
             IsHealthy: isHealthy,
             CreatedOn: diseaseDetection.CreatedOn,

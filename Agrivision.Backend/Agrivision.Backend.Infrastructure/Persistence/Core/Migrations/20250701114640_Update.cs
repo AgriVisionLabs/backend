@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
 {
     /// <inheritdoc />
-    public partial class FirstMig : Migration
+    public partial class Update : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -471,8 +471,7 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
                     PlantingDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ExpectedHarvestDate = table.Column<DateTime>(type: "datetime2", nullable: true),
                     ActualHarvestDate = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    EstimatedYield = table.Column<double>(type: "float(18)", precision: 18, scale: 2, nullable: true),
-                    ActualYield = table.Column<double>(type: "float(18)", precision: 18, scale: 2, nullable: true),
+                    Yield = table.Column<double>(type: "float(18)", precision: 18, scale: 2, nullable: true),
                     CropId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     FieldId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false),
@@ -666,6 +665,40 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "DiseaseDetections",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ConfidenceLevel = table.Column<double>(type: "float", nullable: false),
+                    ImageUrl = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    PlantedCropId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CropDiseaseId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
+                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedOn = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    DeletedOn = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    CreatedById = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    UpdatedById = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    DeletedById = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_DiseaseDetections", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_DiseaseDetections_CropDiseases_CropDiseaseId",
+                        column: x => x.CropDiseaseId,
+                        principalTable: "CropDiseases",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_DiseaseDetections_PlantedCrops_PlantedCropId",
+                        column: x => x.PlantedCropId,
+                        principalTable: "PlantedCrops",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "AutomationRules",
                 columns: table => new
                 {
@@ -737,10 +770,37 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
                 column: "CropId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_CropDiseases_Name",
+                table: "CropDiseases",
+                column: "Name",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Crops_CropType",
                 table: "Crops",
                 column: "CropType",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Crops_Name",
+                table: "Crops",
+                column: "Name",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DiseaseDetections_CropDiseaseId",
+                table: "DiseaseDetections",
+                column: "CropDiseaseId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DiseaseDetections_Id",
+                table: "DiseaseDetections",
+                column: "Id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DiseaseDetections_PlantedCropId",
+                table: "DiseaseDetections",
+                column: "PlantedCropId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_FarmInvitations_FarmId_InvitedEmail",
@@ -1001,7 +1061,7 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
                 name: "AutomationRules");
 
             migrationBuilder.DropTable(
-                name: "CropDiseases");
+                name: "DiseaseDetections");
 
             migrationBuilder.DropTable(
                 name: "FarmInvitations");
@@ -1019,9 +1079,6 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
                 name: "IrrigationEvents");
 
             migrationBuilder.DropTable(
-                name: "PlantedCrops");
-
-            migrationBuilder.DropTable(
                 name: "SensorReadings");
 
             migrationBuilder.DropTable(
@@ -1034,6 +1091,12 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
                 name: "SensorUnits");
 
             migrationBuilder.DropTable(
+                name: "CropDiseases");
+
+            migrationBuilder.DropTable(
+                name: "PlantedCrops");
+
+            migrationBuilder.DropTable(
                 name: "FarmRoles");
 
             migrationBuilder.DropTable(
@@ -1043,13 +1106,13 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
                 name: "IrrigationUnits");
 
             migrationBuilder.DropTable(
-                name: "Crops");
-
-            migrationBuilder.DropTable(
                 name: "SensorConfigurations");
 
             migrationBuilder.DropTable(
                 name: "SubscriptionPlans");
+
+            migrationBuilder.DropTable(
+                name: "Crops");
 
             migrationBuilder.DropTable(
                 name: "Fields");

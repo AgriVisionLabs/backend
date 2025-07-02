@@ -15,5 +15,9 @@ public class AddDiseaseDetectionRequestValidator : AbstractValidator<AddDiseaseD
                 var contentType = file.ContentType.ToLowerInvariant();
                 return contentType == "image/jpeg" || contentType == "image/png";
             }).WithMessage("Only JPEG and PNG image formats are supported.");
+        
+        RuleFor(request => request.Image)
+            .Must(file => file != null && file.Length > 0)
+            .WithMessage("Please upload a non-empty file.");
     }
 }

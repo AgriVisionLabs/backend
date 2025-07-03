@@ -48,6 +48,14 @@ public static class DependencyInjections
     private static IServiceCollection AddHubServices(this IServiceCollection services)
     {
         services.AddScoped<ISensorHubNotifier, SensorHubNotifier>();
+        
+        services.AddScoped<IConversationHubNotifier, ConversationHubNotifier>();
+
+        services.AddScoped<IMessageHubNotifier, MessageHubNotifier>();
+        
+        services.AddScoped<IConversationBroadcaster, ConversationBroadcaster>();
+        
+        services.AddScoped<IMessageBroadcaster, MessageBroadcaster>();
 
         return services;
     }
@@ -59,6 +67,4 @@ public static class DependencyInjections
         return services;
     }
     
-    
-
 }

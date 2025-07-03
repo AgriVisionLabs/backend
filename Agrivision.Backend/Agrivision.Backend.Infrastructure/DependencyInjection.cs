@@ -144,6 +144,18 @@ public static class DependencyInjection
 
         services.AddUserContext();
 
+        services.AddConversationRepository();
+
+        services.AddMessageRepository();
+        
+        services.AddConversationMemberRepository();
+
+        services.AddClearedConversationRepository();
+        
+        services.AddConversationConnectionTracker();
+
+        services.AddUserConnectionTracker();
+
         return services;
     }
 
@@ -238,7 +250,8 @@ public static class DependencyInjection
 
                         // If the request is for our hub...
                         var path = context.HttpContext.Request.Path;
-                        if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/hub/sensors"))
+                        if (!string.IsNullOrEmpty(accessToken) && (path.StartsWithSegments("/hub/sensors") || path.StartsWithSegments("/hubs/messages") ||
+                                                                   path.StartsWithSegments("/hubs/conversations")))
                         {
                             context.Token = accessToken;
                         }
@@ -623,17 +636,60 @@ public static class DependencyInjection
 
         return services;
     }
+    
     private static IServiceCollection MapStripeSettings(this IServiceCollection services, IConfiguration configuration)
     {
         services.Configure<StripeSettings>(configuration.GetSection(nameof(StripeSettings)));
 
         return services;
     }
+    
     private static IServiceCollection AddUserContext(this IServiceCollection services)
     {
         services.AddScoped<IUserContext, UserContext>();
 
         return services;
     }
+    
+    private static IServiceCollection AddConversationRepository(this IServiceCollection services)
+    {
+        services.AddScoped<IConversationRepository, ConversationRepository>();
 
+        return services;
+    }
+    
+    private static IServiceCollection AddMessageRepository(this IServiceCollection services)
+    {
+        services.AddScoped<IMessageRepository, MessageRepository>();
+
+        return services;
+    }
+    
+    private static IServiceCollection AddClearedConversationRepository(this IServiceCollection services)
+    {
+        services.AddScoped<IClearedConversationRepository, ClearedConversationRepository>();
+
+        return services;
+    }
+
+    private static IServiceCollection AddConversationMemberRepository(this IServiceCollection services)
+    {
+        services.AddScoped<IConversationMemberRepository, ConversationMemberRepository>();
+
+        return services;
+    }
+    
+    private static IServiceCollection AddConversationConnectionTracker(this IServiceCollection services)
+    {
+        services.AddSingleton<IConversationConnectionTracker, ConversationConnectionTracker>();
+
+        return services;
+    }
+    
+    private static IServiceCollection AddUserConnectionTracker(this IServiceCollection services)
+    {
+        services.AddSingleton<IUserConnectionTracker, UserConnectionTracker>();
+
+        return services;
+    }
 }

@@ -30,6 +30,11 @@ public class CoreDbContext(DbContextOptions<CoreDbContext> options) : DbContext(
     public DbSet<PlantedCrop> PlantedCrops { get; set; }
     public DbSet<CropDisease> CropDiseases { get; set; }
     public DbSet<DiseaseDetection> DiseaseDetections { get; set; }
+    public DbSet<ClearedConversation> ClearedConversations { get; set; }
+    public DbSet<Conversation> Conversations { get; set; }
+    public DbSet<ConversationInviteLog> ConversationInviteLogs { get; set; }
+    public DbSet<ConversationMember> ConversationMembers { get; set; }
+    public DbSet<Message> Messages { get; set; }
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

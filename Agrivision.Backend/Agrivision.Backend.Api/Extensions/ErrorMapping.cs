@@ -72,6 +72,22 @@ public static class ErrorMapping
         "CropDisease.NotFound" => StatusCodes.Status404NotFound,
         "DiseaseDetection.EmptyField" => StatusCodes.Status403Forbidden,
         "DiseaseDetection.UnsupportedCrop" => StatusCodes.Status403Forbidden,
+        "DiseaseDetection.PredictionFailed" => StatusCodes.Status503ServiceUnavailable,
+        "Conversation.UnauthorizedAction" => StatusCodes.Status403Forbidden,
+        "Conversation.AccessDenied" => StatusCodes.Status403Forbidden,
+        "Conversation.AlreadyExists" => StatusCodes.Status409Conflict,
+        "Conversation.UserNotFound" => StatusCodes.Status404NotFound,
+        "Conversation.NoParticipants" => StatusCodes.Status400BadRequest,
+        "Conversation.SelfReference" => StatusCodes.Status400BadRequest,
+        "Conversation.InvalidIdentifier" => StatusCodes.Status400BadRequest,
+        "Conversation.Spammer" => StatusCodes.Status403Forbidden,
+        "Conversation.InviteRejected" => StatusCodes.Status400BadRequest,
+        "Conversation.NotGroupAdmin" => StatusCodes.Status403Forbidden,
+        "Conversation.InviteNotFound" => StatusCodes.Status404NotFound,
+        "Conversation.CannotModifySelf" => StatusCodes.Status403Forbidden,
+        "Conversation.TargetNotMember" => StatusCodes.Status400BadRequest,
+        "Conversation.CannotRemoveFromPrivateChat" => StatusCodes.Status403Forbidden,
+        "Conversation.NotFound" => StatusCodes.Status404NotFound,
         _ => StatusCodes.Status400BadRequest // Default case
     };
 }

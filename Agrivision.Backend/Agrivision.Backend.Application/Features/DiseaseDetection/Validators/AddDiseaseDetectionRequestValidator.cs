@@ -8,16 +8,13 @@ public class AddDiseaseDetectionRequestValidator : AbstractValidator<AddDiseaseD
     public AddDiseaseDetectionRequestValidator()
     {
         RuleFor(request => request.Image)
+            .Cascade(CascadeMode.Stop) // Ensures subsequent rules stop if NotNull fails
             .NotNull().WithMessage("Image file is required.")
-            .Must(file => file.Length > 0).WithMessage("Image file cannot be empty.")
-            .Must(file =>
-            {
-                var contentType = file.ContentType.ToLowerInvariant();
-                return contentType == "image/jpeg" || contentType == "image/png";
-            }).WithMessage("Only JPEG and PNG image formats are supported.");
-        
-        RuleFor(request => request.Image)
             .Must(file => file != null && file.Length > 0)
-            .WithMessage("Please upload a non-empty file.");
+            .WithMessage("Image file cannot be empty.")
+            .Must(file => file != null && 
+                          (file.ContentType.ToLowerInvariant() == "image/jpeg" ||
+                           file.ContentType.ToLowerInvariant() == "image/png"))
+            .WithMessage("Only JPEG and PNG image formats are supported.");
     }
 }

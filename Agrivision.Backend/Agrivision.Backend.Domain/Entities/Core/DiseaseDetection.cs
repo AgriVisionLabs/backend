@@ -12,6 +12,6 @@ public class DiseaseDetection : AuditableEntity
     public Guid PlantedCropId { get; set; }
     public PlantedCrop PlantedCrop { get; set; } = default!;
 
-    public Guid CropDiseaseId { get; set; }
-    public CropDisease CropDisease { get; set; } = default!;
+    public Guid? CropDiseaseId { get; set; }
+    public CropDisease? CropDisease { get; set; }
 }

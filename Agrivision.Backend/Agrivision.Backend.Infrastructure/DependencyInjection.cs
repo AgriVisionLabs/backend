@@ -147,7 +147,9 @@ public static class DependencyInjection
         services.AddConversationRepository();
 
         services.AddMessageRepository();
-        
+
+        services.AddConversationInviteLogRepository();
+
         services.AddConversationMemberRepository();
 
         services.AddClearedConversationRepository();
@@ -668,6 +670,13 @@ public static class DependencyInjection
     private static IServiceCollection AddClearedConversationRepository(this IServiceCollection services)
     {
         services.AddScoped<IClearedConversationRepository, ClearedConversationRepository>();
+
+        return services;
+    }
+    
+    private static IServiceCollection AddConversationInviteLogRepository(this IServiceCollection services)
+    {
+        services.AddScoped<IConversationInviteLogRepository, ConversationInviteLogRepository>();
 
         return services;
     }

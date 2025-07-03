@@ -30,6 +30,7 @@ public class DiseaseDetectionConfigurations : IEntityTypeConfiguration<DiseaseDe
         builder.HasOne(dd => dd.CropDisease)
             .WithMany()
             .HasForeignKey(dd => dd.CropDiseaseId)
+            .IsRequired(false)
             .OnDelete(DeleteBehavior.Restrict);
     }
 }

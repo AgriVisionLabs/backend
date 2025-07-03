@@ -21,93 +21,95 @@ public class AddDiseaseDetectionCommandHandler(IFieldRepository fieldRepository,
         var field = await fieldRepository.FindByIdAsync(request.FieldId, cancellationToken);
         if (field is null)
             return Result.Failure<DiseaseDetectionResponse>(FieldErrors.FieldNotFound);
-        
+
         // check if field belong to farm 
         if (field.FarmId != request.FarmId)
             return Result.Failure<DiseaseDetectionResponse>(FarmErrors.UnauthorizedAction);
-        
+
         // check if user has access
-        var farmUserRole =
-            await farmUserRoleRepository.FindByUserIdAndFarmIdAsync(request.ReqeusterId, request.FarmId,
-                cancellationToken);
+        var farmUserRole = await farmUserRoleRepository.FindByUserIdAndFarmIdAsync(
+            request.ReqeusterId, request.FarmId, cancellationToken);
         if (farmUserRole is null)
             return Result.Failure<DiseaseDetectionResponse>(FarmErrors.UnauthorizedAction);
-        
+
         // expert can't access the disease detection feature
         if (farmUserRole.FarmRole.Name == "Expert")
             return Result.Failure<DiseaseDetectionResponse>(FarmUserRoleErrors.InsufficientPermissions);
-        
+
         // check if the field has any planted crop
         if (field.PlantedCrop is null)
-            return Result.Failure<DiseaseDetectionResponse>(DiseaseDetectionErrors
-                .DiseaseDetectionNotAllowedInEmptyField);
-        
+            return Result.Failure<DiseaseDetectionResponse>(DiseaseDetectionErrors.DiseaseDetectionNotAllowedInEmptyField);
+
         // check if the crop supports disease detection
         var crop = await cropRepository.FindByIdAsync(field.PlantedCrop!.CropId, cancellationToken);
         if (crop is null)
             return Result.Failure<DiseaseDetectionResponse>(CropErrors.CropNotFound);
-        
+
         if (!crop.SupportsDiseaseDetection)
             return Result.Failure<DiseaseDetectionResponse>(DiseaseDetectionErrors.CropNotSupportedForDiseaseDetection);
-        
+
         // upload image
         var filename = await fileUploadService.UploadImageAsync(request.Image);
 
         // disease detection
         var prediction = await diseaseDetectionService.PredictImageAsync(filename);
-        if (prediction is null)
+        if (prediction is null || string.IsNullOrWhiteSpace(prediction.Label))
             return Result.Failure<DiseaseDetectionResponse>(DiseaseDetectionErrors.PredictionFailed);
-        
+
+        var label = prediction.Label.Trim();
+        var isHealthy = label.Contains("healthy", StringComparison.OrdinalIgnoreCase);
+
         // find the crop disease with the highest confidence
-        var cropDisease = await cropDiseaseRepository.FindByNameAsync(prediction.Label, cancellationToken);
-        if (cropDisease is null)
+        var cropDisease = !isHealthy
+            ? await cropDiseaseRepository.FindByNameAsync(label, cancellationToken)
+            : null;
+
+        if (!isHealthy && cropDisease is null)
             return Result.Failure<DiseaseDetectionResponse>(CropDiseaseErrors.CropDiseaseNotFound);
-        
+
         // get username
         var user = await userRepository.FindByIdAsync(request.ReqeusterId);
         if (user is null)
             return Result.Failure<DiseaseDetectionResponse>(UserErrors.UserNotFound);
 
         var userFullName = user.FirstName + " " + user.LastName;
-        
-        // create new disease detection
+
+        // match prediction confidence
         var matchedConfidence = prediction.Confidences
-            .FirstOrDefault(c => c.Label == prediction.Label);
+            .FirstOrDefault(c => c.Label == label);
 
         if (matchedConfidence == null)
             return Result.Failure<DiseaseDetectionResponse>(DiseaseDetectionErrors.ConfidenceLabelMismatch);
 
         var confidenceValue = matchedConfidence.Confidence;
 
-// create new disease detection
+        // create new disease detection
         var diseaseDetection = new Domain.Entities.Core.DiseaseDetection
         {
             Id = Guid.NewGuid(),
             ConfidenceLevel = confidenceValue,
             ImageUrl = $"{serverSettings.Value.BaseUrl}/uploads/{filename}",
             PlantedCropId = field.PlantedCrop.Id,
-            CropDiseaseId = cropDisease.Id,
+            CropDiseaseId = cropDisease?.Id, // allow null for healthy plants
             CreatedById = request.ReqeusterId,
             CreatedOn = DateTime.UtcNow
         };
 
         await diseaseDetectionRepository.AddAsync(diseaseDetection, cancellationToken);
-        
-        var isHealthy = prediction.Label.ToLower().Contains("healthy");
 
-        // map 
+        // map
         var response = new DiseaseDetectionResponse(
             Id: diseaseDetection.Id,
             FarmId: field.FarmId,
             FieldId: field.Id,
             CropName: crop.Name,
-            DiseaseName: cropDisease.Name,
+            DiseaseName: isHealthy ? "Healthy" : cropDisease!.Name,
             IsHealthy: isHealthy,
             CreatedOn: diseaseDetection.CreatedOn,
             ConfidenceLevel: diseaseDetection.ConfidenceLevel,
             ImageUrl: diseaseDetection.ImageUrl,
             CreatedBy: userFullName,
-            Treatments: cropDisease.Treatments
+            Treatments: isHealthy ? [] : cropDisease!.Treatments
         );
 
         return Result.Success(response);

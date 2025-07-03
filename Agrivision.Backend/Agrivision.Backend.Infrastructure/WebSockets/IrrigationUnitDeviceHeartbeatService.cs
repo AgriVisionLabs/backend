@@ -75,7 +75,7 @@ public class IrrigationUnitDeviceHeartbeatService(IServiceScopeFactory scopeFact
                 if (!_failedPongs.TryAdd(device.Id, 1))
                     _failedPongs[device.Id]++;
 
-                if (_failedPongs[device.Id] >= 999999999)
+                if (_failedPongs[device.Id] >= 6)
                 {
                     var socket = connectionManager.GetConnection(device.Id);
                     if (socket is not null && (socket.State == WebSocketState.Open || socket.State == WebSocketState.CloseReceived))
@@ -136,6 +136,10 @@ public class IrrigationUnitDeviceHeartbeatService(IServiceScopeFactory scopeFact
                 {
                     unit.Status = UnitStatus.Idle;
                     logger.LogInformation("Marked unit {UnitId} as Idle due to inactivity", unit.Id);
+                }
+                else if (unit.IsOnline)
+                {
+                    unit.Status = UnitStatus.Active;
                 }
                 
                 coreDbContext.IrrigationUnitDevices.Update(device);

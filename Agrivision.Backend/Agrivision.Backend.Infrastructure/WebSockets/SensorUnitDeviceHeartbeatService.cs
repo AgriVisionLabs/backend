@@ -77,7 +77,7 @@ public class SensorUnitDeviceHeartbeatService(
                 if (!_failedPongs.TryAdd(device.Id, 1))
                     _failedPongs[device.Id]++;
 
-                if (_failedPongs[device.Id] >= 999999999)
+                if (_failedPongs[device.Id] >= 6)
                 {
                     var socket = connectionManager.GetConnection(device.Id);
                     if (socket is not null && (socket.State == WebSocketState.Open || socket.State == WebSocketState.CloseReceived))

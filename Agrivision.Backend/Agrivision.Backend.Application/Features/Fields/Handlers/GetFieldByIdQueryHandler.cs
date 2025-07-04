@@ -32,7 +32,7 @@ public class GetFieldByIdQueryHandler(IFieldRepository fieldRepository, IFarmUse
         int? progress = null;
 
         // fetch latest planted crop for this field
-        var plantedCrop = await plantedCropRepository.FindLatestByFieldId(request.FieldId, cancellationToken);
+        var plantedCrop = field.PlantedCrop;
         if (plantedCrop is not null)
         {
             cropType = plantedCrop.Crop.CropType;

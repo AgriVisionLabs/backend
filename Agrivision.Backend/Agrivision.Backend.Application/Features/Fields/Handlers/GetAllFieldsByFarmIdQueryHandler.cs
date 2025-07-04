@@ -29,7 +29,7 @@ public class GetAllFieldsByFarmIdQueryHandler(IFieldRepository fieldRepository, 
 
         foreach (var field in fields)
         {
-            var plantedCrop = await plantedCropRepository.FindLatestByFieldId(field.Id, cancellationToken);
+            var plantedCrop = field.PlantedCrop;
 
             // calculate progress if planted crop & growth duration available
             int? progress = null;
@@ -46,10 +46,10 @@ public class GetAllFieldsByFarmIdQueryHandler(IFieldRepository fieldRepository, 
                 field.Area,
                 field.IsActive,
                 field.FarmId,
-                plantedCrop?.Crop?.CropType,
-                plantedCrop?.Crop?.Name,
-                plantedCrop?.Crop?.Description,
-                plantedCrop?.Crop?.SupportsDiseaseDetection,
+                plantedCrop?.Crop.CropType,
+                plantedCrop?.Crop.Name,
+                plantedCrop?.Crop.Description,
+                plantedCrop?.Crop.SupportsDiseaseDetection,
                 plantedCrop?.PlantingDate,
                 progress,
                 plantedCrop?.ExpectedHarvestDate

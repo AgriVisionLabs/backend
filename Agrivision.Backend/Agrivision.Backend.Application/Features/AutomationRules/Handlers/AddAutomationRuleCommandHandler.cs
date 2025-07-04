@@ -4,6 +4,7 @@ using Agrivision.Backend.Application.Features.AutomationRules.Contracts;
 using Agrivision.Backend.Application.Repositories.Core;
 using Agrivision.Backend.Domain.Abstractions;
 using Agrivision.Backend.Domain.Entities.Core;
+using Agrivision.Backend.Domain.Enums.Core;
 using MediatR;
 
 namespace Agrivision.Backend.Application.Features.AutomationRules.Handlers;
@@ -39,10 +40,14 @@ public class AddAutomationRuleCommandHandler(IFieldRepository fieldRepository, I
         if (irrigationUnit is null)
             return Result.Failure<AutomationRuleResponse>(IrrigationUnitErrors.NoUnitAssigned);
         
-        // check if sensor unit exists
-        var sensorUnit = await sensorUnitRepository.FindByFieldIdAsync(request.FieldId, cancellationToken);
-        if (sensorUnit is null)
-            return Result.Failure<AutomationRuleResponse>(SensorUnitErrors.NoUnitAssigned);
+        // check if sensor unit exists (only required for threshold rules)
+        SensorUnit? sensorUnit = null;
+        if (request.Type == AutomationRuleType.Threshold)
+        {
+            sensorUnit = await sensorUnitRepository.FindByFieldIdAsync(request.FieldId, cancellationToken);
+            if (sensorUnit is null)
+                return Result.Failure<AutomationRuleResponse>(SensorUnitErrors.NoUnitAssigned);
+        }
         
         // create automation rule
         var automationRule = new AutomationRule
@@ -58,7 +63,7 @@ public class AddAutomationRuleCommandHandler(IFieldRepository fieldRepository, I
             StartTime = request.StartTime,
             EndTime = request.EndTime,
             ActiveDays = request.ActiveDays,
-            SensorUnitId = sensorUnit.Id,
+            SensorUnitId = sensorUnit?.Id,
             IrrigationUnitId = irrigationUnit.Id,
             CreatedById = request.RequesterId,
             CreatedOn = DateTime.UtcNow
@@ -75,7 +80,7 @@ public class AddAutomationRuleCommandHandler(IFieldRepository fieldRepository, I
             automationRule.Name,
             automationRule.IsEnabled,
             automationRule.Type,
-            sensorUnit.Id,
+            sensorUnit?.Id,
             irrigationUnit.Id,
             automationRule.MinimumThresholdValue,
             automationRule.MaximumThresholdValue,

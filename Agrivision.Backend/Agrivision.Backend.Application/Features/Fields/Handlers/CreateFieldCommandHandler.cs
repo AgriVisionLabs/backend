@@ -68,6 +68,8 @@ public class CreateFieldCommandHandler (IFieldRepository fieldRepository, IFarmR
                 CreatedById = request.CreatedById,
                 CreatedOn = DateTime.UtcNow
             };
+
+            field.PlantedCropId = plantedCrop.Id;
         }
 
         farm.FieldsNo++;

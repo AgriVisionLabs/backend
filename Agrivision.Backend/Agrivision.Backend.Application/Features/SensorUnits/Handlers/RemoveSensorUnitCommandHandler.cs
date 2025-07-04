@@ -2,11 +2,12 @@ using Agrivision.Backend.Application.Errors;
 using Agrivision.Backend.Application.Features.SensorUnits.Commands;
 using Agrivision.Backend.Application.Repositories.Core;
 using Agrivision.Backend.Domain.Abstractions;
+using Agrivision.Backend.Domain.Enums.Core;
 using MediatR;
 
 namespace Agrivision.Backend.Application.Features.SensorUnits.Handlers;
 
-public class RemoveSensorUnitCommandHandler(IFieldRepository fieldRepository, IFarmUserRoleRepository farmUserRoleRepository, ISensorUnitRepository sensorUnitRepository, ISensorUnitDeviceRepository sensorUnitDeviceRepository) : IRequestHandler<RemoveSensorUnitCommand, Result>
+public class RemoveSensorUnitCommandHandler(IFieldRepository fieldRepository, IFarmUserRoleRepository farmUserRoleRepository, ISensorUnitRepository sensorUnitRepository, ISensorUnitDeviceRepository sensorUnitDeviceRepository, IAutomationRuleRepository automationRuleRepository) : IRequestHandler<RemoveSensorUnitCommand, Result>
 {
     public async Task<Result> Handle(RemoveSensorUnitCommand request, CancellationToken cancellationToken)
     {
@@ -38,12 +39,28 @@ public class RemoveSensorUnitCommandHandler(IFieldRepository fieldRepository, IF
         if (sensorUnit.FieldId != request.FieldId)
             return Result.Failure(FieldErrors.UnauthorizedAction);
         
+        var now = DateTime.UtcNow;
+        
+        // get all automation rules for this farm and delete threshold rules using this sensor unit
+        var farmAutomationRules = await automationRuleRepository.FindByFarmIdAsync(request.FarmId, cancellationToken);
+        var rulesToDelete = farmAutomationRules.Where(r => !r.IsDeleted && 
+                                                           r.Type == AutomationRuleType.Threshold && 
+                                                           r.SensorUnitId == sensorUnit.Id).ToList();
+        foreach (var rule in rulesToDelete)
+        {
+            rule.IsDeleted = true;
+            rule.DeletedOn = now;
+            rule.DeletedById = request.RequesterId;
+            
+            await automationRuleRepository.UpdateAsync(rule, cancellationToken);
+        }
+        
         // mark as deleted
         sensorUnit.IsDeleted = true;
-        sensorUnit.DeletedOn = DateTime.UtcNow;
+        sensorUnit.DeletedOn = now;
         sensorUnit.DeletedById = request.RequesterId;
         sensorUnit.UpdatedById = request.RequesterId;
-        sensorUnit.UpdatedOn = DateTime.UtcNow;
+        sensorUnit.UpdatedOn = now;
         
         // update the sensor unit
         await sensorUnitRepository.UpdateAsync(sensorUnit, cancellationToken);
@@ -52,7 +69,7 @@ public class RemoveSensorUnitCommandHandler(IFieldRepository fieldRepository, IF
         sensorUnit.Device.IsAssigned = false;
         sensorUnit.Device.AssignedAt = null;
         sensorUnit.Device.UpdatedById = request.RequesterId;
-        sensorUnit.Device.UpdatedOn = DateTime.UtcNow;
+        sensorUnit.Device.UpdatedOn = now;
         
         // update the sensor unit device
         await sensorUnitDeviceRepository.UpdateAsync(sensorUnit.Device, cancellationToken);

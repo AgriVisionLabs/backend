@@ -73,6 +73,7 @@ public class IrrigationUnitRepository(CoreDbContext coreDbContext) : IIrrigation
             .Include(u => u.Farm)
             .Include(u => u.Field)
             .Include(u => u.Device)
+            .Include(u => u.IrrigationEvents)
             .FirstOrDefaultAsync(u => u.FieldId == fieldId && !u.IsDeleted, cancellationToken);
     }
 

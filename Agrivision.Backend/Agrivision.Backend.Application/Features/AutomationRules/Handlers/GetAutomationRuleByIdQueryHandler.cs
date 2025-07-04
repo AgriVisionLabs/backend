@@ -36,7 +36,7 @@ public class GetAutomationRuleByIdQueryHandler(IFieldRepository fieldRepository,
             return Result.Failure<AutomationRuleResponse>(AutomationRuleErrors.AutomationRuleNotFound);
         
         // check if the automation rule belongs to the field
-        if (automationRule.SensorUnit.FieldId != request.FieldId)
+        if (automationRule.IrrigationUnit.FieldId != request.FieldId)
             return Result.Failure<AutomationRuleResponse>(FieldErrors.UnauthorizedAction);
         
         // map to response

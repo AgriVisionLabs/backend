@@ -6,7 +6,7 @@ using MediatR;
 
 namespace Agrivision.Backend.Application.Features.IrrigationUnits.Handlers;
 
-public class RemoveIrrigationUnitCommandHandler(IFieldRepository fieldRepository, IFarmUserRoleRepository farmUserRoleRepository, IIrrigationUnitRepository irrigationUnitRepository, IIrrigationUnitDeviceRepository irrigationUnitDeviceRepository) : IRequestHandler<RemoveIrrigationUnitCommand, Result>
+public class RemoveIrrigationUnitCommandHandler(IFieldRepository fieldRepository, IFarmUserRoleRepository farmUserRoleRepository, IIrrigationUnitRepository irrigationUnitRepository, IIrrigationUnitDeviceRepository irrigationUnitDeviceRepository, IAutomationRuleRepository automationRuleRepository) : IRequestHandler<RemoveIrrigationUnitCommand, Result>
 {
     public async Task<Result> Handle(RemoveIrrigationUnitCommand request, CancellationToken cancellationToken)
     {
@@ -34,15 +34,37 @@ public class RemoveIrrigationUnitCommandHandler(IFieldRepository fieldRepository
         if (farmUserRole.FarmRole.Name != "Owner" && farmUserRole.FarmRole.Name != "Manager")
             return Result.Failure(FarmUserRoleErrors.InsufficientPermissions);
 
+        var now = DateTime.UtcNow;
+        
+        // get all automation rules for this farm and delete those using this irrigation unit
+        var farmAutomationRules = await automationRuleRepository.FindByFarmIdAsync(request.FarmId, cancellationToken);
+        var rulesToDelete = farmAutomationRules.Where(r => !r.IsDeleted && r.IrrigationUnitId == unit.Id).ToList();
+        foreach (var rule in rulesToDelete)
+        {
+            rule.IsDeleted = true;
+            rule.DeletedOn = now;
+            rule.DeletedById = request.RequesterId;
+            
+            await automationRuleRepository.UpdateAsync(rule, cancellationToken);
+        }
+        
         unit.IsDeleted = true;
         unit.DeletedById = request.RequesterId;
-        unit.DeletedOn = DateTime.UtcNow;
+        unit.DeletedOn = now;
         unit.UpdatedById = request.RequesterId;
-        unit.UpdatedOn = DateTime.UtcNow;
+        unit.UpdatedOn = now;
         unit.Device.IsAssigned = false;
         unit.Device.AssignedAt = null;
         unit.Device.UpdatedById = request.RequesterId;
-        unit.Device.UpdatedOn = DateTime.UtcNow;
+        unit.Device.UpdatedOn = now;
+
+        // soft delete associated irrigation events
+        foreach (var irrigationEvent in unit.IrrigationEvents.Where(ie => !ie.IsDeleted))
+        {
+            irrigationEvent.IsDeleted = true;
+            irrigationEvent.DeletedOn = now;
+            irrigationEvent.DeletedById = request.RequesterId;
+        }
 
         await irrigationUnitRepository.UpdateAsync(unit, cancellationToken);
         await irrigationUnitDeviceRepository.UpdateAsync(unit.Device, cancellationToken);

@@ -33,6 +33,7 @@ public class IrrigationUnit : AuditableEntity
     public string? IpAddress { get; set; }
     public string? Notes { get; set; }
 
+    public ICollection<AutomationRule> AutomationRules { get; set; } = new List<AutomationRule>();
     public ICollection<IrrigationEvent> IrrigationEvents { get; set; } = new List<IrrigationEvent>();
     
 }

@@ -6,7 +6,7 @@ using MediatR;
 
 namespace Agrivision.Backend.Application.Features.Fields.Handlers;
 
-public class DeleteFieldCommandHandler(IFieldRepository fieldRepository, IFarmRepository farmRepository) : IRequestHandler<DeleteFieldCommand, Result>
+public class DeleteFieldCommandHandler(IFieldRepository fieldRepository, IFarmRepository farmRepository, IPlantedCropRepository plantedCropRepository, IAutomationRuleRepository automationRuleRepository) : IRequestHandler<DeleteFieldCommand, Result>
 {
     public async Task<Result> Handle(DeleteFieldCommand request, CancellationToken cancellationToken)
     {
@@ -28,6 +28,23 @@ public class DeleteFieldCommandHandler(IFieldRepository fieldRepository, IFarmRe
         field.DeletedOn = now;
         field.DeletedById = request.DeletedById;
 
+        // get all automation rules for this farm to check for field-related rules
+        var farmAutomationRules = await automationRuleRepository.FindByFarmIdAsync(request.FarmId, cancellationToken);
+        
+        // delete automation rules that belong to this field (through irrigation unit or sensor unit)
+        foreach (var rule in farmAutomationRules.Where(r => !r.IsDeleted))
+        {
+            // check if rule's irrigation unit belongs to this field
+            bool shouldDeleteRule = rule.IrrigationUnit.FieldId == request.FieldId || rule.SensorUnit?.FieldId == request.FieldId;
+
+            if (!shouldDeleteRule) continue;
+            rule.IsDeleted = true;
+            rule.DeletedOn = now;
+            rule.DeletedById = request.DeletedById;
+            
+            await automationRuleRepository.UpdateAsync(rule, cancellationToken);
+        }
+
         // update irrigation unit
         if (field.IrrigationUnit is { IsDeleted: false })
         {
@@ -40,6 +57,14 @@ public class DeleteFieldCommandHandler(IFieldRepository fieldRepository, IFarmRe
             iu.Device.AssignedAt = null;
             iu.Device.UpdatedById = request.DeletedById;
             iu.Device.UpdatedOn = now;
+
+            // soft delete associated irrigation events
+            foreach (var irrigationEvent in iu.IrrigationEvents.Where(ie => !ie.IsDeleted))
+            {
+                irrigationEvent.IsDeleted = true;
+                irrigationEvent.DeletedOn = now;
+                irrigationEvent.DeletedById = request.DeletedById;
+            }
         }
 
         // update sensor units
@@ -63,12 +88,37 @@ public class DeleteFieldCommandHandler(IFieldRepository fieldRepository, IFarmRe
             task.DeletedById = request.DeletedById;
         }
 
+        // soft delete planted crop and its disease detections
+        if (field.PlantedCrop is { IsDeleted: false })
+        {
+            var plantedCrop = field.PlantedCrop;
+            plantedCrop.IsDeleted = true;
+            plantedCrop.DeletedOn = now;
+            plantedCrop.DeletedById = request.DeletedById;
+
+            // soft delete associated disease detections
+            foreach (var diseaseDetection in plantedCrop.DiseaseDetections.Where(dd => !dd.IsDeleted))
+            {
+                diseaseDetection.IsDeleted = true;
+                diseaseDetection.DeletedOn = now;
+                diseaseDetection.DeletedById = request.DeletedById;
+            }
+        }
+
         // null field reference in inventory items
         foreach (var item in field.InventoryItems.Where(i => i.FieldId != null))
         {
             item.FieldId = null;
             item.UpdatedOn = now;
             item.UpdatedById = request.DeletedById;
+            
+            // soft delete inventory item transactions
+            foreach (var transaction in item.Transactions.Where(t => !t.IsDeleted))
+            {
+                transaction.IsDeleted = true;
+                transaction.DeletedOn = now;
+                transaction.DeletedById = request.DeletedById;
+            }
         }
 
         field.Farm.FieldsNo--;

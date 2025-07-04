@@ -40,7 +40,14 @@ public class DeleteFarmCommandHandler(IFarmRepository farmRepository) : IRequest
                 iu.Device.AssignedAt = null;
                 iu.Device.UpdatedById = request.DeletedById;
                 iu.Device.UpdatedOn = now;
-               
+
+                // Soft delete associated irrigation events
+                foreach (var irrigationEvent in iu.IrrigationEvents.Where(ie => !ie.IsDeleted))
+                {
+                    irrigationEvent.IsDeleted = true;
+                    irrigationEvent.DeletedOn = now;
+                    irrigationEvent.DeletedById = request.DeletedById;
+                }
             }
 
             foreach (var su in field.SensorUnits.Where(su => !su.IsDeleted))
@@ -60,6 +67,23 @@ public class DeleteFarmCommandHandler(IFarmRepository farmRepository) : IRequest
                 task.IsDeleted = true;
                 task.DeletedOn = now;
                 task.DeletedById = request.DeletedById;
+            }
+
+            // soft delete planted crop and its disease detections
+            if (field.PlantedCrop is { IsDeleted: false })
+            {
+                var plantedCrop = field.PlantedCrop;
+                plantedCrop.IsDeleted = true;
+                plantedCrop.DeletedOn = now;
+                plantedCrop.DeletedById = request.DeletedById;
+
+                // soft delete associated disease detections
+                foreach (var diseaseDetection in plantedCrop.DiseaseDetections.Where(dd => !dd.IsDeleted))
+                {
+                    diseaseDetection.IsDeleted = true;
+                    diseaseDetection.DeletedOn = now;
+                    diseaseDetection.DeletedById = request.DeletedById;
+                }
             }
         }
 
@@ -89,6 +113,14 @@ public class DeleteFarmCommandHandler(IFarmRepository farmRepository) : IRequest
             item.IsDeleted = true;
             item.DeletedOn = now;
             item.DeletedById = request.DeletedById;
+            
+            // soft delete associated transactions
+            foreach (var transaction in item.Transactions.Where(t => !t.IsDeleted))
+            {
+                transaction.IsDeleted = true;
+                transaction.DeletedOn = now;
+                transaction.DeletedById = request.DeletedById;
+            }
         }
         
         await farmRepository.UpdateAsync(farm, cancellationToken);

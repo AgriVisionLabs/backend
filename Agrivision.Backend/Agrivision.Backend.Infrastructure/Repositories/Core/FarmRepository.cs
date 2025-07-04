@@ -52,14 +52,21 @@ public class FarmRepository(CoreDbContext coreDbContext) : IFarmRepository
                 .ThenInclude(field => field.IrrigationUnit)
                 .ThenInclude(iu => iu.Device)
             .Include(f => f.Fields)
+                .ThenInclude(field => field.IrrigationUnit)
+                .ThenInclude(iu => iu.IrrigationEvents)
+            .Include(f => f.Fields)
                 .ThenInclude(field => field.SensorUnits)
                 .ThenInclude(su => su.Device)
             .Include(f => f.Fields)
                 .ThenInclude(field => field.TaskItems)
+            .Include(f => f.Fields)
+                .ThenInclude(field => field.PlantedCrop)
+                .ThenInclude(pc => pc.DiseaseDetections)
             .Include(f => f.FarmUserRoles)
             .Include(f => f.FarmInvitations)
             .Include(f => f.AutomationRules)
             .Include(f => f.InventoryItems)
+                .ThenInclude(it => it.Transactions)
             .FirstOrDefaultAsync(f => f.Id == farmId && !f.IsDeleted, cancellationToken);
 
         return farm;

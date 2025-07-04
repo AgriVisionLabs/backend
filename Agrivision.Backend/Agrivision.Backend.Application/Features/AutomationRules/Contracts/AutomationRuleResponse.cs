@@ -11,7 +11,7 @@ public record AutomationRuleResponse
     string Name,
     bool IsEnabled,
     AutomationRuleType Type,
-    Guid SensorId,
+    Guid? SensorId,
     Guid IrrigationUnitId,
     float? MinThresholdValue,
     float? MaxThresholdValue,

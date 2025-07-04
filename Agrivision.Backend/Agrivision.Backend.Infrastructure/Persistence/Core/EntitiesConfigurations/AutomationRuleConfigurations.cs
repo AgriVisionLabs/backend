@@ -41,10 +41,11 @@ public class AutomationRuleConfigurations : IEntityTypeConfiguration<AutomationR
         builder.HasOne(x => x.SensorUnit)
             .WithMany() 
             .HasForeignKey(x => x.SensorUnitId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.Cascade)
+            .IsRequired(false);
 
         builder.HasOne(x => x.IrrigationUnit)
-            .WithMany()
+            .WithMany(iu => iu.AutomationRules)
             .HasForeignKey(x => x.IrrigationUnitId)
             .OnDelete(DeleteBehavior.Cascade);
 

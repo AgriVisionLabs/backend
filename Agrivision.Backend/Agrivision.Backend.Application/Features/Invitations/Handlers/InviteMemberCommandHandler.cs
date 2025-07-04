@@ -26,7 +26,7 @@ public class InviteMemberCommandHandler(IUserRepository userRepository, IFarmRep
         // check whether email or username
         var isEmail = request.Recipient.Contains('@');
         
-        // verify that user isn't inviting himself
+        // verify that user isn't inviting himself (email case)
         if (isEmail && request.Recipient == request.SenderEmail) 
             return Result.Failure(FarmInvitationErrors.SelfInvitation);
         
@@ -38,6 +38,10 @@ public class InviteMemberCommandHandler(IUserRepository userRepository, IFarmRep
         // if with username and null then return error
         if (!isEmail && recipient is null)
             return Result.Failure(UserErrors.UserNotFound);
+        
+        // verify that user isn't inviting himself (username case)
+        if (recipient is not null && recipient.Id == request.SenderId)
+            return Result.Failure(FarmInvitationErrors.SelfInvitation);
         
         var invitedEmail = recipient is null && isEmail ? request.Recipient : recipient.Email;
         

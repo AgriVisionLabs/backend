@@ -16,8 +16,8 @@ public class AutomationRule : AuditableEntity
 
     public AutomationRuleType Type { get; set; } // enum: Threshold, Scheduled
 
-    public Guid SensorUnitId { get; set; }
-    public SensorUnit SensorUnit { get; set; } = null!;
+    public Guid? SensorUnitId { get; set; }
+    public SensorUnit? SensorUnit { get; set; }
 
     public Guid IrrigationUnitId { get; set; }
     public IrrigationUnit IrrigationUnit { get; set; } = null!;

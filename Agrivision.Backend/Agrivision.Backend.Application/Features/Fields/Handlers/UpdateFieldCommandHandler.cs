@@ -74,6 +74,7 @@ public class UpdateFieldCommandHandler(IFieldRepository fieldRepository, IFarmRe
                 CreatedOn = DateTime.UtcNow
             };
 
+            field.PlantedCropId = newPlantedCrop.Id;
             await plantedCropRepository.AddAsync(newPlantedCrop, cancellationToken);
         }
 
@@ -103,7 +104,8 @@ public class UpdateFieldCommandHandler(IFieldRepository fieldRepository, IFarmRe
                     CreatedById = request.UpdatedById,
                     CreatedOn = DateTime.UtcNow
                 };
-
+                
+                field.PlantedCropId = newPlantedCrop.Id;
                 await plantedCropRepository.AddAsync(newPlantedCrop, cancellationToken);
             }
         }
@@ -116,6 +118,7 @@ public class UpdateFieldCommandHandler(IFieldRepository fieldRepository, IFarmRe
             currentPlantedCrop.DeletedById = request.UpdatedById;
             currentPlantedCrop.UpdatedById = request.UpdatedById;
             currentPlantedCrop.UpdatedOn = DateTime.UtcNow;
+            field.PlantedCropId = null; // remove the reference to the planted crop
 
             await plantedCropRepository.UpdateAsync(currentPlantedCrop, cancellationToken);
         }

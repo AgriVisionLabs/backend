@@ -17,6 +17,7 @@ public class InventoryItemRepository(CoreDbContext coreDbContext) : IInventoryIt
     public async Task<InventoryItem?> FindByIdAsync(Guid itemId, CancellationToken cancellationToken = default)
     {
         return await coreDbContext.InventoryItems
+            .Include(item => item.Transactions)
             .FirstOrDefaultAsync(item => item.Id == itemId && !item.IsDeleted, cancellationToken);
     }
 

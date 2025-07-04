@@ -12,8 +12,8 @@ public class AutomationRuleRepository(CoreDbContext coreDbContext) : IAutomation
         return await coreDbContext.AutomationRules
             .Include(r => r.SensorUnit)
             .Include(r => r.IrrigationUnit)
-            .ThenInclude(iu => iu.Field)
-            .Where(r => r.SensorUnit.FarmId == farmId && !r.IsDeleted)
+                .ThenInclude(iu => iu.Field)
+            .Where(r => r.FarmId == farmId && !r.IsDeleted)
             .ToListAsync(cancellationToken);
     }
 
@@ -44,6 +44,6 @@ public class AutomationRuleRepository(CoreDbContext coreDbContext) : IAutomation
             .Include(r => r.SensorUnit)
             .Include(r => r.IrrigationUnit)
             .ThenInclude(iu => iu.Field)
-            .FirstOrDefaultAsync(r => r.Name == name && r.SensorUnit.FarmId == farmId && !r.IsDeleted, cancellationToken);
+            .FirstOrDefaultAsync(r => r.Name == name && r.FarmId == farmId && !r.IsDeleted, cancellationToken);
     }
 }

@@ -17,4 +17,6 @@ public static class SubscriptionPlanErrors
     public static readonly Error FailedToPay =
     new("Plan.FailedToPay", "the payment prossess is incomplete.");
 
+    public static readonly Error SubscriptionNotFound =
+    new("Plan.SubscriptionNotFound", "Subscription not found for given StripeSubscriptionId");
 }

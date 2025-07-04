@@ -21,13 +21,8 @@ public class SubscriptionsController(IMediator mediator) : ControllerBase
         var result = await mediator.Send(command);
         return result.Succeeded ? Ok(result.Value) : result.ToProblem(result.Error.ToStatusCode());
     }
-    [AllowAnonymous]
-    [HttpGet("confirm-subscription")]
-    public async Task<IActionResult> ConfirmSubscription([FromQuery] string session_Id)
-    {
-        var command = new ConfirmSubscriptionCommand(session_Id);
 
-        var result = await mediator.Send(command);
-        return result.Succeeded ? Ok() : result.ToProblem(result.Error.ToStatusCode());
-    }
+   
+
+
 }

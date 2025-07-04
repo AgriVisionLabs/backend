@@ -16,6 +16,8 @@
         </PackageReference>
         <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="9.0.0" />
         <PackageReference Include="Scalar.AspNetCore" Version="2.1.11" />
+        <PackageReference Include="Stripe.net" Version="48.2.0" />
+        <PackageReference Include="Stripe.Webhooks.Module" Version="2.0.0" />
         <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="8.1.1" />
     </ItemGroup>
 

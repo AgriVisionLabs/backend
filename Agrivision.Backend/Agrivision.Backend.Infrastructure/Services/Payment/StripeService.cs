@@ -55,7 +55,7 @@ public class StripeService : IStripeService
         var session = await service.CreateAsync(options);
         return session.Url; // Return this URL to frontend to redirect the user
     }
-    public async Task<string> GetCustomerEmailAsync(string sessionId)
+   /* public async Task<string> GetCustomerEmailAsync(string sessionId)
     {
         var service = new global::Stripe.Checkout.SessionService(_client);
 
@@ -71,8 +71,8 @@ public class StripeService : IStripeService
         throw new Exception("No email found for this session.");
 
 
-    }
-    public async Task<string?> GetSubscriptionIdAsync(string sessionId)
+    }*/
+   /* public async Task<string?> GetSubscriptionIdAsync(string sessionId)
     {
         var service = new global::Stripe.Checkout.SessionService(_client);
 
@@ -87,7 +87,8 @@ public class StripeService : IStripeService
 
         return (subscriptionId);
     }
-    public async Task<Guid?> GetPlanIdAsync(string sessionId)
+   */
+   /* public async Task<Guid?> GetPlanIdAsync(string sessionId)
     {
         var service = new global::Stripe.Checkout.SessionService(_client);
 
@@ -102,7 +103,8 @@ public class StripeService : IStripeService
                       : null;
 
         return planId;
-    }
-
-
+    }*/
+    public async Task<string> GetWebhookSecret()
+        =>_stripeSettings.WebhookSecret;
+    
 }

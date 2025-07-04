@@ -7,8 +7,6 @@ public class CreateSubscriptionRequestValidator : AbstractValidator<CreateSubscr
 {
     public CreateSubscriptionRequestValidator()
     {
-        RuleFor(request => request.UserId)
-            .NotEmpty();
         RuleFor(request => request.PlanId)
             .NotEmpty();
     }

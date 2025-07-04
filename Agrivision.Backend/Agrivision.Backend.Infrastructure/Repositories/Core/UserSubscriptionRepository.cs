@@ -22,5 +22,16 @@ public class UserSubscriptionRepository(CoreDbContext coreDbContext) : IUserSubs
         await coreDbContext.SaveChangesAsync(cancellationToken);
     }
 
+    public async Task<UserSubscription?> GetByStripeSubscriptionIdAsync(string stripeSubscriptionId, CancellationToken cancellationToken)
+    {
+        return await coreDbContext.UserSubscriptions.FirstOrDefaultAsync(us => us.StripeSubscriptionId == stripeSubscriptionId, cancellationToken);
+    }
+
+    public async Task UpdateAsync(UserSubscription subscription, CancellationToken cancellationToken)
+    {
+        coreDbContext.UserSubscriptions.Update(subscription);
+        await coreDbContext.SaveChangesAsync(cancellationToken);
+    }
+
 
 }

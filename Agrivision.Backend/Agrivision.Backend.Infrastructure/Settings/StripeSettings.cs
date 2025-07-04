@@ -11,5 +11,8 @@ public class StripeSettings
     public string SuccessUrl { get; set; } = "https://localhost:7193/Subscriptions/confirm-subscription";
     [Required]
     public string CancelUrl { get; set; } = "https://localhost:7193/Subscriptions/??????????";
+    [Required]
+    public string WebhookSecret { get; set; } = "";
+
 
 }

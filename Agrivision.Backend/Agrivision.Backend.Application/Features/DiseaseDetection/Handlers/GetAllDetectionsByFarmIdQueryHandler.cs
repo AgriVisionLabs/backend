@@ -8,9 +8,9 @@ using MediatR;
 
 namespace Agrivision.Backend.Application.Features.DiseaseDetection.Handlers;
 
-public class GetAllDetectionByFarmIdQueryHandler(IDiseaseDetectionRepository diseaseDetectionRepository, IFarmRepository farmRepository, IFarmUserRoleRepository farmUserRoleRepository, IUserRepository userRepository) : IRequestHandler<GetAllDetectionByFarmIdQuery, Result<IReadOnlyList<DiseaseDetectionResponse>>>
+public class GetAllDetectionsByFarmIdQueryHandler(IDiseaseDetectionRepository diseaseDetectionRepository, IFarmRepository farmRepository, IFarmUserRoleRepository farmUserRoleRepository, IUserRepository userRepository, ICropRepository cropRepository) : IRequestHandler<GetAllDetectionsByFarmIdQuery, Result<IReadOnlyList<DiseaseDetectionResponse>>>
 {
-    public async Task<Result<IReadOnlyList<DiseaseDetectionResponse>>> Handle(GetAllDetectionByFarmIdQuery request, CancellationToken cancellationToken)
+    public async Task<Result<IReadOnlyList<DiseaseDetectionResponse>>> Handle(GetAllDetectionsByFarmIdQuery request, CancellationToken cancellationToken)
     {
         // check if farm exists
         var farm = await farmRepository.FindByIdAsync(request.FarmId, cancellationToken);
@@ -44,10 +44,10 @@ public class GetAllDetectionByFarmIdQueryHandler(IDiseaseDetectionRepository dis
         // map to response
         var responses = diseaseDetections.Select(dd =>
         {
-            var crop = dd.PlantedCrop.Crop;
-            var field = dd.PlantedCrop.Field;
+            var plantedCrop = dd.PlantedCrop;
+            var crop = plantedCrop.Crop;
+            var ddField = plantedCrop.Field;
             var disease = dd.CropDisease;
-            var isHealthy = disease.Name.ToLower().Contains("healthy");
 
             var userFullName = userDict.TryGetValue(dd.CreatedById, out var name)
                 ? name
@@ -55,16 +55,17 @@ public class GetAllDetectionByFarmIdQueryHandler(IDiseaseDetectionRepository dis
 
             return new DiseaseDetectionResponse(
                 Id: dd.Id,
-                FarmId: field.FarmId,
-                FieldId: field.Id,
-                CropName: crop.Name,
-                DiseaseName: disease.Name,
-                IsHealthy: isHealthy,
+                FarmId: ddField?.FarmId ?? Guid.Empty,
+                FieldId: ddField?.Id ?? Guid.Empty,
+                CropName: crop?.Name ?? "Unknown Crop",
+                DiseaseName: dd.IsHealthy ? "Healthy" : (disease?.Name ?? "Unknown Disease"),
+                IsHealthy: dd.IsHealthy,
+                HealthStatus: dd.HealthStatus,
                 CreatedOn: dd.CreatedOn,
                 ConfidenceLevel: dd.ConfidenceLevel,
                 ImageUrl: dd.ImageUrl,
                 CreatedBy: userFullName,
-                Treatments: disease.Treatments
+                Treatments: dd.IsHealthy ? [] : (disease?.Treatments ?? new List<string>())
             );
         }).ToList();
 

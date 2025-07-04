@@ -7,13 +7,14 @@ using Agrivision.Backend.Application.Services.DiseaseDetection;
 using Agrivision.Backend.Application.Services.Files;
 using Agrivision.Backend.Application.Settings;
 using Agrivision.Backend.Domain.Abstractions;
+using Agrivision.Backend.Domain.Enums.Core;
 using Agrivision.Backend.Domain.Models;
 using MediatR;
 using Microsoft.Extensions.Options;
 
 namespace Agrivision.Backend.Application.Features.DiseaseDetection.Handlers;
 
-public class AddDiseaseDetectionCommandHandler(IFieldRepository fieldRepository, IFarmUserRoleRepository farmUserRoleRepository, IUserRepository userRepository, IFileUploadService fileUploadService, IDiseaseDetectionService diseaseDetectionService, ICropDiseaseRepository cropDiseaseRepository, ICropRepository cropRepository, IOptions<ServerSettings> serverSettings, IDiseaseDetectionRepository diseaseDetectionRepository) : IRequestHandler<AddDiseaseDetectionCommand, Result<DiseaseDetectionResponse>>
+public class AddDiseaseDetectionsCommandHandler(IFieldRepository fieldRepository, IFarmUserRoleRepository farmUserRoleRepository, IUserRepository userRepository, IFileUploadService fileUploadService, IDiseaseDetectionService diseaseDetectionService, ICropDiseaseRepository cropDiseaseRepository, ICropRepository cropRepository, IOptions<ServerSettings> serverSettings, IDiseaseDetectionRepository diseaseDetectionRepository) : IRequestHandler<AddDiseaseDetectionCommand, Result<DiseaseDetectionResponse>>
 {
     public async Task<Result<DiseaseDetectionResponse>> Handle(AddDiseaseDetectionCommand request, CancellationToken cancellationToken)
     {
@@ -82,6 +83,12 @@ public class AddDiseaseDetectionCommandHandler(IFieldRepository fieldRepository,
             return Result.Failure<DiseaseDetectionResponse>(DiseaseDetectionErrors.ConfidenceLabelMismatch);
 
         var confidenceValue = matchedConfidence.Confidence;
+        
+        var healthStatus = confidenceValue < 0.55
+            ? PlantHealthStatus.AtRisk
+            : isHealthy
+                ? PlantHealthStatus.Healthy
+                : PlantHealthStatus.Infected;
 
         // create new disease detection
         var diseaseDetection = new Domain.Entities.Core.DiseaseDetection
@@ -89,8 +96,10 @@ public class AddDiseaseDetectionCommandHandler(IFieldRepository fieldRepository,
             Id = Guid.NewGuid(),
             ConfidenceLevel = confidenceValue,
             ImageUrl = $"{serverSettings.Value.BaseUrl}/uploads/{filename}",
-            PlantedCropId = field.PlantedCrop.Id,
-            CropDiseaseId = cropDisease?.Id, // allow null for healthy plants
+            IsHealthy = isHealthy,
+            HealthStatus = healthStatus,
+            PlantedCrop = field.PlantedCrop,
+            CropDiseaseId = cropDisease?.Id,
             CreatedById = request.ReqeusterId,
             CreatedOn = DateTime.UtcNow
         };
@@ -105,6 +114,7 @@ public class AddDiseaseDetectionCommandHandler(IFieldRepository fieldRepository,
             CropName: crop.Name,
             DiseaseName: isHealthy ? "Healthy" : cropDisease!.Name,
             IsHealthy: isHealthy,
+            HealthStatus: healthStatus,
             CreatedOn: diseaseDetection.CreatedOn,
             ConfidenceLevel: diseaseDetection.ConfidenceLevel,
             ImageUrl: diseaseDetection.ImageUrl,

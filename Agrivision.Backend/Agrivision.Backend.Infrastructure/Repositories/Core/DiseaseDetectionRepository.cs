@@ -10,11 +10,12 @@ public class DiseaseDetectionRepository(CoreDbContext coreDbContext) : IDiseaseD
     public async Task<IReadOnlyList<DiseaseDetection>> GetAllByFarmIdAsync(Guid farmId, CancellationToken cancellationToken = default)
     {
         return await coreDbContext.DiseaseDetections
-            .Include(dd => dd.CropDisease)
-            .ThenInclude(pc => pc.Crop)
             .Include(dd => dd.PlantedCrop)
             .ThenInclude(pc => pc.Field)
             .ThenInclude(f => f.Farm)
+            .Include(dd => dd.PlantedCrop)
+            .ThenInclude(pc => pc.Crop)
+            .Include(dd => dd.CropDisease)
             .Where(dd => dd.PlantedCrop.Field.FarmId == farmId && !dd.IsDeleted)
             .ToListAsync(cancellationToken);
     }
@@ -26,6 +27,8 @@ public class DiseaseDetectionRepository(CoreDbContext coreDbContext) : IDiseaseD
             .Include(dd => dd.PlantedCrop)
             .ThenInclude(pc => pc.Field)
             .ThenInclude(f => f.Farm)
+            .Include(dd => dd.PlantedCrop)
+            .ThenInclude(pc => pc.Crop)
             .Where(dd => dd.PlantedCrop.FieldId == fieldId && !dd.IsDeleted)
             .ToListAsync(cancellationToken);
     }
@@ -37,7 +40,9 @@ public class DiseaseDetectionRepository(CoreDbContext coreDbContext) : IDiseaseD
             .Include(dd => dd.PlantedCrop)
             .ThenInclude(pc => pc.Field)
             .ThenInclude(f => f.Farm)
-            .FirstOrDefaultAsync(dd => dd.Id == id, cancellationToken);
+            .Include(dd => dd.PlantedCrop)
+            .ThenInclude(pc => pc.Crop)
+            .FirstOrDefaultAsync(dd => dd.Id == id && !dd.IsDeleted, cancellationToken);
     }
 
     public async Task AddAsync(DiseaseDetection diseaseDetection, CancellationToken cancellationToken = default)

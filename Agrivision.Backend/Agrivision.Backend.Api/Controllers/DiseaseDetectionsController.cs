@@ -7,7 +7,6 @@ using Agrivision.Backend.Application.Features.DiseaseDetection.Queries;
 using Agrivision.Backend.Domain.Abstractions;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Agrivision.Backend.Api.Controllers
@@ -15,7 +14,7 @@ namespace Agrivision.Backend.Api.Controllers
     [Route("farms/{farmId}")]
     [ApiController]
     [Authorize]
-    public class DiseaseDetections(IMediator mediator) : ControllerBase
+    public class DiseaseDetectionsController(IMediator mediator) : ControllerBase
     {
         [HttpPost("fields/{fieldId}/[controller]")]
         public async Task<IActionResult> AddAsync([FromRoute] Guid farmId, [FromRoute] Guid fieldId,
@@ -40,7 +39,35 @@ namespace Agrivision.Backend.Api.Controllers
             if (string.IsNullOrEmpty(userId))
                 return Result.Failure(TokenErrors.InvalidToken).ToProblem(TokenErrors.InvalidToken.ToStatusCode());
 
-            var query = new GetAllDetectionByFarmIdQuery(farmId, userId);
+            var query = new GetAllDetectionsByFarmIdQuery(farmId, userId);
+            var result = await mediator.Send(query, cancellationToken);
+
+            return result.Succeeded ? Ok(result.Value) : result.ToProblem(result.Error.ToStatusCode());
+        }
+
+        [HttpGet("fields/{fieldId}/[controller]")]
+        public async Task<IActionResult> GetAllByFieldIdAsync([FromRoute] Guid farmId, [FromRoute] Guid fieldId,
+            CancellationToken cancellationToken = default)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+                return Result.Failure(TokenErrors.InvalidToken).ToProblem(TokenErrors.InvalidToken.ToStatusCode());
+
+            var query = new GetAllDetectionsByFieldIdQuery(farmId, fieldId, userId);
+            var result = await mediator.Send(query, cancellationToken);
+
+            return result.Succeeded ? Ok(result.Value) : result.ToProblem(result.Error.ToStatusCode());
+        }
+
+        [HttpGet("[controller]/{detectionId}")]
+        public async Task<IActionResult> GetByIdAsync([FromRoute] Guid farmId, [FromRoute] Guid detectionId,
+            CancellationToken cancellationToken = default)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+                return Result.Failure(TokenErrors.InvalidToken).ToProblem(TokenErrors.InvalidToken.ToStatusCode());
+
+            var query = new GetDetectionByIdQuery(farmId, detectionId, userId);
             var result = await mediator.Send(query, cancellationToken);
 
             return result.Succeeded ? Ok(result.Value) : result.ToProblem(result.Error.ToStatusCode());

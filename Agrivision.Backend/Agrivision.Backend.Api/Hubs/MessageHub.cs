@@ -17,7 +17,11 @@ public class MessageHub(IMediator mediator, IConversationConnectionTracker track
 
         var connectionId = Context.ConnectionId;
 
-        await mediator.Send(new SubscribeToConversationCommand(conversationId, connectionId, userId));
+        var result = await mediator.Send(new SubscribeToConversationCommand(conversationId, connectionId, userId));
+        if (!result.Succeeded)
+        {
+            throw new HubException(result.Error.ToString());
+        }
     }
 
     public override async Task OnDisconnectedAsync(Exception? exception)

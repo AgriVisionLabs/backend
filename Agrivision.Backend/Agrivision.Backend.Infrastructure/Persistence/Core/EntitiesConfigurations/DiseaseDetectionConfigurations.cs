@@ -21,6 +21,10 @@ public class DiseaseDetectionConfigurations : IEntityTypeConfiguration<DiseaseDe
         builder.Property(dd => dd.ImageUrl)
             .IsRequired()
             .HasMaxLength(500);
+        
+        builder.Property(dd => dd.HealthStatus)
+            .HasConversion<int>()
+            .IsRequired();
 
         builder.HasOne(dd => dd.PlantedCrop)
             .WithMany(pc => pc.DiseaseDetections)

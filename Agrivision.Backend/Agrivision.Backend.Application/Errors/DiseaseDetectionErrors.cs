@@ -4,6 +4,8 @@ namespace Agrivision.Backend.Application.Errors;
 
 public static class DiseaseDetectionErrors
 {
+    public static readonly Error DiseaseDetectionNotFound = new("DiseaseDetection.NotFound", "The requested disease detection was not found.");
+    
     public static readonly Error DiseaseDetectionNotAllowedInEmptyField = new("DiseaseDetection.EmptyField", "Cannot perform disease detection in a field with no planted crop.");
     
     public static readonly Error CropNotSupportedForDiseaseDetection = new(

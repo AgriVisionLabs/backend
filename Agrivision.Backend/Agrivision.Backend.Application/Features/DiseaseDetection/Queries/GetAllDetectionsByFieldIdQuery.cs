@@ -4,8 +4,9 @@ using MediatR;
 
 namespace Agrivision.Backend.Application.Features.DiseaseDetection.Queries;
 
-public record GetAllDetectionByFarmIdQuery
+public record GetAllDetectionsByFieldIdQuery
 (
     Guid FarmId,
+    Guid FieldId,
     string RequesterId
 ) : IRequest<Result<IReadOnlyList<DiseaseDetectionResponse>>>;

@@ -1,11 +1,12 @@
 using Agrivision.Backend.Application.Features.DiseaseDetection.Contracts;
+using Agrivision.Backend.Domain.Abstractions;
 using MediatR;
 
 namespace Agrivision.Backend.Application.Features.DiseaseDetection.Queries;
 
-public record GetAllDetectionByFieldIdQuery
+public record GetDetectionByIdQuery
 (
     Guid FarmId,
-    Guid FieldId,
+    Guid DetectionId,
     string RequesterId
-) : IRequest<IReadOnlyList<DiseaseDetectionResponse>>;
+) : IRequest<Result<DiseaseDetectionResponse>>;

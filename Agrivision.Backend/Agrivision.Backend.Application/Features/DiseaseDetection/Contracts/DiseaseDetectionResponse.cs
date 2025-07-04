@@ -1,3 +1,5 @@
+using Agrivision.Backend.Domain.Enums.Core;
+
 namespace Agrivision.Backend.Application.Features.DiseaseDetection.Contracts;
 
 public record DiseaseDetectionResponse
@@ -8,6 +10,7 @@ public record DiseaseDetectionResponse
     string CropName,
     string DiseaseName,
     bool IsHealthy,
+    PlantHealthStatus HealthStatus,
     DateTime CreatedOn,
     double ConfidenceLevel,
     string ImageUrl,

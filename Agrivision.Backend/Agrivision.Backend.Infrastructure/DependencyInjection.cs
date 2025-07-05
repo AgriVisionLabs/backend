@@ -138,6 +138,10 @@ public static class DependencyInjection
 
         services.AddFileUploadService();
 
+        services.AddVideoProcessingService();
+
+        services.AddImageProcessingService();
+
         services.AddDiseaseDetectionService();
 
         services.MapStripeSettings(config);
@@ -634,7 +638,21 @@ public static class DependencyInjection
     
     private static IServiceCollection AddFileUploadService(this IServiceCollection services)
     {
-        services.AddScoped<IFileService, FileService>();
+        services.AddScoped<IFileUploadService, FileUploadService>();
+
+        return services;
+    }
+    
+    private static IServiceCollection AddVideoProcessingService(this IServiceCollection services)
+    {
+        services.AddScoped<IVideoProcessingService, VideoProcessingService>();
+
+        return services;
+    }
+    
+    private static IServiceCollection AddImageProcessingService(this IServiceCollection services)
+    {
+        services.AddScoped<IImageProcessingService, ImageProcessingService>();
 
         return services;
     }

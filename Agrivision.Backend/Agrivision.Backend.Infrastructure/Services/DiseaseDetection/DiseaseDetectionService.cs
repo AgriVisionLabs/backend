@@ -16,7 +16,9 @@ public class DiseaseDetectionService(
     IOptions<DiseaseDetectionSettings> diseaseDetectionSettings,
     IOptions<ServerSettings> serverSettings,
     ILogger<DiseaseDetectionService> logger,
-    IFileService fileService
+    IFileUploadService fileUploadService,
+    IVideoProcessingService videoProcessingService,
+    IImageProcessingService imageProcessingService
 ) : IDiseaseDetectionService
 {
     public async Task<DiseasePredictionResponse?> PredictImageAsync(string filename)
@@ -138,7 +140,7 @@ public class DiseaseDetectionService(
             logger.LogInformation("Starting video processing for file: {Filename}", filename);
             
             // extract frames from video
-            var frameFilenames = await fileService.ExtractVideoFramesAsync(filename, intervalSeconds: 10);
+            var frameFilenames = await videoProcessingService.ExtractVideoFramesAsync(filename, intervalSeconds: 10);
             if (!frameFilenames.Any())
             {
                 logger.LogCritical("No frames extracted from video: {Filename}", filename);
@@ -177,7 +179,7 @@ public class DiseaseDetectionService(
 
             // create composite image
             var compositeFilename = $"composite_{Guid.NewGuid():N}.jpg";
-            await fileService.CreateCompositeImageAsync(annotatedFrames, compositeFilename);
+            await imageProcessingService.CreateCompositeImageAsync(annotatedFrames, compositeFilename);
             var compositeUrl = $"{serverSettings.Value.BaseUrl}/results/{compositeFilename}";
 
             // cleanup intermediate files

@@ -8,5 +8,9 @@ public class DiseaseDetectionSettings
     [Required]
     public string ImageDetectionModelToken { get; set; }
     [Required]
+    public string VideoDetectionModelToken { get; set; }
+    [Required]
     public string ImagePredictionUrl { get; set; }
+    [Required]
+    public string VideoPredictionUrl { get; set; }
 }

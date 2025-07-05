@@ -18,6 +18,7 @@ public class FieldRepository(CoreDbContext coreDbContext) : IFieldRepository
     {
         return await coreDbContext.Fields
             .Include(f => f.PlantedCrop)
+            .ThenInclude(pc => pc.Crop)
             .Where(field => field.FarmId == farmId && !field.IsDeleted)
             .ToListAsync(cancellationToken);
     }
@@ -64,6 +65,7 @@ public class FieldRepository(CoreDbContext coreDbContext) : IFieldRepository
     {
         return await coreDbContext.Fields
             .Include(f => f.PlantedCrop)
+            .ThenInclude(pc => pc.Crop)
             .FirstOrDefaultAsync(field => field.Id == id && !field.IsDeleted, cancellationToken);
     }
 

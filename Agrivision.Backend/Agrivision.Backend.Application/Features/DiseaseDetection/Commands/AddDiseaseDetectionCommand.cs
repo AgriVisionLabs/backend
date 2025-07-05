@@ -10,5 +10,6 @@ public class AddDiseaseDetectionCommand : IRequest<Result<DiseaseDetectionRespon
     public Guid FarmId { get; set; }
     public Guid FieldId { get; set; }
     public string ReqeusterId { get; set; } = default!;
-    public IFormFile Image { get; set; } = default!;
+    public IFormFile? Image { get; set; }
+    public IFormFile? Video { get; set; }
 }

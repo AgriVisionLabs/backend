@@ -136,9 +136,9 @@ public static class DependencyInjection
 
         services.MapDiseaseDetectionSettings(config);
 
-        services.AddDiseaseDetectionService();
-
         services.AddFileUploadService();
+
+        services.AddDiseaseDetectionService();
 
         services.MapStripeSettings(config);
 
@@ -634,7 +634,7 @@ public static class DependencyInjection
     
     private static IServiceCollection AddFileUploadService(this IServiceCollection services)
     {
-        services.AddScoped<IFileUploadService, FileUploadService>();
+        services.AddScoped<IFileService, FileService>();
 
         return services;
     }

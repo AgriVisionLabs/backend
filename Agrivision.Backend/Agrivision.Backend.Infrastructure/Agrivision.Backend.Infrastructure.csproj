@@ -8,6 +8,8 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <PackageReference Include="OpenCvSharp4" Version="4.9.0.20240103" />
+      <PackageReference Include="OpenCvSharp4.runtime.win" Version="4.9.0.20240103" />
       <PackageReference Include="MailKit" Version="4.11.0" />
       <PackageReference Include="Mapster" Version="7.4.0" />
       <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.4" />
@@ -24,6 +26,7 @@
       <PackageReference Include="Serilog.Enrichers.Environment" Version="3.0.1" />
       <PackageReference Include="Serilog.Enrichers.Process" Version="3.0.0" />
       <PackageReference Include="Serilog.Enrichers.Thread" Version="4.0.0" />
+      <PackageReference Include="SkiaSharp" Version="3.119.0" />
       <PackageReference Include="Stripe.net" Version="48.0.2" />
     </ItemGroup>
 

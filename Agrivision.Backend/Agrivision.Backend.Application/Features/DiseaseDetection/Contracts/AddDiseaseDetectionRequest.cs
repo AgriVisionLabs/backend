@@ -4,5 +4,6 @@ namespace Agrivision.Backend.Application.Features.DiseaseDetection.Contracts;
 
 public class AddDiseaseDetectionRequest
 {
-    public IFormFile Image { get; set; } = default!;
+    public IFormFile? Image { get; set; }
+    public IFormFile? Video { get; set; }
 }

@@ -4,6 +4,7 @@ using Agrivision.Backend.Application.Features.DiseaseDetection.Queries;
 using Agrivision.Backend.Application.Repositories.Core;
 using Agrivision.Backend.Application.Repositories.Identity;
 using Agrivision.Backend.Domain.Abstractions;
+using Agrivision.Backend.Domain.Entities.Core;
 using MediatR;
 
 namespace Agrivision.Backend.Application.Features.DiseaseDetection.Handlers;

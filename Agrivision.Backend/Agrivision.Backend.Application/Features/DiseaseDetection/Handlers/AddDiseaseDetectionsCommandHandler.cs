@@ -7,14 +7,15 @@ using Agrivision.Backend.Application.Services.DiseaseDetection;
 using Agrivision.Backend.Application.Services.Files;
 using Agrivision.Backend.Application.Settings;
 using Agrivision.Backend.Domain.Abstractions;
+using Agrivision.Backend.Domain.Entities.Core;
 using Agrivision.Backend.Domain.Enums.Core;
-using Agrivision.Backend.Domain.Models;
 using MediatR;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Logging;
 
 namespace Agrivision.Backend.Application.Features.DiseaseDetection.Handlers;
 
-public class AddDiseaseDetectionsCommandHandler(IFieldRepository fieldRepository, IFarmUserRoleRepository farmUserRoleRepository, IUserRepository userRepository, IFileUploadService fileUploadService, IDiseaseDetectionService diseaseDetectionService, ICropDiseaseRepository cropDiseaseRepository, ICropRepository cropRepository, IOptions<ServerSettings> serverSettings, IDiseaseDetectionRepository diseaseDetectionRepository) : IRequestHandler<AddDiseaseDetectionCommand, Result<DiseaseDetectionResponse>>
+public class AddDiseaseDetectionsCommandHandler(IFieldRepository fieldRepository, IFarmUserRoleRepository farmUserRoleRepository, IUserRepository userRepository, IFileService fileService, IDiseaseDetectionService diseaseDetectionService, ICropDiseaseRepository cropDiseaseRepository, ICropRepository cropRepository, IOptions<ServerSettings> serverSettings, IDiseaseDetectionRepository diseaseDetectionRepository, ILogger<AddDiseaseDetectionsCommandHandler> logger) : IRequestHandler<AddDiseaseDetectionCommand, Result<DiseaseDetectionResponse>>
 {
     public async Task<Result<DiseaseDetectionResponse>> Handle(AddDiseaseDetectionCommand request, CancellationToken cancellationToken)
     {
@@ -23,13 +24,12 @@ public class AddDiseaseDetectionsCommandHandler(IFieldRepository fieldRepository
         if (field is null)
             return Result.Failure<DiseaseDetectionResponse>(FieldErrors.FieldNotFound);
 
-        // check if field belong to farm 
+        // check if field belongs to farm
         if (field.FarmId != request.FarmId)
             return Result.Failure<DiseaseDetectionResponse>(FarmErrors.UnauthorizedAction);
 
         // check if user has access
-        var farmUserRole = await farmUserRoleRepository.FindByUserIdAndFarmIdAsync(
-            request.ReqeusterId, request.FarmId, cancellationToken);
+        var farmUserRole = await farmUserRoleRepository.FindByUserIdAndFarmIdAsync(request.ReqeusterId, request.FarmId, cancellationToken);
         if (farmUserRole is null)
             return Result.Failure<DiseaseDetectionResponse>(FarmErrors.UnauthorizedAction);
 
@@ -49,18 +49,108 @@ public class AddDiseaseDetectionsCommandHandler(IFieldRepository fieldRepository
         if (!crop.SupportsDiseaseDetection)
             return Result.Failure<DiseaseDetectionResponse>(DiseaseDetectionErrors.CropNotSupportedForDiseaseDetection);
 
-        // upload image
-        var filename = await fileUploadService.UploadImageAsync(request.Image);
+        // upload image or video
+        string filename;
+        bool isVideo;
 
-        // disease detection
+        try
+        {
+            if (request.Image is not null)
+            {
+                filename = await fileService.UploadImageAsync(request.Image);
+                isVideo = false;
+            }
+            else if (request.Video is not null)
+            {
+                filename = await fileService.UploadVideoAsync(request.Video);
+                isVideo = true;
+            }
+            else
+            {
+                return Result.Failure<DiseaseDetectionResponse>(DiseaseDetectionErrors.PredictionFailed);
+            }
+
+            if (string.IsNullOrWhiteSpace(filename))
+                return Result.Failure<DiseaseDetectionResponse>(DiseaseDetectionErrors.PredictionFailed);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to upload file for farm {FarmId}, field {FieldId}", request.FarmId, request.FieldId);
+            return Result.Failure<DiseaseDetectionResponse>(DiseaseDetectionErrors.PredictionFailed);
+        }
+
+        // get user full name once for both paths
+        var user = await userRepository.FindByIdAsync(request.ReqeusterId);
+        if (user is null)
+            return Result.Failure<DiseaseDetectionResponse>(UserErrors.UserNotFound);
+
+        var userFullName = $"{user.FirstName} {user.LastName}";
+
+        return isVideo
+            ? await HandleVideoAsync(field, crop, filename, userFullName, request, cancellationToken)
+            : await HandleImageAsync(field, crop, filename, userFullName, request, cancellationToken);
+    }
+    
+    private async Task<Result<DiseaseDetectionResponse>> HandleVideoAsync(
+        Field field, Domain.Entities.Core.Crop crop, string filename, string userFullName,
+        AddDiseaseDetectionCommand request, CancellationToken cancellationToken)
+    {
+        // video processing path
+        var (compositeImageUrl, healthyCount, infectedCount) = await diseaseDetectionService.PredictVideoAsync(filename);
+        if (string.IsNullOrWhiteSpace(compositeImageUrl) || (healthyCount + infectedCount == 0))
+            return Result.Failure<DiseaseDetectionResponse>(DiseaseDetectionErrors.PredictionFailed);
+
+        var totalFrames = healthyCount + infectedCount;
+        var confidenceValue = (double)healthyCount / totalFrames;
+        var isHealthy = confidenceValue >= 0.55;
+        var healthStatus = isHealthy ? PlantHealthStatus.Healthy : PlantHealthStatus.Infected;
+
+        var detection = new Domain.Entities.Core.DiseaseDetection
+        {
+            Id = Guid.NewGuid(),
+            ConfidenceLevel = confidenceValue,
+            ImageUrl = compositeImageUrl,
+            IsHealthy = isHealthy,
+            HealthStatus = healthStatus,
+            PlantedCrop = field.PlantedCrop,
+            CropDiseaseId = null,
+            CreatedById = request.ReqeusterId,
+            CreatedOn = DateTime.UtcNow
+        };
+
+        await diseaseDetectionRepository.AddAsync(detection, cancellationToken);
+
+        return Result.Success(new DiseaseDetectionResponse(
+            Id: detection.Id,
+            FarmId: field.FarmId,
+            FieldId: field.Id,
+            CropName: crop.Name,
+            DiseaseName: "Composite",
+            IsHealthy: isHealthy,
+            HealthStatus: healthStatus,
+            CreatedOn: detection.CreatedOn,
+            ConfidenceLevel: detection.ConfidenceLevel,
+            ImageUrl: detection.ImageUrl,
+            CreatedBy: userFullName,
+            Treatments: []
+        ));
+    }
+    private async Task<Result<DiseaseDetectionResponse>> HandleImageAsync(
+    Field field, Domain.Entities.Core.Crop crop, string filename, string userFullName,
+    AddDiseaseDetectionCommand request, CancellationToken cancellationToken)
+    {
         var prediction = await diseaseDetectionService.PredictImageAsync(filename);
         if (prediction is null || string.IsNullOrWhiteSpace(prediction.Label))
             return Result.Failure<DiseaseDetectionResponse>(DiseaseDetectionErrors.PredictionFailed);
 
         var label = prediction.Label.Trim();
+        var matchedConfidence = prediction.Confidences.FirstOrDefault(c => c.Label == label);
+        if (matchedConfidence is null)
+            return Result.Failure<DiseaseDetectionResponse>(DiseaseDetectionErrors.ConfidenceLabelMismatch);
+
+        var confidenceValue = matchedConfidence.Confidence;
         var isHealthy = label.Contains("healthy", StringComparison.OrdinalIgnoreCase);
 
-        // find the crop disease with the highest confidence
         var cropDisease = !isHealthy
             ? await cropDiseaseRepository.FindByNameAsync(label, cancellationToken)
             : null;
@@ -68,34 +158,19 @@ public class AddDiseaseDetectionsCommandHandler(IFieldRepository fieldRepository
         if (!isHealthy && cropDisease is null)
             return Result.Failure<DiseaseDetectionResponse>(CropDiseaseErrors.CropDiseaseNotFound);
 
-        // get username
-        var user = await userRepository.FindByIdAsync(request.ReqeusterId);
-        if (user is null)
-            return Result.Failure<DiseaseDetectionResponse>(UserErrors.UserNotFound);
-
-        var userFullName = user.FirstName + " " + user.LastName;
-
-        // match prediction confidence
-        var matchedConfidence = prediction.Confidences
-            .FirstOrDefault(c => c.Label == label);
-
-        if (matchedConfidence == null)
-            return Result.Failure<DiseaseDetectionResponse>(DiseaseDetectionErrors.ConfidenceLabelMismatch);
-
-        var confidenceValue = matchedConfidence.Confidence;
-        
         var healthStatus = confidenceValue < 0.55
             ? PlantHealthStatus.AtRisk
             : isHealthy
                 ? PlantHealthStatus.Healthy
                 : PlantHealthStatus.Infected;
 
-        // create new disease detection
-        var diseaseDetection = new Domain.Entities.Core.DiseaseDetection
+        var imageUrl = $"{serverSettings.Value.BaseUrl}/uploads/{filename}";
+
+        var detection = new Domain.Entities.Core.DiseaseDetection
         {
             Id = Guid.NewGuid(),
             ConfidenceLevel = confidenceValue,
-            ImageUrl = $"{serverSettings.Value.BaseUrl}/uploads/{filename}",
+            ImageUrl = imageUrl,
             IsHealthy = isHealthy,
             HealthStatus = healthStatus,
             PlantedCrop = field.PlantedCrop,
@@ -104,24 +179,22 @@ public class AddDiseaseDetectionsCommandHandler(IFieldRepository fieldRepository
             CreatedOn = DateTime.UtcNow
         };
 
-        await diseaseDetectionRepository.AddAsync(diseaseDetection, cancellationToken);
+        await diseaseDetectionRepository.AddAsync(detection, cancellationToken);
 
-        // map
-        var response = new DiseaseDetectionResponse(
-            Id: diseaseDetection.Id,
+        return Result.Success(new DiseaseDetectionResponse(
+            Id: detection.Id,
             FarmId: field.FarmId,
             FieldId: field.Id,
             CropName: crop.Name,
             DiseaseName: isHealthy ? "Healthy" : cropDisease!.Name,
             IsHealthy: isHealthy,
             HealthStatus: healthStatus,
-            CreatedOn: diseaseDetection.CreatedOn,
-            ConfidenceLevel: diseaseDetection.ConfidenceLevel,
-            ImageUrl: diseaseDetection.ImageUrl,
+            CreatedOn: detection.CreatedOn,
+            ConfidenceLevel: detection.ConfidenceLevel,
+            ImageUrl: detection.ImageUrl,
             CreatedBy: userFullName,
             Treatments: isHealthy ? [] : cropDisease!.Treatments
-        );
-
-        return Result.Success(response);
+        ));
     }
+    
 }

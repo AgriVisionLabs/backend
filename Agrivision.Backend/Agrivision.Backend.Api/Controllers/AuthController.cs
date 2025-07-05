@@ -67,5 +67,12 @@ namespace Agrivision.Backend.Api.Controllers
             var result = await mediator.Send(new ResetPasswordCommand(request.Token, request.NewPassword), cancellationToken);
             return result.Succeeded ? Ok() : result.ToProblem(result.Error.ToStatusCode());
         }
+
+        [HttpPost("google")]
+        public async Task<IActionResult> GoogleLoginAsync([FromBody] GoogleAuthRequest request, CancellationToken cancellationToken = default)
+        {
+            var result = await mediator.Send(new GoogleLoginCommand(request.IdToken), cancellationToken);
+            return result.Succeeded ? Ok(result.Value) : result.ToProblem(result.Error.ToStatusCode());
+        }
     }
 }

@@ -52,6 +52,8 @@ public static class DependencyInjection
 
         services.AddAuthenticationServices(config);
         
+        services.AddGoogleAuthService(config);
+        
         services.MapEmailSettings(config);
 
         services.AddEmailSender();
@@ -425,6 +427,11 @@ public static class DependencyInjection
             .ValidateDataAnnotations()
             .ValidateOnStart();
         
+        services.AddOptions<GoogleAuthSettings>()
+            .BindConfiguration(GoogleAuthSettings.SectionName)
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+        
         return services;
     }
 
@@ -716,6 +723,13 @@ public static class DependencyInjection
     private static IServiceCollection AddUserConnectionTracker(this IServiceCollection services)
     {
         services.AddSingleton<IUserConnectionTracker, UserConnectionTracker>();
+
+        return services;
+    }
+
+    private static IServiceCollection AddGoogleAuthService(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddScoped<IGoogleAuthService, GoogleAuthService>();
 
         return services;
     }

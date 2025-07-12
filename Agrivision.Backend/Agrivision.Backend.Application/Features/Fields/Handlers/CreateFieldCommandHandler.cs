@@ -70,6 +70,7 @@ public class CreateFieldCommandHandler (IFieldRepository fieldRepository, IFarmR
             };
 
             field.PlantedCropId = plantedCrop.Id;
+            field.IsActive = true;
         }
 
         farm.FieldsNo++;

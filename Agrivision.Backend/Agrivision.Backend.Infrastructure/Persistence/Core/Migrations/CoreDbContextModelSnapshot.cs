@@ -124,6 +124,44 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
                     b.ToTable("ClearedConversations", (string)null);
                 });
 
+            modelBuilder.Entity("Agrivision.Backend.Domain.Entities.Core.ClearedNotification", b =>
+                {
+                    b.Property<DateTime>("ClearedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UserId")
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<string>("CreatedById")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedById")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("DeletedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("UpdatedById")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("UpdatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("ClearedAt", "UserId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("ClearedNotifications", (string)null);
+                });
+
             modelBuilder.Entity("Agrivision.Backend.Domain.Entities.Core.Conversation", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1154,6 +1192,61 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
                     b.ToTable("Messages", (string)null);
                 });
 
+            modelBuilder.Entity("Agrivision.Backend.Domain.Entities.Core.Notification", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CreatedById")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedById")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("DeletedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("FarmId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("FieldId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UpdatedById")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("UpdatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.PrimitiveCollection<string>("UserIds")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FarmId");
+
+                    b.HasIndex("FieldId");
+
+                    b.ToTable("Notifications", (string)null);
+                });
+
             modelBuilder.Entity("Agrivision.Backend.Domain.Entities.Core.PlantedCrop", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1209,6 +1302,47 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
                         .IsUnique();
 
                     b.ToTable("PlantedCrops", (string)null);
+                });
+
+            modelBuilder.Entity("Agrivision.Backend.Domain.Entities.Core.ReadNotification", b =>
+                {
+                    b.Property<Guid>("NotificationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("UserId")
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<string>("CreatedById")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedById")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("DeletedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("ReadAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UpdatedById")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("UpdatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("NotificationId", "UserId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("ReadNotifications", (string)null);
                 });
 
             modelBuilder.Entity("Agrivision.Backend.Domain.Entities.Core.SensorConfiguration", b =>
@@ -1701,7 +1835,7 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
                         .IsRequired();
 
                     b.HasOne("Agrivision.Backend.Domain.Entities.Core.IrrigationUnit", "IrrigationUnit")
-                        .WithMany()
+                        .WithMany("AutomationRules")
                         .HasForeignKey("IrrigationUnitId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1907,6 +2041,24 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
                     b.Navigation("Conversation");
                 });
 
+            modelBuilder.Entity("Agrivision.Backend.Domain.Entities.Core.Notification", b =>
+                {
+                    b.HasOne("Agrivision.Backend.Domain.Entities.Core.Farm", "Farm")
+                        .WithMany("Notifications")
+                        .HasForeignKey("FarmId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Agrivision.Backend.Domain.Entities.Core.Field", "Field")
+                        .WithMany("Notifications")
+                        .HasForeignKey("FieldId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Farm");
+
+                    b.Navigation("Field");
+                });
+
             modelBuilder.Entity("Agrivision.Backend.Domain.Entities.Core.PlantedCrop", b =>
                 {
                     b.HasOne("Agrivision.Backend.Domain.Entities.Core.Crop", "Crop")
@@ -1924,6 +2076,17 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
                     b.Navigation("Crop");
 
                     b.Navigation("Field");
+                });
+
+            modelBuilder.Entity("Agrivision.Backend.Domain.Entities.Core.ReadNotification", b =>
+                {
+                    b.HasOne("Agrivision.Backend.Domain.Entities.Core.Notification", "Notification")
+                        .WithMany("ReadNotifications")
+                        .HasForeignKey("NotificationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Notification");
                 });
 
             modelBuilder.Entity("Agrivision.Backend.Domain.Entities.Core.SensorConfiguration", b =>
@@ -2025,6 +2188,8 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
 
                     b.Navigation("IrrigationUnits");
 
+                    b.Navigation("Notifications");
+
                     b.Navigation("SensorUnits");
                 });
 
@@ -2042,6 +2207,8 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
                     b.Navigation("IrrigationUnit")
                         .IsRequired();
 
+                    b.Navigation("Notifications");
+
                     b.Navigation("PlantedCrop");
 
                     b.Navigation("SensorUnits");
@@ -2056,7 +2223,14 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
 
             modelBuilder.Entity("Agrivision.Backend.Domain.Entities.Core.IrrigationUnit", b =>
                 {
+                    b.Navigation("AutomationRules");
+
                     b.Navigation("IrrigationEvents");
+                });
+
+            modelBuilder.Entity("Agrivision.Backend.Domain.Entities.Core.Notification", b =>
+                {
+                    b.Navigation("ReadNotifications");
                 });
 
             modelBuilder.Entity("Agrivision.Backend.Domain.Entities.Core.PlantedCrop", b =>

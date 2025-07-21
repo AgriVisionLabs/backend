@@ -21,4 +21,5 @@ public class Field : AuditableEntity
     public ICollection<SensorUnit> SensorUnits { get; set; } = new List<SensorUnit>();
     public ICollection<TaskItem> TaskItems { get; set; } = new List<TaskItem>();
     public ICollection<InventoryItem> InventoryItems { get; set; } = new List<InventoryItem>();
+    public ICollection<Notification> Notifications { get; set; } = new List<Notification>();
 }

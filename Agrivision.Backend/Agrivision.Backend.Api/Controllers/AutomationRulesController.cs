@@ -61,7 +61,7 @@ namespace Agrivision.Backend.Api.Controllers
 
         [HttpPut("fields/{fieldId}/[controller]/{automationRuleId}")]
         public async Task<IActionResult> UpdateAsync([FromRoute] Guid farmId, [FromRoute] Guid fieldId,
-            [FromRoute] Guid automationRuleId, [FromBody] UpdateAutomationRuleCommand request,
+            [FromRoute] Guid automationRuleId, [FromBody] UpdateAutomationRuleRequest request,
             CancellationToken cancellationToken = default)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);

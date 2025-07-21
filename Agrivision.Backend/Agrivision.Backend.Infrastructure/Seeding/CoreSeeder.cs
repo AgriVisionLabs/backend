@@ -515,7 +515,7 @@ public static class CoreSeeder
                 {
                     Name = "Basic",
                     Price = 0.00m,
-                    Currency = "AED",
+                    Currency = "EGP",
                     MaxFarms = 1,
                     MaxFields = 3,
                     UnlimitedAiFeatureUsage = false,
@@ -527,8 +527,8 @@ public static class CoreSeeder
                 new()
                 {
                     Name = "Advanced",
-                    Price = 30m,
-                    Currency = "AED",
+                    Price = 499.99m,
+                    Currency = "EGP",
                     MaxFarms = 3,
                     MaxFields = 5,
                     UnlimitedAiFeatureUsage = true,
@@ -541,7 +541,7 @@ public static class CoreSeeder
                 {
                     Name = "Custom",
                     Price = 0.00m,
-                    Currency = "AED",
+                    Currency = "EGP",
                     MaxFarms = int.MaxValue,
                     MaxFields = int.MaxValue,
                     UnlimitedAiFeatureUsage = true,

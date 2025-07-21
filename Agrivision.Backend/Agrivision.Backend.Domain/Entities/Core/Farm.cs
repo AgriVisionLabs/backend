@@ -20,4 +20,5 @@ public class Farm : AuditableEntity
     public ICollection<SensorUnit> SensorUnits { get; set; } = new List<SensorUnit>();
     public ICollection<AutomationRule> AutomationRules { get; set; } = new List<AutomationRule>();
     public ICollection<InventoryItem> InventoryItems { get; set; } = new List<InventoryItem>();
+    public ICollection<Notification> Notifications { get; set; } = new List<Notification>();
 }

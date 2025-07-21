@@ -35,12 +35,15 @@ public class CoreDbContext(DbContextOptions<CoreDbContext> options) : DbContext(
     public DbSet<ConversationInviteLog> ConversationInviteLogs { get; set; }
     public DbSet<ConversationMember> ConversationMembers { get; set; }
     public DbSet<Message> Messages { get; set; }
+    public DbSet<Notification> Notifications { get; set; }
+    public DbSet<ReadNotification> ReadNotifications { get; set; }
+    public DbSet<ClearedNotification> ClearedNotifications { get; set; }
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfigurationsFromAssembly(
             typeof(InfrastructureAssemblyMarker).Assembly,
-            x => x.Namespace != null && x.Namespace.Contains("Core")); // if you use the normal format (without the namespace contain core stuff) it will add the configuration of ApplicationUser hence add a table for application user
+            x => x.Namespace != null && x.Namespace.Contains("Core"));
         
         base.OnModelCreating(modelBuilder);
     }

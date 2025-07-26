@@ -2,7 +2,7 @@ using Agrivision.Backend.Domain.Entities.Core;
 
 namespace Agrivision.Backend.Application.Repositories.Core;
 
-public interface INotificationsRepository
+public interface INotificationRepository
 {
     // get all
     Task<IReadOnlyList<Notification>> GetAllNotificationsAsync(string userId, CancellationToken cancellationToken = default);

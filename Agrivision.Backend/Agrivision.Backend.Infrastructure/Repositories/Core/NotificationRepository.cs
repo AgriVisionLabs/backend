@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Agrivision.Backend.Infrastructure.Repositories.Core;
 
-public class NotificationRepository(CoreDbContext coreDbContext) : INotificationsRepository
+public class NotificationRepository(CoreDbContext coreDbContext) : INotificationRepository
 {
     public async Task<IReadOnlyList<Notification>> GetAllNotificationsAsync(string userId, CancellationToken cancellationToken = default)
     {

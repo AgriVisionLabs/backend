@@ -52,7 +52,7 @@ public static class DependencyInjection
 
         services.AddAuthenticationServices(config);
         
-        services.AddGoogleAuthService(config);
+        services.AddGoogleAuthService();
         
         services.MapEmailSettings(config);
 
@@ -163,6 +163,14 @@ public static class DependencyInjection
         services.AddConversationConnectionTracker();
 
         services.AddUserConnectionTracker();
+
+        services.AddNotificationRepository();
+
+        services.AddNotificationPreferenceRepository();
+        
+        services.AddReadNotificationRepository();
+        
+        services.AddClearedNotificationRepository();
 
         return services;
     }
@@ -727,9 +735,37 @@ public static class DependencyInjection
         return services;
     }
 
-    private static IServiceCollection AddGoogleAuthService(this IServiceCollection services, IConfiguration configuration)
+    private static IServiceCollection AddGoogleAuthService(this IServiceCollection services)
     {
         services.AddScoped<IGoogleAuthService, GoogleAuthService>();
+
+        return services;
+    }
+    
+    private static IServiceCollection AddNotificationRepository(this IServiceCollection services)
+    {
+        services.AddScoped<INotificationRepository, NotificationRepository>();
+
+        return services;
+    }
+    
+    private static IServiceCollection AddNotificationPreferenceRepository(this IServiceCollection services)
+    {
+        services.AddScoped<INotificationPreferenceRepository, NotificationPreferenceRepository>();
+
+        return services;
+    }
+    
+    private static IServiceCollection AddReadNotificationRepository(this IServiceCollection services)
+    {
+        services.AddScoped<IReadNotificationRepository, ReadNotificationRepository>();
+
+        return services;
+    }
+    
+    private static IServiceCollection AddClearedNotificationRepository(this IServiceCollection services)
+    {
+        services.AddScoped<IClearedNotificationRepository, ClearedNotificationRepository>();
 
         return services;
     }

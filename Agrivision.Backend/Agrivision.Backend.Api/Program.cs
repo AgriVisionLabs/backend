@@ -84,6 +84,8 @@ app.MapHub<ConversationHub>("/hubs/conversations").RequireCors("AllowSpecificOri
 
 app.MapHub<MessageHub>("/hubs/messages").RequireCors("AllowSpecificOrigin");
 
+app.MapHub<NotificationHub>("/hubs/notifications").RequireCors("AllowSpecificOrigin");
+
 app.MapControllers();
 
 app.UseExceptionHandler();

@@ -4,8 +4,10 @@ using MediatR;
 using System.Security.Claims;
 using Agrivision.Backend.Application.Features.Account.Queries;
 using Agrivision.Backend.Api.Extensions;
+using Agrivision.Backend.Application.Errors;
 using Agrivision.Backend.Application.Features.Account.Contracts;
 using Agrivision.Backend.Application.Features.Account.Commands;
+using Agrivision.Backend.Domain.Abstractions;
 
 
 namespace Agrivision.Backend.Api.Controllers;
@@ -50,4 +52,39 @@ public class AccountsController(IMediator mediator, ILogger<AccountsController> 
 
     }
 
+    [HttpPut("notification-preferences")]
+    public async Task<IActionResult> UpdateNotificationPreferences([FromBody] UpdateNotificationPreferenceRequest request, CancellationToken cancellationToken)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrEmpty(userId))
+            return Result.Failure(TokenErrors.InvalidToken).ToProblem(TokenErrors.InvalidToken.ToStatusCode());
+
+        var command = new UpdateNotificationPreferenceCommand(
+            RequesterId: userId!,
+            IsEnabled: request.IsEnabled,
+            Irrigation: request.Irrigation,
+            Task: request.Task,
+            Message: request.Message,
+            Alert: request.Alert,
+            Warning: request.Warning,
+            SystemUpdate: request.SystemUpdate
+        );
+
+        var result = await mediator.Send(command, cancellationToken);
+
+        return result.Succeeded ? NoContent() : result.ToProblem(result.Error.ToStatusCode());
+    }
+
+    [HttpGet("notification-preferences")]
+    public async Task<IActionResult> GetNotificationPreferences(CancellationToken cancellationToken)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrEmpty(userId))
+            return Result.Failure(TokenErrors.InvalidToken).ToProblem(TokenErrors.InvalidToken.ToStatusCode());
+
+        var query = new GetNotificationPreferenceQuery(userId!);
+        var result = await mediator.Send(query, cancellationToken);
+
+        return result.Succeeded ? Ok(result.Value) : result.ToProblem(result.Error.ToStatusCode());
+    }
 }

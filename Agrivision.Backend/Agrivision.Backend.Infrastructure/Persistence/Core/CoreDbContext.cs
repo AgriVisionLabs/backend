@@ -38,6 +38,7 @@ public class CoreDbContext(DbContextOptions<CoreDbContext> options) : DbContext(
     public DbSet<Notification> Notifications { get; set; }
     public DbSet<ReadNotification> ReadNotifications { get; set; }
     public DbSet<ClearedNotification> ClearedNotifications { get; set; }
+    public DbSet<NotificationPreference> NotificationPreferences { get; set; }
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

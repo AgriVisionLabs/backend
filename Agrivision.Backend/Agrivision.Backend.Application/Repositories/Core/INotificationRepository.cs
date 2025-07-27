@@ -8,5 +8,5 @@ public interface INotificationRepository
     Task<IReadOnlyList<Notification>> GetAllNotificationsAsync(string userId, CancellationToken cancellationToken = default);
     
     // add 
-    Task AddNotificationAsync(Notification notification, CancellationToken cancellationToken = default);
+    Task AddAsync(Notification notification, CancellationToken cancellationToken = default);
 }

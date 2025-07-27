@@ -1,3 +1,4 @@
+using Agrivision.Backend.Application.Services.Hubs;
 using Agrivision.Backend.Application.Services.IoT;
 using Agrivision.Backend.Domain.Entities.Core;
 using Agrivision.Backend.Domain.Enums.Core;
@@ -42,10 +43,12 @@ public class AutomationRuleExecutionService(IServiceScopeFactory scopeFactory, I
         using var scope = scopeFactory.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<CoreDbContext>();
         var communicator = scope.ServiceProvider.GetRequiredService<IWebSocketDeviceCommunicator>();
+        var notificationBroadcaster = scope.ServiceProvider.GetRequiredService<INotificationBroadcaster>();
 
         var rules = await db.AutomationRules
             .Include(r => r.SensorUnit)
             .Include(r => r.IrrigationUnit)
+            .ThenInclude(iu => iu.Field).ThenInclude(field => field.Farm)  
             .Where(r =>
                 !r.IsDeleted &&
                 r.IsEnabled &&
@@ -102,12 +105,40 @@ public class AutomationRuleExecutionService(IServiceScopeFactory scopeFactory, I
                 continue;
             }
 
-            // apply same state update logic
+            // apply state update logic
             var now = DateTime.UtcNow;
             unit.IsOn = !unit.IsOn;
             unit.ToggledById = Guid.Empty.ToString(); // "00000000-0000-0000-0000-000000000000"
             unit.UpdatedById = Guid.Empty.ToString();
             unit.UpdatedOn = now;
+            
+            // send notification
+            // get farm members
+            var farmMembers = await db.FarmUserRoles
+                .Include(fur => fur.FarmRole)
+                .Where(fur => fur.FarmId == unit.Field.FarmId && !fur.IsDeleted && (fur.FarmRole.Name == "Manager" || fur.FarmRole.Name == "Owner"))
+                .Select(fur => fur.UserId)
+                .ToListAsync();
+
+            var notification = new Notification
+            {
+                Id = Guid.NewGuid(),
+                Type = NotificationType.Irrigation,
+                Message = "Automated irrigation triggered by threshold rule to the state " + unit.IsOn + " in the farm with the farm name " + unit.Field.Farm.Name + " in the field " + unit.Field.Name,
+                FarmId = unit.Field.FarmId,
+                FieldId = unit.FieldId,
+                CreatedById = Guid.Empty.ToString(), // "00000000-0000-0000-0000-000000000000"
+                CreatedOn = now,
+                UserIds = farmMembers
+            };
+            
+            db.Notifications.Add(notification);
+
+            foreach (var farmMember in farmMembers)
+            {
+                await notificationBroadcaster.BroadcastNotificationAsync(farmMember, notification);
+            }
+            
 
             if (unit.IsOn)
             {

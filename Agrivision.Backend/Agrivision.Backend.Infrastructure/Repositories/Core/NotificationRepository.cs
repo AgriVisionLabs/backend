@@ -23,7 +23,7 @@ public class NotificationRepository(CoreDbContext coreDbContext) : INotification
             .ToListAsync(cancellationToken);
     }
 
-    public async Task AddNotificationAsync(Notification notification, CancellationToken cancellationToken = default)
+    public async Task AddAsync(Notification notification, CancellationToken cancellationToken = default)
     {
         await coreDbContext.Notifications.AddAsync(notification, cancellationToken);
         await coreDbContext.SaveChangesAsync(cancellationToken);

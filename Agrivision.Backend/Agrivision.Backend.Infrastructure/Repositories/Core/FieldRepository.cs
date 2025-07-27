@@ -66,6 +66,7 @@ public class FieldRepository(CoreDbContext coreDbContext) : IFieldRepository
         return await coreDbContext.Fields
             .Include(f => f.PlantedCrop)
             .ThenInclude(pc => pc.Crop)
+            .Include(f => f.Farm)
             .FirstOrDefaultAsync(field => field.Id == id && !field.IsDeleted, cancellationToken);
     }
 

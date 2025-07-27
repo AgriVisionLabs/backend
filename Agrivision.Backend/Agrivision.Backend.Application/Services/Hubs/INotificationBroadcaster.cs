@@ -1,6 +1,8 @@
+using Agrivision.Backend.Domain.Entities.Core;
+
 namespace Agrivision.Backend.Application.Services.Hubs;
 
 public interface INotificationBroadcaster
 {
-    Task BroadcastNotificationAsync(string userId, object notification);
+    Task BroadcastNotificationAsync(string userId, Notification notification);
 } 

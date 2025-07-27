@@ -266,8 +266,8 @@ public static class DependencyInjection
 
                         // If the request is for our hub...
                         var path = context.HttpContext.Request.Path;
-                        if (!string.IsNullOrEmpty(accessToken) && (path.StartsWithSegments("/hub/sensors") || path.StartsWithSegments("/hubs/messages") ||
-                                                                   path.StartsWithSegments("/hubs/conversations")))
+                        if (!string.IsNullOrEmpty(accessToken) && (path.StartsWithSegments("/hubs/sensors") || path.StartsWithSegments("/hubs/messages") ||
+                                                                   path.StartsWithSegments("/hubs/conversations") || path.StartsWithSegments("/hubs/notifications")))
                         {
                             context.Token = accessToken;
                         }

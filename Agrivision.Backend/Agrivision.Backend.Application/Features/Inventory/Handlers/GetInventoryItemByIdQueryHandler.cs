@@ -36,7 +36,7 @@ public class GetInventoryItemByIdQueryHandler(IFarmRepository farmRepository, II
         if (item.FarmId != request.FarmId)
             return Result.Failure<InventoryItemResponse>(InventoryItemErrors.ItemNotFound);
         
-        var response = new InventoryItemResponse(item.Id, item.FarmId, item.FieldId, item.CreatedById, item.Name,
+        var response = new InventoryItemResponse(item.Id, item.FarmId, item.FieldId, item.Field?.Name, item.CreatedById, item.Name,
             item.Category, item.Quantity, item.ThresholdQuantity, item.UnitCost, item.MeasurementUnit,
             item.ExpirationDate, item.DaysUntilExpiry, item.StockLevel);
 

@@ -5,6 +5,7 @@ using Agrivision.Backend.Application.Repositories.Core;
 using Agrivision.Backend.Application.Repositories.Identity;
 using Agrivision.Backend.Application.Services.DiseaseDetection;
 using Agrivision.Backend.Application.Services.Files;
+using Agrivision.Backend.Application.Services.Hubs;
 using Agrivision.Backend.Application.Settings;
 using Agrivision.Backend.Domain.Abstractions;
 using Agrivision.Backend.Domain.Entities.Core;
@@ -15,7 +16,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Agrivision.Backend.Application.Features.DiseaseDetection.Handlers;
 
-public class AddDiseaseDetectionsCommandHandler(IFieldRepository fieldRepository, IFarmUserRoleRepository farmUserRoleRepository, IUserRepository userRepository, IFileUploadService fileUploadService, IDiseaseDetectionService diseaseDetectionService, ICropDiseaseRepository cropDiseaseRepository, ICropRepository cropRepository, IOptions<ServerSettings> serverSettings, IDiseaseDetectionRepository diseaseDetectionRepository, ILogger<AddDiseaseDetectionsCommandHandler> logger) : IRequestHandler<AddDiseaseDetectionCommand, Result<DiseaseDetectionResponse>>
+public class AddDiseaseDetectionsCommandHandler(IFieldRepository fieldRepository, IFarmUserRoleRepository farmUserRoleRepository, IUserRepository userRepository, IFileUploadService fileUploadService, IDiseaseDetectionService diseaseDetectionService, ICropDiseaseRepository cropDiseaseRepository, ICropRepository cropRepository, IOptions<ServerSettings> serverSettings, IDiseaseDetectionRepository diseaseDetectionRepository, ILogger<AddDiseaseDetectionsCommandHandler> logger, INotificationPreferenceRepository notificationPreferenceRepository, INotificationRepository notificationRepository, INotificationBroadcaster notificationBroadcaster) : IRequestHandler<AddDiseaseDetectionCommand, Result<DiseaseDetectionResponse>>
 {
     public async Task<Result<DiseaseDetectionResponse>> Handle(AddDiseaseDetectionCommand request, CancellationToken cancellationToken)
     {
@@ -29,7 +30,7 @@ public class AddDiseaseDetectionsCommandHandler(IFieldRepository fieldRepository
             return Result.Failure<DiseaseDetectionResponse>(FarmErrors.UnauthorizedAction);
 
         // check if user has access
-        var farmUserRole = await farmUserRoleRepository.FindByUserIdAndFarmIdAsync(request.ReqeusterId, request.FarmId, cancellationToken);
+        var farmUserRole = await farmUserRoleRepository.FindByUserIdAndFarmIdAsync(request.RequesterId, request.FarmId, cancellationToken);
         if (farmUserRole is null)
             return Result.Failure<DiseaseDetectionResponse>(FarmErrors.UnauthorizedAction);
 
@@ -72,7 +73,7 @@ public class AddDiseaseDetectionsCommandHandler(IFieldRepository fieldRepository
             return Result.Failure<DiseaseDetectionResponse>(DiseaseDetectionErrors.PredictionFailed);
         
         // get user full name once for both paths
-        var user = await userRepository.FindByIdAsync(request.ReqeusterId);
+        var user = await userRepository.FindByIdAsync(request.RequesterId);
         if (user is null)
             return Result.Failure<DiseaseDetectionResponse>(UserErrors.UserNotFound);
 
@@ -142,11 +143,40 @@ public class AddDiseaseDetectionsCommandHandler(IFieldRepository fieldRepository
             HealthStatus = healthStatus,
             PlantedCrop = field.PlantedCrop!,
             CropDiseaseId = cropDiseaseId,
-            CreatedById = request.ReqeusterId,
+            CreatedById = request.RequesterId,
             CreatedOn = DateTime.UtcNow
         };
 
         await diseaseDetectionRepository.AddAsync(detection, cancellationToken);
+        
+        // send notification
+        // get farm members
+        var farmMembers = await farmUserRoleRepository.GetByFarmIdAsync(request.FarmId, cancellationToken);
+        var targetedFarmMembers = farmMembers
+            .Where(fur => fur.FarmRole.Name is "Manager" or "Owner")
+            .Select(fm => fm.UserId)
+            .ToList();
+        
+        var notification = new Notification
+        {
+            Id = Guid.NewGuid(),
+            Type = NotificationType.Alert,
+            Message = "Disease detection added in farm " + field.Farm.Name + ", field " + field.Name + " with the result: " + diseaseName + " by " + userFullName,
+            FarmId = request.FarmId,
+            FieldId = field.Id,
+            CreatedById = request.RequesterId,
+            CreatedOn = DateTime.UtcNow,
+            UserIds = targetedFarmMembers
+        };
+
+        foreach (var farmMember in targetedFarmMembers)
+        {
+            var shouldNotify = await notificationPreferenceRepository.ShouldNotifyAsync(farmMember, NotificationType.Alert, cancellationToken);
+            if (shouldNotify)
+                await notificationBroadcaster.BroadcastNotificationAsync(farmMember, notification);
+        }
+        
+        await notificationRepository.AddAsync(notification, cancellationToken);
 
         // return unified response
         return Result.Success(new DiseaseDetectionResponse(

@@ -136,7 +136,9 @@ public class AutomationRuleExecutionService(IServiceScopeFactory scopeFactory, I
 
             foreach (var farmMember in farmMembers)
             {
-                await notificationBroadcaster.BroadcastNotificationAsync(farmMember, notification);
+                var shouldNotify = await db.NotificationPreferences.AnyAsync(np => np.UserId == farmMember && np.NotificationType == NotificationType.Irrigation && np.IsEnabled);
+                if (shouldNotify)
+                    await notificationBroadcaster.BroadcastNotificationAsync(farmMember, notification);
             }
             
 
@@ -194,6 +196,7 @@ public class AutomationRuleExecutionService(IServiceScopeFactory scopeFactory, I
         using var scope = scopeFactory.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<CoreDbContext>();
         var communicator = scope.ServiceProvider.GetRequiredService<IWebSocketDeviceCommunicator>();
+        var notificationBroadcaster = scope.ServiceProvider.GetRequiredService<INotificationBroadcaster>();
 
         var now = DateTime.UtcNow.AddHours(3);
         var nowTime = TimeOnly.FromDateTime(now);
@@ -203,7 +206,8 @@ public class AutomationRuleExecutionService(IServiceScopeFactory scopeFactory, I
         var tolerance = TimeSpan.FromSeconds(20);
 
         var rules = await db.AutomationRules
-            .Include(r => r.IrrigationUnit)
+            .Include(r => r.IrrigationUnit).ThenInclude(irrigationUnit => irrigationUnit.Field)
+            .ThenInclude(field => field.Farm)
             .Where(r =>
                 !r.IsDeleted &&
                 r.IsEnabled &&
@@ -249,6 +253,31 @@ public class AutomationRuleExecutionService(IServiceScopeFactory scopeFactory, I
                     db.IrrigationEvents.Add(newEvent);
 
                     await communicator.SendConfirmationAsync(unit.DeviceId, "toggle_pump");
+                    
+                    var farmMembers = await db.FarmUserRoles
+                        .Include(fur => fur.FarmRole)
+                        .Where(fur => fur.FarmId == unit.Field.FarmId && !fur.IsDeleted && (fur.FarmRole.Name == "Manager" || fur.FarmRole.Name == "Owner"))
+                        .Select(fur => fur.UserId)
+                        .ToListAsync();
+
+                    var notification = new Notification
+                    {
+                        Id = Guid.NewGuid(),
+                        Type = NotificationType.Irrigation,
+                        Message = "Automated irrigation triggered by scheduled rule to the state " + unit.IsOn + " in the farm with the farm name " + unit.Field.Farm.Name + " in the field " + unit.Field.Name,
+                        FarmId = unit.Field.FarmId,
+                        FieldId = unit.FieldId,
+                        CreatedById = Guid.Empty.ToString(), // "00000000-0000-0000-0000-000000000000"
+                        CreatedOn = now,
+                        UserIds = farmMembers
+                    };
+            
+                    db.Notifications.Add(notification);
+
+                    foreach (var farmMember in farmMembers)
+                    {
+                        await notificationBroadcaster.BroadcastNotificationAsync(farmMember, notification);
+                    }
 
                     db.IrrigationUnits.Update(unit);
                     logger.LogCritical("🟢 Scheduled rule '{RuleName}' started unit {UnitId}", rule.Name, unit.Id);
@@ -285,6 +314,31 @@ public class AutomationRuleExecutionService(IServiceScopeFactory scopeFactory, I
                     }
 
                     await communicator.SendConfirmationAsync(unit.DeviceId, "toggle_pump");
+                    
+                    var farmMembers = await db.FarmUserRoles
+                        .Include(fur => fur.FarmRole)
+                        .Where(fur => fur.FarmId == unit.Field.FarmId && !fur.IsDeleted && (fur.FarmRole.Name == "Manager" || fur.FarmRole.Name == "Owner"))
+                        .Select(fur => fur.UserId)
+                        .ToListAsync();
+
+                    var notification = new Notification
+                    {
+                        Id = Guid.NewGuid(),
+                        Type = NotificationType.Irrigation,
+                        Message = "Automated irrigation triggered by scheduled rule to the state " + unit.IsOn + " in the farm with the farm name " + unit.Field.Farm.Name + " in the field " + unit.Field.Name,
+                        FarmId = unit.Field.FarmId,
+                        FieldId = unit.FieldId,
+                        CreatedById = Guid.Empty.ToString(), // "00000000-0000-0000-0000-000000000000"
+                        CreatedOn = now,
+                        UserIds = farmMembers
+                    };
+            
+                    db.Notifications.Add(notification);
+
+                    foreach (var farmMember in farmMembers)
+                    {
+                        await notificationBroadcaster.BroadcastNotificationAsync(farmMember, notification);
+                    }
 
                     db.IrrigationUnits.Update(unit);
                     logger.LogInformation("🔴 Scheduled rule '{RuleName}' stopped unit {UnitId}", rule.Name, unit.Id);

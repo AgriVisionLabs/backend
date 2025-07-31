@@ -7,6 +7,19 @@ namespace Agrivision.Backend.Infrastructure.Repositories.Core;
 
 public class IrrigationEventRepository(CoreDbContext coreDbContext) : IIrrigationEventRepository
 {
+    public async Task<IReadOnlyList<IrrigationEvent>> GetAllByFarmIdAsync(Guid farmId, CancellationToken cancellationToken = default)
+    {
+        return await coreDbContext.IrrigationEvents
+            .Include(ie => ie.IrrigationUnit)
+            .ThenInclude(iu => iu.Field)
+            .ThenInclude(f => f.PlantedCrop)
+            .ThenInclude(pc => pc.Crop)
+            .Include(ie => ie.IrrigationUnit)
+            .ThenInclude(iu => iu.Farm)
+            .Where(ie => ie.IrrigationUnit.Field.FarmId == farmId && !ie.IsDeleted)
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task<IReadOnlyList<IrrigationEvent>> GetAllByIrrigationUnitIdAsync(Guid irrigationUnitId, CancellationToken cancellationToken = default)
     {
         return await coreDbContext.IrrigationEvents

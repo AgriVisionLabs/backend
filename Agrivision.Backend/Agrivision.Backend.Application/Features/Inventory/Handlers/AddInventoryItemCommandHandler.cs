@@ -78,7 +78,7 @@ public class AddInventoryItemCommandHandler(IFarmRepository farmRepository, IFie
         await inventoryItemTransactionRepository.AddAsync(itemTransaction, cancellationToken);
         
         // map to response
-        var response = new InventoryItemResponse(item.Id, item.FarmId, item.FieldId, item.CreatedById, item.Name,
+        var response = new InventoryItemResponse(item.Id, item.FarmId, item.FieldId, item.Field?.Name,item.CreatedById, item.Name,
             item.Category, item.Quantity, item.ThresholdQuantity, item.UnitCost, item.MeasurementUnit,
             item.ExpirationDate, item.DaysUntilExpiry, item.StockLevel);
         

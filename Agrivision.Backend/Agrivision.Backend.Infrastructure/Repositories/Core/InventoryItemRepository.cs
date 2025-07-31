@@ -10,6 +10,8 @@ public class InventoryItemRepository(CoreDbContext coreDbContext) : IInventoryIt
     public async Task<IReadOnlyList<InventoryItem>> GetAllByFarmIdAsync(Guid farmId, CancellationToken cancellationToken = default)
     {
         return await coreDbContext.InventoryItems
+            .Include(item => item.Transactions)
+            .Include(item => item.Field)
             .Where(item => item.FarmId == farmId && !item.IsDeleted)
             .ToListAsync(cancellationToken);
     }
@@ -18,6 +20,7 @@ public class InventoryItemRepository(CoreDbContext coreDbContext) : IInventoryIt
     {
         return await coreDbContext.InventoryItems
             .Include(item => item.Transactions)
+            .Include(item => item.Field)
             .FirstOrDefaultAsync(item => item.Id == itemId && !item.IsDeleted, cancellationToken);
     }
 

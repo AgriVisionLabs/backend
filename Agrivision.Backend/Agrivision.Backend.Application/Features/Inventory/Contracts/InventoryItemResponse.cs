@@ -7,6 +7,7 @@ public record InventoryItemResponse
     Guid Id,
     Guid FarmId,
     Guid? FieldId,
+    string? FieldName,
     string CreatedById,
     string Name,
     InventoryItemType Category,

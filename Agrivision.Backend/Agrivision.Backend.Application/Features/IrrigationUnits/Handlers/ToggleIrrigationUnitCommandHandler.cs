@@ -107,7 +107,9 @@ public class ToggleIrrigationUnitCommandHandler(IFieldRepository fieldRepository
 
         foreach (var farmMember in targetedFarmMembers)
         {
-            await notificationBroadcaster.BroadcastNotificationAsync(farmMember, notification);
+            var shouldNotify = await notificationPreferenceRepository.ShouldNotifyAsync(farmMember, NotificationType.Irrigation, cancellationToken);
+            if (shouldNotify)
+                await notificationBroadcaster.BroadcastNotificationAsync(farmMember, notification);
         }
         
         await notificationRepository.AddAsync(notification, cancellationToken);

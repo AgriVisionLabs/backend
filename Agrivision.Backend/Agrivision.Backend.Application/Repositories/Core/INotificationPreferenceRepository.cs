@@ -1,4 +1,5 @@
 using Agrivision.Backend.Domain.Entities.Core;
+using Agrivision.Backend.Domain.Enums.Core;
 
 namespace Agrivision.Backend.Application.Repositories.Core;
 
@@ -12,4 +13,7 @@ public interface INotificationPreferenceRepository
     
     // update
     Task UpdateAsync(NotificationPreference notificationPreference, CancellationToken cancellationToken = default);
+    
+    // should notify
+    Task<bool> ShouldNotifyAsync(string userId, NotificationType notificationType, CancellationToken cancellationToken = default);
 }

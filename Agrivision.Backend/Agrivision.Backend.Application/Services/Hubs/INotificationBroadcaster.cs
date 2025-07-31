@@ -4,5 +4,5 @@ namespace Agrivision.Backend.Application.Services.Hubs;
 
 public interface INotificationBroadcaster
 {
-    Task BroadcastNotificationAsync(string userId, Notification notification);
+    Task BroadcastNotificationAsync(string userId, Notification notification, bool isRead = false);
 } 

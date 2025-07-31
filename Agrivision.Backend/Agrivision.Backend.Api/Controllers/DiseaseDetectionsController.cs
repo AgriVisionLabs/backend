@@ -25,7 +25,7 @@ namespace Agrivision.Backend.Api.Controllers
                 return Result.Failure(TokenErrors.InvalidToken).ToProblem(TokenErrors.InvalidToken.ToStatusCode());
 
             var command = new AddDiseaseDetectionCommand
-                { FarmId = farmId, FieldId = fieldId, Image = request.Image, Video = request.Video, ReqeusterId = userId };
+                { FarmId = farmId, FieldId = fieldId, Image = request.Image, Video = request.Video, RequesterId = userId };
             var result = await mediator.Send(command, cancellationToken);
 
             return result.Succeeded ? Ok(result.Value) : result.ToProblem(result.Error.ToStatusCode());

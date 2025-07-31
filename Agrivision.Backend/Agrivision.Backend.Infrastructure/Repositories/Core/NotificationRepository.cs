@@ -7,7 +7,7 @@ namespace Agrivision.Backend.Infrastructure.Repositories.Core;
 
 public class NotificationRepository(CoreDbContext coreDbContext) : INotificationRepository
 {
-    public async Task<IReadOnlyList<Notification>> GetAllNotificationsAsync(string userId, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<Notification>> GetAllNotificationsByUserIdAsync(string userId, CancellationToken cancellationToken = default)
     {
         var cleared = await coreDbContext.ClearedNotifications
             .OrderByDescending(cn => cn.ClearedAt)
@@ -21,6 +21,12 @@ public class NotificationRepository(CoreDbContext coreDbContext) : INotification
                         && !n.IsDeleted
                         && n.CreatedOn > clearedAt)
             .ToListAsync(cancellationToken);
+    }
+    
+    public async Task<Notification?> GetByIdAsync(Guid id, string userId, CancellationToken cancellationToken = default)
+    {
+        return await coreDbContext.Notifications
+            .FirstOrDefaultAsync(n => n.Id == id && n.UserIds.Contains(userId) && !n.IsDeleted, cancellationToken);
     }
 
     public async Task AddAsync(Notification notification, CancellationToken cancellationToken = default)

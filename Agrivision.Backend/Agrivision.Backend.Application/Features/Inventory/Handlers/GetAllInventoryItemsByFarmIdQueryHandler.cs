@@ -36,6 +36,7 @@ public class GetAllInventoryItemsByFarmIdQueryHandler(IFarmRepository farmReposi
                 item.Id,
                 item.FarmId,
                 item.FieldId,
+                item.Field?.Name,
                 item.CreatedById,
                 item.Name,
                 item.Category,

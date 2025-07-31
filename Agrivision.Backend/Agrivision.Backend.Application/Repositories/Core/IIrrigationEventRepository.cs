@@ -4,6 +4,9 @@ namespace Agrivision.Backend.Application.Repositories.Core;
 
 public interface IIrrigationEventRepository
 {
+    // get all by farm id
+    Task<IReadOnlyList<IrrigationEvent>> GetAllByFarmIdAsync(Guid farmId, CancellationToken cancellationToken = default);
+    
     // get all by irrigation unit id
     Task<IReadOnlyList<IrrigationEvent>> GetAllByIrrigationUnitIdAsync(Guid irrigationUnitId, CancellationToken cancellationToken = default);
     

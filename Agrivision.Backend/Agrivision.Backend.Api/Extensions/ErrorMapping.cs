@@ -88,6 +88,7 @@ public static class ErrorMapping
         "Conversation.TargetNotMember" => StatusCodes.Status400BadRequest,
         "Conversation.CannotRemoveFromPrivateChat" => StatusCodes.Status403Forbidden,
         "Conversation.NotFound" => StatusCodes.Status404NotFound,
+        "Notifications.NotificationNotFound" => StatusCodes.Status404NotFound,
         _ => StatusCodes.Status400BadRequest // Default case
     };
 }

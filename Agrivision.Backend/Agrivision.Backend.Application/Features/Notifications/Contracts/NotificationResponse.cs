@@ -8,5 +8,6 @@ public record NotificationResponse(
     string Message,
     Guid FarmId,
     Guid? FieldId,
-    DateTime CreatedOn
+    DateTime CreatedOn,
+    bool IsRead
 ); 

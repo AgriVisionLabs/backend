@@ -8,7 +8,7 @@ namespace Agrivision.Backend.Api.Services.Hubs;
 
 public class NotificationBroadcaster(IHubContext<NotificationHub> hubContext) : INotificationBroadcaster
 {
-    public Task BroadcastNotificationAsync(string userId, Notification notification)
+    public Task BroadcastNotificationAsync(string userId, Notification notification, bool isRead = false)
     {
         var response = new NotificationResponse(
             notification.Id,
@@ -16,7 +16,8 @@ public class NotificationBroadcaster(IHubContext<NotificationHub> hubContext) : 
             notification.Message,
             notification.FarmId,
             notification.FieldId,
-            notification.CreatedOn
+            notification.CreatedOn,
+            isRead
         );
         
         return hubContext.Clients.Group($"user-{userId}").SendAsync("ReceiveNotification", response);

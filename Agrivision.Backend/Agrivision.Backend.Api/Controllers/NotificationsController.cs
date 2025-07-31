@@ -1,77 +1,73 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
+using Agrivision.Backend.Api.Extensions;
+using Agrivision.Backend.Api.Hubs;
+using Agrivision.Backend.Application.Errors;
+using Agrivision.Backend.Application.Features.Notifications.Commands;
+using Agrivision.Backend.Application.Features.Notifications.Queries;
 using Agrivision.Backend.Application.Services.Hubs;
 using Agrivision.Backend.Domain.Entities.Core;
 using Agrivision.Backend.Domain.Enums.Core;
 using Agrivision.Backend.Application.Repositories.Core;
+using Agrivision.Backend.Domain.Abstractions;
+using MediatR;
 
 namespace Agrivision.Backend.Api.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("[controller]")]
 [Authorize]
-public class NotificationsController(
-    INotificationBroadcaster notificationBroadcaster, 
-    INotificationRepository notificationRepository) : ControllerBase
+public class NotificationsController(IMediator mediator) : ControllerBase
 {
-    [HttpGet("test/{userId}")]
-    public async Task<IActionResult> SendTestNotification(string userId, [FromServices] IFarmUserRoleRepository farmUserRoleRepository)
-    {
-        // Get user's first farm
-        var userFarms = await farmUserRoleRepository.GetAllAccessible(userId);
-        if (!userFarms.Any())
-        {
-            return BadRequest("User has no farms to send notification to");
-        }
-
-        var firstFarm = userFarms.First();
-        
-        var testNotification = new Notification
-        {
-            Id = Guid.NewGuid(),
-            Type = NotificationType.Alert,
-            Message = "🧪 This is a test notification sent manually!",
-            FarmId = firstFarm.FarmId, // Use actual farm ID
-            FieldId = null,
-            CreatedById = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "system",
-            CreatedOn = DateTime.UtcNow,
-            UserIds = new List<string> { userId }
-        };
-
-        // Save to database
-        await notificationRepository.AddAsync(testNotification);
-
-        // Broadcast to SignalR
-        await notificationBroadcaster.BroadcastNotificationAsync(userId, testNotification);
-
-        return Ok(new { 
-            message = "Test notification sent!", 
-            notificationId = testNotification.Id,
-            targetUserId = userId,
-            farmId = firstFarm.FarmId,
-            farmName = firstFarm.Farm?.Name
-        });
-    }
-
-    [HttpGet("user-farms")]
-    public async Task<IActionResult> GetUserFarms([FromServices] IFarmUserRoleRepository farmUserRoleRepository)
+    [HttpGet("")]
+    public async Task<IActionResult> GetAllNotificationsAsync(CancellationToken cancellationToken = default)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (string.IsNullOrEmpty(userId))
-            return Unauthorized();
+            return Result.Failure(TokenErrors.InvalidToken).ToProblem(TokenErrors.InvalidToken.ToStatusCode());
 
-        var userRoles = await farmUserRoleRepository.GetAllAccessible(userId);
+        var result = await mediator.Send(new GetNotificationsQuery(userId), cancellationToken);
         
-        return Ok(new {
-            userId,
-            farmCount = userRoles.Count,
-            farms = userRoles.Select(ur => new {
-                farmId = ur.FarmId,
-                farmName = ur.Farm?.Name ?? "N/A",
-                role = ur.FarmRole?.Name ?? "N/A",
-                canReceiveNotifications = ur.FarmRole?.Name is "Manager" or "Owner"
-            })
-        });
+        return result.Succeeded ? Ok(result.Value) : result.ToProblem(result.Error.ToStatusCode());
+    }
+    
+    [HttpPost("{notificationId}/mark-read")]
+    public async Task<IActionResult> MarkNotificationReadAsync([FromRoute] Guid notificationId, CancellationToken cancellationToken = default)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrEmpty(userId))
+            return Result.Failure(TokenErrors.InvalidToken).ToProblem(TokenErrors.InvalidToken.ToStatusCode());
+
+        var command = new MarkNotificationReadCommand(notificationId, userId);
+        var result = await mediator.Send(command, cancellationToken);
+
+        return result.Succeeded ? NoContent() : result.ToProblem(result.Error.ToStatusCode());
+    }
+    
+    [HttpPost("clear")]
+    public async Task<IActionResult> ClearNotificationsAsync(CancellationToken cancellationToken = default)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrEmpty(userId))
+            return Result.Failure(TokenErrors.InvalidToken).ToProblem(TokenErrors.InvalidToken.ToStatusCode());
+
+        var command = new ClearNotificationsCommand(userId);
+        var result = await mediator.Send(command, cancellationToken);
+
+        return result.Succeeded ? NoContent() : result.ToProblem(result.Error.ToStatusCode());
+    }
+    
+    [HttpPost("mark-read")]
+    public async Task<IActionResult> MarkAllNotificationsReadAsync(CancellationToken cancellationToken = default)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrEmpty(userId))
+            return Result.Failure(TokenErrors.InvalidToken).ToProblem(TokenErrors.InvalidToken.ToStatusCode());
+
+        var command = new MarkAllNotificationsReadCommand(userId);
+        var result = await mediator.Send(command, cancellationToken);
+
+        return result.Succeeded ? NoContent() : result.ToProblem(result.Error.ToStatusCode());
     }
 } 

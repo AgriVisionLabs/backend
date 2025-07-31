@@ -5,5 +5,5 @@ namespace Agrivision.Backend.Application.Repositories.Core;
 public interface IClearedNotificationRepository
 {
     // add
-    Task AddClearedNotificationAsync(ClearedNotification clearedNotification, CancellationToken cancellationToken = default);
+    Task AddAsync(ClearedNotification clearedNotification, CancellationToken cancellationToken = default);
 }

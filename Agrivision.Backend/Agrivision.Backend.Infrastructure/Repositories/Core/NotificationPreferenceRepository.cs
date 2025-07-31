@@ -1,5 +1,6 @@
 using Agrivision.Backend.Application.Repositories.Core;
 using Agrivision.Backend.Domain.Entities.Core;
+using Agrivision.Backend.Domain.Enums.Core;
 using Agrivision.Backend.Infrastructure.Persistence.Core;
 using Microsoft.EntityFrameworkCore;
 
@@ -24,5 +25,11 @@ public class NotificationPreferenceRepository(CoreDbContext coreDbContext) : INo
     {
         coreDbContext.NotificationPreferences.Update(notificationPreference);
         await coreDbContext.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task<bool> ShouldNotifyAsync(string userId, NotificationType notificationType, CancellationToken cancellationToken = default)
+    {
+        return await coreDbContext.NotificationPreferences
+            .AnyAsync(np => np.UserId == userId && np.NotificationType == notificationType && np.IsEnabled, cancellationToken);
     }
 }

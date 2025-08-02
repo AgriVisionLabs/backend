@@ -1,10 +1,9 @@
 using System.Security.Cryptography;
 using Agrivision.Backend.Application.Auth;
 using Agrivision.Backend.Application.Errors;
+using Agrivision.Backend.Application.Features.Auth.Commands;
 using Agrivision.Backend.Application.Features.Auth.Contracts;
-using Agrivision.Backend.Application.Features.Auth.Queries;
 using Agrivision.Backend.Application.Repositories.Identity;
-using Agrivision.Backend.Application.Services.Email;
 using Agrivision.Backend.Application.Settings;
 using Agrivision.Backend.Domain.Abstractions;
 using Agrivision.Backend.Domain.Entities.Identity;
@@ -14,28 +13,21 @@ using Microsoft.Extensions.Options;
 
 namespace Agrivision.Backend.Application.Features.Auth.Handlers;
 
-public class AuthQueryHandler(IUserRepository userRepository, IGlobalRoleRepository globalRoleRepository, IJwtProvider jwtProvider, IOptions<RefreshTokenSettings> refreshTokenSettings, IOtpProvider otpProvider, IEmailService emailService) : IRequestHandler<AuthQuery, Result<AuthResponse>>
+public class VerifyMfaOtpCommandHandler(IUserRepository userRepository, IOtpProvider otpProvider, IJwtProvider jwtProvider, IGlobalRoleRepository globalRoleRepository, IOptions<RefreshTokenSettings> refreshTokenSettings) : IRequestHandler<VerifyMfaOtpCommand, Result<AuthResponse>>
 {
-    public async Task<Result<AuthResponse>> Handle(AuthQuery request, CancellationToken cancellationToken)
+    public async Task<Result<AuthResponse>> Handle(VerifyMfaOtpCommand request, CancellationToken cancellationToken)
     {
-        if (await userRepository.FindByEmailAsync(request.Email) is not { } user)
-            return Result.Failure<AuthResponse>(UserErrors.InvalidCredentials);
+        // find user by email
+        var user = await userRepository.FindByEmailAsync(request.Email);
+        if (user is null)
+            return Result.Failure<AuthResponse>(UserErrors.InvalidPasswordResetOtp);
 
-        if (!await userRepository.CheckPasswordAsync(user, request.Password))
-            return Result.Failure<AuthResponse>(UserErrors.InvalidCredentials);
-
-        if (!user.EmailConfirmed)
-            return Result.Failure<AuthResponse>(UserErrors.EmailNotConfirmed);
-
-        if (user.TwoFactorEnabled)
-        {
-            var rawOtp = await otpProvider.GenerateAsync(user.Id, OtpPurpose.MultiFactorAuth, cancellationToken);
-            if (rawOtp == "Too many OTP requests. Please wait before trying again.")
-                return Result.Failure<AuthResponse>(UserErrors.TooManyMfaRequests);
-            await emailService.SendMfaEmailAsync(user.Email, rawOtp);
-            return Result.Failure<AuthResponse>(UserErrors.MfaOtpSent);
-        }
-
+        // check if the otp is valid and mark it as used 
+        var isValid =
+            await otpProvider.VerifyAndConsumeAsync(user.Id, request.OtpCode, OtpPurpose.MultiFactorAuth, cancellationToken);
+        if (!isValid)
+            return Result.Failure<AuthResponse>(UserErrors.InvalidPasswordResetOtp);
+        
         var userRoles = await userRepository.GetRolesAsync(user);
 
         var userPermissions = await globalRoleRepository.GetPermissionsAsync(userRoles, cancellationToken);

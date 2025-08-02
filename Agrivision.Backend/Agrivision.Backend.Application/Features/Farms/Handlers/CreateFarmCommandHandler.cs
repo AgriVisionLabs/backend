@@ -9,10 +9,21 @@ using MediatR;
 
 namespace Agrivision.Backend.Application.Features.Farms.Handlers;
 
-public class CreateFarmCommandHandler(IFarmRepository farmRepository, IFarmUserRoleRepository farmUserRoleRepository) : IRequestHandler<CreateFarmCommand, Result<FarmResponse>>
+public class CreateFarmCommandHandler(IFarmRepository farmRepository, IFarmUserRoleRepository farmUserRoleRepository, IUserSubscriptionRepository userSubscriptionRepository) : IRequestHandler<CreateFarmCommand, Result<FarmResponse>>
 {
     public async Task<Result<FarmResponse>> Handle(CreateFarmCommand request, CancellationToken cancellationToken)
     {
+        // check if the user has a subscription
+        var userSubscription =
+            await userSubscriptionRepository.GetByUserIdAsync(request.CreatedById, cancellationToken);
+        var maxFarms = userSubscription?.SubscriptionPlan.MaxFarms ?? 1;
+        
+        // check if the user has reached the maximum number of farms
+        var userFarmsCount =
+            await farmRepository.CountAsync(request.CreatedById, cancellationToken);
+        if (userFarmsCount >= maxFarms)
+            return Result.Failure<FarmResponse>(UserErrors.MaxFarmsReached);
+        
         // check if farm name already used by the user
         var existingFarm =
             await farmRepository.FindByNameAndUserAsync(request.Name, request.CreatedById, cancellationToken);

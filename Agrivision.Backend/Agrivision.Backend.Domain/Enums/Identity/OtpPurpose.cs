@@ -10,6 +10,6 @@ public enum OtpPurpose
     [Display(Name = "Email Verification")]
     EmailVerification,
 
-    [Display(Name = "Two-Factor Authentication")]
-    TwoFactorAuth
+    [Display(Name = "Multi-Factor Authentication")]
+    MultiFactorAuth,
 }

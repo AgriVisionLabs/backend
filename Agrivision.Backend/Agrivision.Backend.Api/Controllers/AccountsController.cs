@@ -43,13 +43,14 @@ public class AccountsController(IMediator mediator, ILogger<AccountsController> 
     public async Task<IActionResult>  ChangePassword(ChangePasswordRequest request, CancellationToken cancellationToken)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrEmpty(userId))
+            return Result.Failure(TokenErrors.InvalidToken).ToProblem(TokenErrors.InvalidToken.ToStatusCode());
 
         var command =new ChangePasswordCommand ( userId!,request.CurrentPassword,request.NewPassword);
 
         var result = await mediator.Send(command, cancellationToken);
 
         return result.Succeeded ? Ok(result) : result.ToProblem(result.Error.ToStatusCode());
-
     }
 
     [HttpPut("notification-preferences")]
@@ -85,6 +86,32 @@ public class AccountsController(IMediator mediator, ILogger<AccountsController> 
         var query = new GetNotificationPreferenceQuery(userId!);
         var result = await mediator.Send(query, cancellationToken);
 
+        return result.Succeeded ? Ok(result.Value) : result.ToProblem(result.Error.ToStatusCode());
+    }
+
+    [HttpPut("Mfa")]
+    public async Task<IActionResult> UpdateMfaAsync([FromBody] UpdateMfaRequest request, CancellationToken cancellationToken = default)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrEmpty(userId))
+            return Result.Failure(TokenErrors.InvalidToken).ToProblem(TokenErrors.InvalidToken.ToStatusCode());
+        
+        var command = new UpdateMfaCommand(userId, request.IsEnabled);
+        var result = await mediator.Send(command, cancellationToken);
+        
+        return result.Succeeded ? NoContent() : result.ToProblem(result.Error.ToStatusCode());
+    }
+    
+    [HttpGet("Mfa")]
+    public async Task<IActionResult> GetMfaStatusAsync(CancellationToken cancellationToken = default)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrEmpty(userId))
+            return Result.Failure(TokenErrors.InvalidToken).ToProblem(TokenErrors.InvalidToken.ToStatusCode());
+        
+        var query = new GetMfaStatusQuery(userId);
+        var result = await mediator.Send(query, cancellationToken);
+        
         return result.Succeeded ? Ok(result.Value) : result.ToProblem(result.Error.ToStatusCode());
     }
 }

@@ -134,4 +134,10 @@ public class FarmRepository(CoreDbContext coreDbContext) : IFarmRepository
         return await coreDbContext.Farms
             .AnyAsync(f => f.Id == farmId && !f.IsDeleted, cancellationToken);
     }
+
+    public async Task<int> CountAsync(string userId, CancellationToken cancellationToken = default)
+    {
+        return await coreDbContext.Farms
+            .CountAsync(f => f.CreatedById == userId && !f.IsDeleted, cancellationToken);
+    }
 }

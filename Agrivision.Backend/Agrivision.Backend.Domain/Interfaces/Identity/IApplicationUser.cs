@@ -16,6 +16,7 @@ public interface IApplicationUser
     public DateTime? PasswordChangedAt { get; set; }
     public ApplicationUserStatus Status { get; set; }
     public bool EmailConfirmed { get; set; }
+    public bool TwoFactorEnabled { get; set; }
 
     // Activity Tracking
     public DateTime CreatedAt { get; set; }

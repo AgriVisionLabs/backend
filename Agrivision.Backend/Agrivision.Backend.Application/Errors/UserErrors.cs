@@ -24,4 +24,13 @@ public static class UserErrors
     public static readonly Error InvalidPasswordResetOtp = new("User.InvalidPasswordResetOtp", "Invalid or expired OTP.");
     public static readonly Error InvalidPasswordResetToken = new("User.InvalidPasswordResetToken", "Invalid or expired password reset token.");
     public static readonly Error InvalidGoogleToken = new("User.InvalidGoogleToken", "Invalid Google ID token.");
+    public static readonly Error MaxFarmsReached = new("User.MaxFarmsReached", "You have reached the maximum number of farms allowed for your subscription plan.");
+    public static readonly Error MaxFieldsReached = new("User.MaxFieldsReached", "You have reached the maximum number of fields allowed for your subscription plan.");
+
+    public static readonly Error MfaOtpSent = new("User.MfaOtpSent",
+        "Multi-factor authentication is required. Please enter the OTP code sent to your email.");
+    public static readonly Error TooManyMfaRequests = new("User.TooManyMfaRequests",
+        "Too many multi-factor authentication requests. Please wait before trying again.");
+    public static readonly Error CannotCancelBasicPlan = new("User.CannotCancelBasicPlan",
+        "You cannot cancel the Basic plan. Please upgrade to a paid plan before cancelling your subscription.");
 }

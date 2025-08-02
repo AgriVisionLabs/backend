@@ -89,6 +89,9 @@ public static class ErrorMapping
         "Conversation.CannotRemoveFromPrivateChat" => StatusCodes.Status403Forbidden,
         "Conversation.NotFound" => StatusCodes.Status404NotFound,
         "Notifications.NotificationNotFound" => StatusCodes.Status404NotFound,
+        "User.MaxFarmsReached" => StatusCodes.Status403Forbidden,
+        "User.MaxFieldsReached" => StatusCodes.Status403Forbidden,
+        "User.MfaOtpSent" => StatusCodes.Status401Unauthorized,
         _ => StatusCodes.Status400BadRequest // Default case
     };
 }

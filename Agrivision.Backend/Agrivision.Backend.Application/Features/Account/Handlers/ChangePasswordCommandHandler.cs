@@ -1,4 +1,5 @@
-﻿using Agrivision.Backend.Application.Features.Account.Commands;
+﻿using Agrivision.Backend.Application.Errors;
+using Agrivision.Backend.Application.Features.Account.Commands;
 using Agrivision.Backend.Application.Repositories.Identity;
 using Agrivision.Backend.Domain.Abstractions;
 using MediatR;
@@ -10,11 +11,11 @@ public class ChangePasswordCommandHandler(IUserRepository userRepository) : IReq
     public async Task<Result> Handle(ChangePasswordCommand request, CancellationToken cancellationToken)
     {
         var user =await userRepository.FindByIdAsync(request.UserId);
+        if (user is null)
+            return Result.Failure(UserErrors.UserNotFound);
 
-        var success = await userRepository.ChangePasswordAsync(user!, request.CurrentPassword, request.NewPassword);
+        await userRepository.ChangePasswordAsync(user, request.CurrentPassword, request.NewPassword);
 
         return Result.Success();
-
     }
-
 }

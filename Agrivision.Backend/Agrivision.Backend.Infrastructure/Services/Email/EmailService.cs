@@ -62,6 +62,15 @@ public class EmailService(IOptions<MailSettings> mailSettings,IOptions<AppSettin
         await SendEmailAsync(email, $"{otp} - Agrivision: Reset Password", emailBody);
     }
     
+    public async Task SendMfaEmailAsync(string email, string otp)
+    {
+        var emailBody = EmailBodyBuilder.GenerateEmailBody("Mfa", new Dictionary<string, string>
+        {
+            {"{{otp_code}}", otp},
+        });
+
+        await SendEmailAsync(email, $"{otp} - Agrivision: Reset Password", emailBody);
+    }
     
     public async Task SendInvitationEmail(string farmName, string senderName, string recipientEmail, string token)
     {

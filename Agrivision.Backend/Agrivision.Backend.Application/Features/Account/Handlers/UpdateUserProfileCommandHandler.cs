@@ -1,5 +1,6 @@
 ﻿
 
+using Agrivision.Backend.Application.Errors;
 using Agrivision.Backend.Application.Features.Account.Commands;
 using Agrivision.Backend.Domain.Abstractions;
 using MediatR;
@@ -11,8 +12,13 @@ public class UpdateUserProfileCommandHandler(IUserRepository userRepository) : I
     public async Task<Result> Handle(UpdateUserProfileCommand request, CancellationToken cancellationToken)
     {
         var user = await userRepository.FindByIdAsync(request.UserId);
+        if (user is null)
+            return Result.Failure(UserErrors.UserNotFound);
+        
+        if (await userRepository.FindByUserNameAsync(request.UserName) is not null)
+            return Result.Failure(UserErrors.DuplicateUserName);
 
-        user!.FirstName = request.FirstName;
+        user.FirstName = request.FirstName;
         user.LastName = request.LastName;
         user.UserName = request.UserName;
         user.PhoneNumber= request.PhoneNumber;

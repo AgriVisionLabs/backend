@@ -9,8 +9,8 @@ public class Notification : AuditableEntity
     public NotificationType Type { get; set; } = NotificationType.Alert;
     public string Message { get; set; } = default!;
     
-    public Guid FarmId { get; set; }
-    public Farm Farm { get; set; } = default!;
+    public Guid? FarmId { get; set; }
+    public Farm? Farm { get; set; } = default!;
     
     public Guid? FieldId { get; set; }
     public Field? Field { get; set; } = default!;

@@ -13,7 +13,9 @@ public class UserSubscriptionRepository(CoreDbContext coreDbContext) : IUserSubs
     }
     public async Task<UserSubscription?> GetByUserIdAsync(string userId, CancellationToken cancellationToken)
     {
-        return await coreDbContext.UserSubscriptions.FirstOrDefaultAsync(us => us.UserId == userId, cancellationToken);
+        return await coreDbContext.UserSubscriptions
+            .Include(us => us.SubscriptionPlan)
+            .FirstOrDefaultAsync(us => us.UserId == userId && !us.IsDeleted && us.EndDate > DateTime.UtcNow, cancellationToken);
     }
 
     public async Task AddAsync(UserSubscription userSubscription, CancellationToken cancellationToken)
@@ -24,7 +26,7 @@ public class UserSubscriptionRepository(CoreDbContext coreDbContext) : IUserSubs
 
     public async Task<UserSubscription?> GetByStripeSubscriptionIdAsync(string stripeSubscriptionId, CancellationToken cancellationToken)
     {
-        return await coreDbContext.UserSubscriptions.FirstOrDefaultAsync(us => us.StripeSubscriptionId == stripeSubscriptionId, cancellationToken);
+        return await coreDbContext.UserSubscriptions.FirstOrDefaultAsync(us => us.StripeSubscriptionId == stripeSubscriptionId && !us.IsDeleted && us.EndDate > DateTime.UtcNow, cancellationToken);
     }
 
     public async Task UpdateAsync(UserSubscription subscription, CancellationToken cancellationToken)
@@ -32,6 +34,4 @@ public class UserSubscriptionRepository(CoreDbContext coreDbContext) : IUserSubs
         coreDbContext.UserSubscriptions.Update(subscription);
         await coreDbContext.SaveChangesAsync(cancellationToken);
     }
-
-
 }

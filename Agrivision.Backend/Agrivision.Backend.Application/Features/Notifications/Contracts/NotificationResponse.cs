@@ -6,7 +6,7 @@ public record NotificationResponse(
     Guid Id,
     NotificationType Type, 
     string Message,
-    Guid FarmId,
+    Guid? FarmId,
     Guid? FieldId,
     DateTime CreatedOn,
     bool IsRead

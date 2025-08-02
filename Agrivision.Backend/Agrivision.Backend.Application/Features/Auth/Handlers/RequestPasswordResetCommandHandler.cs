@@ -21,6 +21,8 @@ public class RequestPasswordResetCommandHandler(IUserRepository userRepository, 
             return Result.Failure(UserErrors.EmailNotConfirmed);
 
         var rawOtp = await otpProvider.GenerateAsync(user.Id, OtpPurpose.PasswordReset, cancellationToken);
+        if (rawOtp == "Too many OTP requests. Please wait before trying again.")
+            return Result.Failure(UserErrors.TooManyMfaRequests);
 
         await emailService.SendPasswordResetEmailAsync(user.Email, rawOtp);
 

@@ -74,5 +74,14 @@ namespace Agrivision.Backend.Api.Controllers
             var result = await mediator.Send(new GoogleLoginCommand(request.IdToken), cancellationToken);
             return result.Succeeded ? Ok(result.Value) : result.ToProblem(result.Error.ToStatusCode());
         }
+
+        [HttpPost("verify-mfa-otp")]
+        public async Task<IActionResult> VerifyMfaOtpAsync([FromBody] VerifyMfaOtpRequest request,
+            CancellationToken cancellationToken = default)
+        {
+            var result = await mediator.Send(new VerifyMfaOtpCommand(request.Email, request.OtpCode),
+                cancellationToken);
+            return result.Succeeded ? Ok(result.Value) : result.ToProblem(result.Error.ToStatusCode());
+        }
     }
 }

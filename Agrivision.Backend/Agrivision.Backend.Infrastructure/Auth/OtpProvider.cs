@@ -16,7 +16,7 @@ public class OtpProvider(IOtpVerificationRepository otpVerificationRepository, I
         {
             OtpPurpose.PasswordReset => otpOptions.Value.PasswordReset,
             OtpPurpose.EmailVerification => otpOptions.Value.Verification,
-            OtpPurpose.TwoFactorAuth => otpOptions.Value.TwoFactor,
+            OtpPurpose.MultiFactorAuth => otpOptions.Value.TwoFactor,
             _ => throw new InvalidOperationException("Unhandled OTP purpose")
         };
 
@@ -24,7 +24,7 @@ public class OtpProvider(IOtpVerificationRepository otpVerificationRepository, I
         var recentCount = await otpVerificationRepository.CountRecentOtpsAsync(userId, purpose, TimeSpan.FromMinutes(config.WindowMinutes), cancellationToken);
 
         if (recentCount >= config.MaxAttempts)
-            throw new InvalidOperationException("Too many OTP requests. Please wait before trying again.");
+            return "Too many OTP requests. Please wait before trying again.";
 
         // revoke old OTPs
         await RevokeAllButLatestAsync(userId, purpose, cancellationToken);

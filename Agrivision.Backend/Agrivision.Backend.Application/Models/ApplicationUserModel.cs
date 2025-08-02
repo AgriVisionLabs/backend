@@ -18,6 +18,7 @@ public class ApplicationUserModel : IApplicationUser
     public DateTime? PasswordChangedAt { get; set; }
     public ApplicationUserStatus Status { get; set; }
     public bool EmailConfirmed { get; set; }
+    public bool TwoFactorEnabled { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
     public List<RefreshToken> RefreshTokens { get; set; }

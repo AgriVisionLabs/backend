@@ -8,10 +8,14 @@ using MediatR;
 
 namespace Agrivision.Backend.Application.Features.Fields.Handlers;
 
-public class CreateFieldCommandHandler (IFieldRepository fieldRepository, IFarmRepository farmRepository, ICropRepository cropRepository, IPlantedCropRepository plantedCropRepository) : IRequestHandler<CreateFieldCommand, Result<FieldResponse>>
+public class CreateFieldCommandHandler (IFieldRepository fieldRepository, IFarmRepository farmRepository, ICropRepository cropRepository, IPlantedCropRepository plantedCropRepository, IUserSubscriptionRepository userSubscriptionRepository) : IRequestHandler<CreateFieldCommand, Result<FieldResponse>>
 {
     public async Task<Result<FieldResponse>> Handle(CreateFieldCommand request, CancellationToken cancellationToken)
     {
+        // check if the user has a subscription
+        var userSubscription = await userSubscriptionRepository.GetByUserIdAsync(request.CreatedById, cancellationToken);
+        var maxFields = userSubscription?.SubscriptionPlan.MaxFields ?? 3;
+        
         // check if the farm exists
         var farm = await farmRepository.FindByIdWithFieldsAsync(request.FarmId, cancellationToken);
         if (farm is null)
@@ -20,6 +24,11 @@ public class CreateFieldCommandHandler (IFieldRepository fieldRepository, IFarmR
         // check if farm owner
         if (farm.CreatedById != request.CreatedById)
             return Result.Failure<FieldResponse>(FieldErrors.UnauthorizedAction);
+        
+        // check if the user has reached the maximum number of fields
+        var userFieldsCount = farm.FieldsNo;
+        if (userFieldsCount >= maxFields)
+            return Result.Failure<FieldResponse>(UserErrors.MaxFieldsReached);
         
         // check if field name is not used 
         var existingField =

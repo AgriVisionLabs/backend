@@ -11,7 +11,6 @@ public class UpdateUserProfileRequestValidator : AbstractValidator<UpdateUserPro
         RuleFor(req => req.UserName)
             .NotEmpty()
             .Length(3, 32);
-
        
         RuleFor(req => req.FirstName)
             .NotEmpty()

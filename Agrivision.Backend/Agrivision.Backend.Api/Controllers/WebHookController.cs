@@ -40,7 +40,7 @@ public class WebHookController(IMediator mediator, IStripeService stripeService,
                         return result.Succeeded? Ok()
                                                : result.ToProblem(result.Error.ToStatusCode());
                     }
-                break;
+                    break;
 
                 case EventTypes.InvoicePaymentFailed:
                     var invoice = stripeEvent.Data.Object as Stripe.Invoice;
@@ -52,7 +52,7 @@ public class WebHookController(IMediator mediator, IStripeService stripeService,
                         return result.Succeeded ? Ok()
                         : result.ToProblem(result.Error.ToStatusCode());
                     }
-                break;
+                    break;
 
                 default:
                     

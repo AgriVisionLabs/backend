@@ -12,4 +12,6 @@ public class ConversationMember
     public bool IsMuted { get; set; } = false; // if the user muted the conversation 
 
     public bool IsAdmin { get; set; } = false;
+    
+    public bool AllRead { get; set; } = false; // if the user has read all messages in the conversation
 }

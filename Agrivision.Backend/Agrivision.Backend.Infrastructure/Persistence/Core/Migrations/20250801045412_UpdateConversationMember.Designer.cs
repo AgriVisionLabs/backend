@@ -4,6 +4,7 @@ using Agrivision.Backend.Infrastructure.Persistence.Core;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
 {
     [DbContext(typeof(CoreDbContext))]
-    partial class CoreDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250801045412_UpdateConversationMember")]
+    partial class UpdateConversationMember
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1214,7 +1217,7 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
                     b.Property<DateTime?>("DeletedOn")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid?>("FarmId")
+                    b.Property<Guid>("FarmId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid?>("FieldId")
@@ -2095,7 +2098,8 @@ namespace Agrivision.Backend.Infrastructure.Persistence.Core.Migrations
                     b.HasOne("Agrivision.Backend.Domain.Entities.Core.Farm", "Farm")
                         .WithMany("Notifications")
                         .HasForeignKey("FarmId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.HasOne("Agrivision.Backend.Domain.Entities.Core.Field", "Field")
                         .WithMany("Notifications")

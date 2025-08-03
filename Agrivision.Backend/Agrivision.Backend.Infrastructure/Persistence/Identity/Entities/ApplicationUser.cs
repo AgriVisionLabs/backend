@@ -9,6 +9,7 @@ public class ApplicationUser : IdentityUser, IApplicationUser
 {
     public string FirstName { get; set; }
     public string LastName { get; set; }
+    public string? PfpImageUrl { get; set; }
     public DateTime? PasswordChangedAt { get; set; }
     public ApplicationUserStatus Status { get; set; } = ApplicationUserStatus.Active;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

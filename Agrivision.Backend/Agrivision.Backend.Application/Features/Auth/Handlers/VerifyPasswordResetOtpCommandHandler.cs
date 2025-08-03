@@ -15,13 +15,13 @@ public class VerifyPasswordResetOtpCommandHandler(IUserRepository userRepository
         // find user by email
         var user = await userRepository.FindByEmailAsync(request.Email);
         if (user is null)
-            return Result.Failure<string>(UserErrors.InvalidPasswordResetOtp);
+            return Result.Failure<string>(UserErrors.InvalidOtp);
 
         // check if the otp is valid and mark it as used 
         var isValid =
             await otpProvider.VerifyAndConsumeAsync(user.Id, request.OtpCode, OtpPurpose.PasswordReset, cancellationToken);
         if (!isValid)
-            return Result.Failure<string>(UserErrors.InvalidPasswordResetOtp);
+            return Result.Failure<string>(UserErrors.InvalidOtp);
         
         // generate identity token
         var identityToken = await userRepository.GeneratePasswordResetTokenAsync(user);

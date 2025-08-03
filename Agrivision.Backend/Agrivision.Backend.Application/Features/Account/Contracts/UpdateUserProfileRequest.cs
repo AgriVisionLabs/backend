@@ -1,6 +1,4 @@
-﻿
-
-namespace Agrivision.Backend.Application.Features.Account.Contracts;
+﻿namespace Agrivision.Backend.Application.Features.Account.Contracts;
 public record UpdateUserProfileRequest
 (
     string FirstName,

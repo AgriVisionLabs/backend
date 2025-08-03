@@ -20,13 +20,13 @@ public class VerifyMfaOtpCommandHandler(IUserRepository userRepository, IOtpProv
         // find user by email
         var user = await userRepository.FindByEmailAsync(request.Email);
         if (user is null)
-            return Result.Failure<AuthResponse>(UserErrors.InvalidPasswordResetOtp);
+            return Result.Failure<AuthResponse>(UserErrors.InvalidOtp);
 
         // check if the otp is valid and mark it as used 
         var isValid =
             await otpProvider.VerifyAndConsumeAsync(user.Id, request.OtpCode, OtpPurpose.MultiFactorAuth, cancellationToken);
         if (!isValid)
-            return Result.Failure<AuthResponse>(UserErrors.InvalidPasswordResetOtp);
+            return Result.Failure<AuthResponse>(UserErrors.InvalidOtp);
         
         var userRoles = await userRepository.GetRolesAsync(user);
 

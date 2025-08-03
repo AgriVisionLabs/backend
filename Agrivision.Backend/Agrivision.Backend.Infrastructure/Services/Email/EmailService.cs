@@ -69,7 +69,7 @@ public class EmailService(IOptions<MailSettings> mailSettings,IOptions<AppSettin
             {"{{otp_code}}", otp},
         });
 
-        await SendEmailAsync(email, $"{otp} - Agrivision: Reset Password", emailBody);
+        await SendEmailAsync(email, $"{otp} - Agrivision: MFA OTP", emailBody);
     }
     
     public async Task SendInvitationEmail(string farmName, string senderName, string recipientEmail, string token)

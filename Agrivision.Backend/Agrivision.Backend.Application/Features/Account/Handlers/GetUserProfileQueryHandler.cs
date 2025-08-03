@@ -13,7 +13,5 @@ public class GetUserProfileQueryHandler(IUserRepository userRepository): IReques
         var user = await userRepository.FindByIdAsync(request.userId);
        
         return Result.Success(user.Adapt<UserProfileResponse>());
-
-
     }
 }

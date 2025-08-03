@@ -22,21 +22,45 @@ public class AccountsController(IMediator mediator, ILogger<AccountsController> 
     public async Task<IActionResult> Info(CancellationToken cancellationToken)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrEmpty(userId))
+            return Result.Failure(TokenErrors.InvalidToken).ToProblem(TokenErrors.InvalidToken.ToStatusCode());
 
-        var result =await mediator.Send(new GetUserProfileQuery(userId!), cancellationToken);
+        var result =await mediator.Send(new GetUserProfileQuery(userId), cancellationToken);
 
         return result.Succeeded ? Ok(result.Value) : result.ToProblem(result.Error.ToStatusCode());
 
     }
+    
     [HttpPut("")]
-    public async Task<IActionResult> Info(UpdateUserProfileRequest request, CancellationToken cancellationToken)
+    public async Task<IActionResult> Info([FromBody] UpdateUserProfileRequest request, CancellationToken cancellationToken)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrEmpty(userId))
+            return Result.Failure(TokenErrors.InvalidToken).ToProblem(TokenErrors.InvalidToken.ToStatusCode());
+        
         var result = await mediator.Send(new UpdateUserProfileCommand
-                                             (userId!,request.FirstName, request.LastName, request.UserName, request.PhoneNumber), cancellationToken);
+                                             (userId, request.FirstName, request.LastName, request.UserName, request.PhoneNumber), cancellationToken);
 
-        return result.Succeeded ? Ok(result) : result.ToProblem(result.Error.ToStatusCode());
+        return result.Succeeded ? NoContent() : result.ToProblem(result.Error.ToStatusCode());
 
+    }
+    
+    [HttpPut("update-profile-image")]
+    public async Task<IActionResult> UpdateProfileImage([FromForm] PfpRequest request, CancellationToken cancellationToken)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrEmpty(userId))
+            return Result.Failure(TokenErrors.InvalidToken).ToProblem(TokenErrors.InvalidToken.ToStatusCode());
+
+        var command = new UpdatePfpCommand
+        {
+            UserId = userId,
+            Image = request.Image
+        };
+
+        var result = await mediator.Send(command, cancellationToken);
+
+        return result.Succeeded ? Ok(result.Value) : result.ToProblem(result.Error.ToStatusCode());
     }
 
     [HttpPut("change-password")]

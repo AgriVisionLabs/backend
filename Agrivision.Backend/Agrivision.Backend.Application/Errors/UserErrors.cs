@@ -21,7 +21,7 @@ public static class UserErrors
         new("User.GlobalRoleAssignmentFailed", "Global role assignment failed.");
     public static readonly Error ResetPasswordFailed =
         new("User.ResetPasswordFailed", "Reset password failed.");
-    public static readonly Error InvalidPasswordResetOtp = new("User.InvalidPasswordResetOtp", "Invalid or expired OTP.");
+    public static readonly Error InvalidOtp = new("User.InvalidOtp", "Invalid or expired OTP.");
     public static readonly Error InvalidPasswordResetToken = new("User.InvalidPasswordResetToken", "Invalid or expired password reset token.");
     public static readonly Error InvalidGoogleToken = new("User.InvalidGoogleToken", "Invalid Google ID token.");
     public static readonly Error MaxFarmsReached = new("User.MaxFarmsReached", "You have reached the maximum number of farms allowed for your subscription plan.");
